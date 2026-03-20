@@ -1,0 +1,7 @@
+[
+  {"id": "games", "name": "Игры", "name_en": "Games", "emoji": "🎮"},
+  {"id": "programming", "name": "Программирование", "name_en": "Programming", "emoji": "💻"},
+  {"id": "memes", "name": "Мемы", "name_en": "Memes", "emoji": "😂"},
+  {"id": "discussion", "name": "Обсуждение", "name_en": "Discussion", "emoji": "💬"},
+  {"id": "news", "name": "Новости", "name_en": "News", "emoji": "📰"}
+]
