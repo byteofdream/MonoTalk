@@ -1,0 +1,5 @@
+# Запрет доступа к JSON файлам извне
+<FilesMatch "\.json$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
