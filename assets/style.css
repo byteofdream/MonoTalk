@@ -1,0 +1,1674 @@
+/**
+ * MonoTalk - Стили
+ * Минимализм: белый фон, чёрный текст, серые акценты
+ */
+
+:root,
+[data-theme="light"] {
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #666;
+    --border: #e0e0e0;
+    --accent: #333;
+    --accent-hover: #000;
+    --card-bg: #fafafa;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --radius: 12px;
+    --transition: 0.2s ease;
+    --red: #e53935;
+}
+
+[data-theme="dark"] {
+    --bg: #121212;
+    --text: #e4e4e4;
+    --text-muted: #a0a0a0;
+    --border: #333;
+    --accent: #b0b0b0;
+    --accent-hover: #fff;
+    --card-bg: #1e1e1e;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --red: #ef5350;
+}
+
+[data-theme="dark"] .flash-success {
+    background: rgba(46, 125, 50, 0.2);
+    color: #81c784;
+}
+
+[data-theme="dark"] .flash-error {
+    background: rgba(198, 40, 40, 0.2);
+    color: #e57373;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Навигация */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    transition: opacity var(--transition);
+}
+
+.logo:hover {
+    opacity: 0.8;
+}
+
+.nav-search {
+    display: flex;
+    flex: 1;
+    max-width: 400px;
+    margin: 0 1.5rem;
+}
+
+.nav-search-input {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px 0 0 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.nav-search-input:focus {
+    outline: none;
+    border-color: var(--text);
+}
+
+.nav-search-btn {
+    padding: 0.5rem 0.75rem;
+    background: var(--text);
+    color: var(--bg);
+    border: 1px solid var(--text);
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.nav-search-btn:hover {
+    background: var(--accent-hover);
+}
+
+/* Language switcher */
+.lang-switcher {
+    position: relative;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--text);
+}
+
+.lang-btn:hover {
+    background: var(--card-bg);
+}
+
+.lang-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.35rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    min-width: 140px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: all var(--transition);
+}
+
+.lang-switcher:hover .lang-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.lang-dropdown a {
+    display: block;
+    padding: 0.6rem 1rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: background var(--transition);
+}
+
+.lang-dropdown a:hover {
+    background: var(--card-bg);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition);
+}
+
+.nav-links a:hover {
+    color: var(--accent-hover);
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    font-family: inherit;
+}
+
+.dropdown-arrow {
+    font-size: 0.6rem;
+    opacity: 0.6;
+    transition: transform var(--transition);
+}
+
+.dropdown:hover .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.nav-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.nav-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition);
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: background var(--transition);
+}
+
+.dropdown-menu a:hover {
+    background: var(--card-bg);
+}
+
+/* Контейнер */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    flex: 1;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Reddit-style Layout */
+.main-layout {
+    display: flex;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    flex: 1;
+    animation: pageIn 0.4s ease;
+}
+
+.content-area {
+    flex: 1;
+    min-width: 0;
+    max-width: 740px;
+}
+
+.sidebar {
+    width: 312px;
+    flex-shrink: 0;
+}
+
+/* Feed header */
+.feed-header {
+    margin-bottom: 1rem;
+}
+
+.sort-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    overflow: hidden;
+}
+
+.sort-tab {
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all var(--transition);
+    border-bottom: 2px solid transparent;
+}
+
+.sort-tab:hover {
+    color: var(--text);
+    background: rgba(0,0,0,0.03);
+}
+
+.sort-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--text);
+}
+
+/* Reddit post cards */
+.posts-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.post-card-reddit {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-top: none;
+    transition: background var(--transition);
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.post-card-reddit:first-of-type {
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.post-card-reddit:hover {
+    background: var(--card-bg);
+}
+
+.post-vote-side {
+    width: 48px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(0,0,0,0.02);
+}
+
+.vote-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    transition: all var(--transition);
+    border-radius: 4px;
+}
+
+.vote-btn:hover:not(:disabled) {
+    background: rgba(0,0,0,0.08);
+    color: var(--text);
+}
+
+.vote-btn.liked {
+    color: var(--red);
+}
+
+.vote-btn.liked:hover:not(:disabled) {
+    background: rgba(229, 57, 53, 0.1);
+}
+
+.vote-icon {
+    display: block;
+    transition: transform var(--transition);
+}
+
+.vote-btn:hover:not(:disabled) .vote-icon {
+    transform: scale(1.15);
+}
+
+.vote-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.post-body {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    min-width: 0;
+}
+
+.post-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.post-category-badge {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: inline-block;
+    margin-bottom: 0.35rem;
+}
+
+.post-card-reddit .post-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    transition: color var(--transition);
+}
+
+.post-card-reddit:hover .post-title {
+    color: var(--accent-hover);
+}
+
+.post-card-reddit .post-excerpt {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+    max-height: 8em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+}
+
+.read-more {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.post-meta-line {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.post-meta-line a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.post-meta-line a:hover {
+    text-decoration: underline;
+}
+
+.post-meta-line strong {
+    font-weight: 600;
+}
+
+.post-actions-bar {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.action-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color var(--transition);
+}
+
+.action-link:hover {
+    color: var(--text);
+}
+
+/* Sidebar */
+.sidebar-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.sidebar-header p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.sidebar-btn {
+    text-align: center;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: background var(--transition);
+    border-radius: 6px;
+}
+
+.category-item:hover, .category-item.active {
+    background: rgba(0,0,0,0.05);
+}
+
+.cat-emoji {
+    font-size: 1rem;
+}
+
+.rules-list {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding-left: 1.25rem;
+    line-height: 1.7;
+}
+
+.btn-rules-link {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition);
+}
+
+.btn-rules-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+.sidebar-footer {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.empty-state-reddit {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.empty-state-reddit p {
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+}
+
+/* Плавный переход при загрузке страницы */
+main.container, .main-layout {
+    animation: pageIn 0.4s ease;
+}
+
+@keyframes pageIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Кнопки */
+.btn-primary {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--text);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition);
+    margin-left: 0.5rem;
+}
+
+.btn-secondary:hover {
+    border-color: var(--text);
+    background: var(--card-bg);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* Страница главная */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.filters {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    background: var(--bg);
+}
+
+/* Карточки постов */
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.post-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: all var(--transition);
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.post-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.post-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.post-category {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    transition: color var(--transition);
+}
+
+.post-card:hover .post-title {
+    color: var(--accent-hover);
+}
+
+.post-excerpt {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.post-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.like-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: all var(--transition);
+}
+
+.like-btn:hover:not(:disabled) {
+    background: rgba(229, 57, 53, 0.1);
+}
+
+.like-btn:disabled {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.like-icon {
+    font-size: 1rem;
+    transition: transform var(--transition);
+}
+
+.like-btn.liked .like-icon {
+    color: var(--red);
+}
+
+.like-btn:hover:not(:disabled) .like-icon {
+    transform: scale(1.2);
+}
+
+.like-btn.liked:hover:not(:disabled) .like-icon {
+    animation: likePop 0.3s ease;
+}
+
+@keyframes likePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1.1); }
+}
+
+.comments-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color var(--transition);
+}
+
+.comments-link:hover {
+    color: var(--text);
+}
+
+/* Пустое состояние */
+.empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 3rem;
+}
+
+.empty-state a {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+/* Flash сообщения */
+.flash {
+    padding: 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+}
+
+.flash-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.flash-error {
+    background: #ffebee;
+    color: #c62828;
+}
+
+/* Auth страницы */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.4s ease;
+}
+
+.auth-card h1 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.auth-link {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.auth-link a {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: var(--bg);
+    color: var(--text);
+    transition: border-color var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--text);
+}
+
+.form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* Страница поста */
+.post-full {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    animation: fadeIn 0.4s ease;
+}
+
+.post-full .post-title {
+    font-size: 1.75rem;
+    margin: 0.5rem 0 1rem;
+}
+
+.post-content {
+    margin: 1.5rem 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Post page Reddit style */
+.post-page-layout .content-area {
+    max-width: none;
+}
+
+.post-full-reddit {
+    display: flex;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease;
+}
+
+.post-vote-vertical {
+    width: 48px;
+    padding: 1rem 0.5rem;
+}
+
+.post-full-body {
+    flex: 1;
+    padding: 1.5rem 2rem;
+}
+
+.post-full-reddit .post-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0.5rem 0 1rem;
+    line-height: 1.35;
+}
+
+.post-full-reddit .post-content {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin: 1.5rem 0;
+}
+
+/* Comments Reddit style */
+.comments-section-reddit h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.comment-login-prompt {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.comment-card-reddit {
+    display: flex;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+}
+
+.comment-vote-side {
+    width: 40px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    background: rgba(0,0,0,0.02);
+}
+
+.comment-body {
+    flex: 1;
+    padding: 1rem 1.25rem;
+}
+
+.comment-card-reddit .comment-header {
+    margin-bottom: 0.5rem;
+}
+
+.comment-card-reddit .comment-content {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.like-btn-sm .vote-icon {
+    font-size: 1rem;
+}
+
+.post-stats-dl {
+    font-size: 0.95rem;
+}
+
+.post-stats-dl dt {
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 0.75rem;
+}
+
+.post-stats-dl dt:first-child {
+    margin-top: 0;
+}
+
+.post-stats-dl dd {
+    margin-left: 0;
+}
+
+/* Комментарии */
+.comments-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.comment-form {
+    margin-bottom: 2rem;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 1rem;
+    min-height: 100px;
+    resize: vertical;
+    margin-bottom: 0.75rem;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.comment-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    animation: fadeIn 0.4s ease;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.comment-author {
+    font-weight: 600;
+}
+
+.comment-date {
+    color: var(--text-muted);
+}
+
+.comment-content {
+    margin-bottom: 0.5rem;
+}
+
+.like-btn-sm {
+    font-size: 0.85rem;
+}
+
+/* Create страница */
+.create-card {
+    max-width: 600px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.4s ease;
+}
+
+.create-card h1 {
+    margin-bottom: 1.5rem;
+}
+
+.create-form textarea {
+    min-height: 200px;
+}
+
+/* Welcome страница */
+.welcome-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.welcome-card h1 {
+    margin-bottom: 1rem;
+}
+
+.welcome-card p {
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.welcome-card .btn-primary,
+.welcome-card .btn-secondary {
+    margin-top: 1rem;
+}
+
+.popular-posts h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.post-card-mini {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition);
+    animation: fadeIn 0.4s ease;
+}
+
+.post-card-mini:hover {
+    box-shadow: var(--shadow);
+}
+
+.post-card-mini h3 {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+}
+
+.post-stats {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Профиль */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.profile-info h1 {
+    font-size: 1.5rem;
+}
+
+.profile-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.user-posts h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Rules page */
+.rules-page {
+    max-width: 720px;
+}
+
+.rules-content h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.rules-intro {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.rules-section {
+    margin-bottom: 2.5rem;
+}
+
+.rules-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.section-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.rules-full-list {
+    padding-left: 1.5rem;
+    line-height: 1.7;
+}
+
+.rules-full-list li {
+    margin-bottom: 1.25rem;
+}
+
+.rules-full-list li strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.rules-full-list li p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.rules-strict { border-left: 4px solid #c62828; padding-left: 1rem; }
+.rules-important { border-left: 4px solid #f57c00; padding-left: 1rem; }
+.rules-recommended { border-left: 4px solid #2e7d32; padding-left: 1rem; }
+.rules-soft { border-left: 4px solid #1976d2; padding-left: 1rem; }
+
+.rules-footer {
+    margin-top: 2rem;
+    color: var(--text-muted);
+}
+
+.rules-footer a {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+/* Search page */
+.search-header {
+    margin-bottom: 1.5rem;
+}
+
+.search-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--text);
+}
+
+.search-results-count {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.search-hint {
+    color: var(--text-muted);
+    padding: 2rem;
+}
+
+.search-tips {
+    padding-left: 1.25rem;
+    line-height: 1.8;
+    font-size: 0.9rem;
+}
+
+.profile-badge {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #1da1f2;
+    color: #ffffff;
+    font-size: 12px;
+    margin-left: 6px;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(29, 161, 242, 0.18);
+}
+
+/* News page */
+.news-page h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.news-intro {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.news-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+.news-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.news-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+}
+
+.news-card p {
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* Settings page */
+.settings-page h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.settings-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-tab {
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all var(--transition);
+}
+
+.settings-tab:hover {
+    color: var(--text);
+}
+
+.settings-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--text);
+}
+
+.settings-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+}
+
+.settings-section p {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.lang-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.lang-option {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all var(--transition);
+}
+
+.lang-option:hover, .lang-option.active {
+    border-color: var(--text);
+    background: var(--card-bg);
+}
+
+.about-section p {
+    max-width: 600px;
+}
+
+.about-github {
+    margin-top: 1.5rem;
+}
+
+.github-btn {
+    text-decoration: none;
+}
+
+.theme-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text);
+    transition: all var(--transition);
+}
+
+.theme-option:hover, .theme-option.active {
+    border-color: var(--accent);
+}
+
+.theme-preview {
+    width: 48px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.theme-light {
+    background: linear-gradient(to bottom, #fff 50%, #f0f0f0 50%);
+}
+
+.theme-dark {
+    background: linear-gradient(to bottom, #2d2d2d 50%, #1a1a1a 50%);
+}
+
+[data-theme="dark"] .theme-light {
+    border-color: #555;
+}
+
+[data-theme="dark"] .theme-dark {
+    border-color: var(--border);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .main-layout {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        max-width: 740px;
+        order: -1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .sidebar-card {
+        flex: 1;
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .nav-search {
+        order: 3;
+        width: 100%;
+        max-width: none;
+        margin: 0.75rem 0 0;
+    }
+    
+    .nav-links {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .nav-links > a {
+        font-size: 0.9rem;
+    }
+    
+    .lang-btn {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .main-layout {
+        padding: 1rem;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    .post-vote-side {
+        width: 40px;
+        padding: 0.25rem;
+    }
+    
+    .post-body {
+        padding: 0.75rem 1rem;
+    }
+    
+    .post-card-reddit .post-title {
+        font-size: 1.05rem;
+    }
+    
+    .post-card-reddit .post-excerpt {
+        -webkit-line-clamp: 3;
+    }
+    
+    .sort-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .sort-tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .post-full-reddit {
+        flex-direction: column;
+    }
+    
+    .post-vote-vertical {
+        width: 100%;
+        flex-direction: row;
+        padding: 0.5rem 1rem;
+    }
+    
+    .post-full-body {
+        padding: 1rem 1.25rem;
+    }
+    
+    .post-full-reddit .post-title {
+        font-size: 1.35rem;
+    }
+    
+    .comment-card-reddit {
+        flex-direction: column;
+    }
+    
+    .comment-vote-side {
+        width: 100%;
+        flex-direction: row;
+        padding: 0.25rem 1rem;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .btn-secondary {
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+}
