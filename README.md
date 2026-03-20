@@ -76,7 +76,7 @@ A modern, framework-free PHP forum with a Reddit-inspired interface. Lightweight
 1. Clone or download the repository:
 
 ```bash
-git clone https://github.com/your-username/MonoTalk.git
+git clone https://github.com/byteofdream/MonoTalk.git
 cd MonoTalk
 ```
 
@@ -109,7 +109,7 @@ define('BASE_URL', '/');
 define('UPLOAD_DIR', __DIR__ . '/../uploads/');
 
 // GitHub repo URL (shown in Settings → About)
-define('GITHUB_URL', 'https://github.com/your-username/MonoTalk');
+define('GITHUB_URL', 'https://github.com/byteofdream/MonoTalk');
 ```
 
 ### Subfolder installation
