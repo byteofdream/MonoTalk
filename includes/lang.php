@@ -1,0 +1,185 @@
+<?php
+/**
+ * MonoTalk - Система переводов
+ */
+
+$translations = [
+    'ru' => [
+        'nav_home' => 'Главная',
+        'nav_create' => 'Создать пост',
+        'nav_profile' => 'Профиль',
+        'nav_logout' => 'Выйти',
+        'nav_login' => 'Войти',
+        'nav_register' => 'Регистрация',
+        'nav_news' => 'Новости',
+        'nav_settings' => 'Настройки',
+        'nav_search_placeholder' => 'Поиск по топикам...',
+        'lang_ru' => 'Русский',
+        'lang_en' => 'English',
+        'sort_hot' => 'Горячее',
+        'sort_new' => 'Новые',
+        'sort_popular' => 'Популярные',
+        'sort_discussed' => 'Обсуждаемые',
+        'sidebar_welcome' => 'Добро пожаловать в главное сообщество MonoTalk',
+        'sidebar_join' => 'Присоединиться',
+        'sidebar_categories' => 'Категории',
+        'sidebar_rules' => 'Правила',
+        'sidebar_reset' => 'Сбросить фильтр',
+        'rule1' => 'Будьте вежливы и уважайте других',
+        'rule2' => 'Не спамьте и не дублируйте контент',
+        'rule3' => 'Пишите по теме выбранной категории',
+        'rule4' => 'Запрещены оскорбления и травля',
+        'btn_all_rules' => 'Все правила сообщества →',
+        'post_published' => 'Опубликовано',
+        'post_comments' => 'комментариев',
+        'post_share' => 'Поделиться',
+        'post_save' => 'Сохранить',
+        'post_in' => 'в',
+        'read_more' => 'Читать далее',
+        'empty_posts' => 'Пока нет постов в этой ленте.',
+        'btn_create_first' => 'Создать первый пост',
+        'like_title' => 'Лайк',
+        'search_title' => 'Поиск по топикам',
+        'search_placeholder' => 'Поиск по заголовкам и тексту постов...',
+        'search_btn' => 'Найти',
+        'search_found' => 'Найдено постов',
+        'search_no_results' => 'По запросу ничего не найдено.',
+        'search_try_other' => 'Попробуйте другие слова или проверьте запрос на опечатки.',
+        'create_title' => 'Создать пост',
+        'create_title_label' => 'Заголовок',
+        'create_category_label' => 'Категория',
+        'create_choose_category' => 'Выберите категорию',
+        'create_content_label' => 'Текст поста',
+        'create_placeholder' => 'О чём ваш пост?',
+        'create_details' => 'Подробности...',
+        'create_anonymous' => 'Опубликовать анонимно',
+        'create_submit' => 'Опубликовать',
+        'welcome_title' => 'Добро пожаловать',
+        'welcome_hi' => 'Привет',
+        'welcome_text1' => 'Добро пожаловать в MonoTalk. Ты успешно зарегистрировался.',
+        'welcome_text2' => 'Здесь ты можешь создавать посты, комментировать и ставить лайки.',
+        'welcome_home' => 'На главную',
+        'popular_posts' => 'Популярные посты',
+        'empty_welcome' => 'Пока нет постов.',
+        'create_first' => 'Создай первый!',
+        'profile_since' => 'На сайте с',
+        'profile_badge' => 'Ваш профиль',
+        'profile_my_posts' => 'Мои посты',
+        'profile_user_posts' => 'Посты пользователя',
+        'profile_no_posts' => 'Вы ещё не создавали постов.',
+        'profile_no_posts_other' => 'Пользователь пока не создавал постов.',
+        'profile_avatar_url' => 'Аватар (URL)',
+        'profile_avatar_file' => 'Или загрузить файл',
+        'profile_save' => 'Сохранить',
+        'post_comments_count' => 'комментариев',
+        'post_about' => 'О посте',
+        'post_author' => 'Автор',
+        'post_category' => 'Категория',
+        'post_published_at' => 'Опубликовано',
+        'post_likes' => 'Лайков',
+    ],
+    'en' => [
+        'nav_home' => 'Home',
+        'nav_create' => 'Create post',
+        'nav_profile' => 'Profile',
+        'nav_logout' => 'Logout',
+        'nav_login' => 'Login',
+        'nav_register' => 'Register',
+        'nav_news' => 'News',
+        'nav_settings' => 'Settings',
+        'nav_search_placeholder' => 'Search topics...',
+        'lang_ru' => 'Русский',
+        'lang_en' => 'English',
+        'sort_hot' => 'Hot',
+        'sort_new' => 'New',
+        'sort_popular' => 'Popular',
+        'sort_discussed' => 'Discussed',
+        'sidebar_welcome' => 'Welcome to the main MonoTalk community',
+        'sidebar_join' => 'Join',
+        'sidebar_categories' => 'Categories',
+        'sidebar_rules' => 'Rules',
+        'sidebar_reset' => 'Reset filter',
+        'rule1' => 'Be polite and respect others',
+        'rule2' => 'No spam or duplicate content',
+        'rule3' => 'Stay on topic for the selected category',
+        'rule4' => 'No insults or harassment',
+        'btn_all_rules' => 'All community rules →',
+        'post_published' => 'Published by',
+        'post_comments' => 'comments',
+        'post_share' => 'Share',
+        'post_save' => 'Save',
+        'post_in' => 'in',
+        'read_more' => 'Read more',
+        'empty_posts' => 'No posts in this feed yet.',
+        'btn_create_first' => 'Create first post',
+        'like_title' => 'Like',
+        'search_title' => 'Search topics',
+        'search_placeholder' => 'Search by post titles and content...',
+        'search_btn' => 'Search',
+        'search_found' => 'Posts found',
+        'search_no_results' => 'Nothing found for this query.',
+        'search_try_other' => 'Try different words or check for typos.',
+        'create_title' => 'Create post',
+        'create_title_label' => 'Title',
+        'create_category_label' => 'Category',
+        'create_choose_category' => 'Choose category',
+        'create_content_label' => 'Post content',
+        'create_placeholder' => 'What is your post about?',
+        'create_details' => 'Details...',
+        'create_anonymous' => 'Post anonymously',
+        'create_submit' => 'Publish',
+        'welcome_title' => 'Welcome',
+        'welcome_hi' => 'Hi',
+        'welcome_text1' => 'Welcome to MonoTalk. You have successfully registered.',
+        'welcome_text2' => 'Here you can create posts, comment and like.',
+        'welcome_home' => 'Go to home',
+        'popular_posts' => 'Popular posts',
+        'empty_welcome' => 'No posts yet.',
+        'create_first' => 'Create the first one!',
+        'profile_since' => 'Member since',
+        'profile_badge' => 'Your profile',
+        'profile_my_posts' => 'My posts',
+        'profile_user_posts' => 'User posts',
+        'profile_no_posts' => 'You have not created any posts yet.',
+        'profile_no_posts_other' => 'This user has not created any posts yet.',
+        'profile_avatar_url' => 'Avatar (URL)',
+        'profile_avatar_file' => 'Or upload file',
+        'profile_save' => 'Save',
+        'post_comments_count' => 'comments',
+        'post_about' => 'About post',
+        'post_author' => 'Author',
+        'post_category' => 'Category',
+        'post_published_at' => 'Published',
+        'post_likes' => 'Likes',
+    ],
+];
+
+function getLang(): string {
+    $allowed = ['ru', 'en'];
+    if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed)) {
+        $lang = $_GET['lang'];
+        $_SESSION['lang'] = $lang;
+        setcookie('lang', $lang, time() + 60 * 60 * 24 * 365, '/');
+        return $lang;
+    }
+    if (isset($_SESSION['lang']) && in_array($_SESSION['lang'], $allowed)) {
+        return $_SESSION['lang'];
+    }
+    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], $allowed)) {
+        $_SESSION['lang'] = $_COOKIE['lang'];
+        return $_COOKIE['lang'];
+    }
+    $_SESSION['lang'] = 'ru';
+    return 'ru';
+}
+
+function t(string $key): string {
+    global $translations;
+    $lang = getLang();
+    return $translations[$lang][$key] ?? $translations['ru'][$key] ?? $key;
+}
+
+function catName(array $cat, string $lang): string {
+    $key = $lang === 'en' ? 'name_en' : 'name';
+    return $cat[$key] ?? $cat['name'] ?? '';
+}
