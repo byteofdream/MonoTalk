@@ -1,0 +1,11 @@
+# MonoTalk - Основной .htaccess
+# Для InfinityFree: если проект в подпапке, добавьте RewriteBase
+
+# Защита includes
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Кодировка
+AddDefaultCharset UTF-8
