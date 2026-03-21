@@ -1069,7 +1069,7 @@ main.container, .main-layout {
 }
 
 .post-content {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
     white-space: normal;
     word-wrap: break-word;
     line-height: 1.6;
