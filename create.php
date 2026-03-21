@@ -22,7 +22,7 @@ $categories = getCategories();
         <p class="create-subtitle">
             <?= $lang === 'en' ? 'Write clearly and follow community rules before publishing.' : 'Пишите по делу и соблюдайте правила сообщества перед публикацией.' ?>
         </p>
-        <form id="createPostForm" class="create-form">
+        <form id="createPostForm" class="create-form" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="title"><?= e(t('create_title_label')) ?> *</label>
                 <input type="text" id="title" name="title" required placeholder="<?= e(t('create_placeholder')) ?>">
@@ -49,7 +49,12 @@ $categories = getCategories();
             </div>
             <div class="form-group">
                 <label for="content"><?= e(t('create_content_label')) ?> *</label>
-                <textarea id="content" name="content" required placeholder="<?= e(t('create_details')) ?>"></textarea>
+                <textarea id="content" name="content" placeholder="<?= e(t('create_details')) ?>"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="post_image"><?= $lang === 'en' ? 'Image (optional)' : 'Картинка (необязательно)' ?></label>
+                <input type="file" id="post_image" name="image" accept="image/*">
+                <p class="category-help"><?= $lang === 'en' ? 'PNG, JPG, GIF, WEBP up to 5 MB.' : 'PNG, JPG, GIF, WEBP до 5 МБ.' ?></p>
             </div>
             <label class="checkbox-label">
                 <input type="checkbox" name="anonymous" value="1"> <?= e(t('create_anonymous')) ?>

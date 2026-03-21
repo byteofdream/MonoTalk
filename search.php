@@ -50,6 +50,11 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
                             <a href="<?= e(BASE_URL) ?>post.php?id=<?= (int)$post['id'] ?>" class="post-link">
                                 <span class="post-category-badge"><?= e($cat['emoji'] ?? '') ?> r/<?= e(catName($cat, $lang)) ?></span>
                                 <h2 class="post-title"><?= e($post['title']) ?></h2>
+                                <?php if (!empty($post['image'])): ?>
+                                    <div class="post-image-preview-wrap">
+                                        <img src="<?= e(BASE_URL . $post['image']) ?>" alt="" class="post-image-preview">
+                                    </div>
+                                <?php endif; ?>
                                 <div class="post-excerpt"><?= nl2br(e($excerpt)) ?><?= $hasMore ? '...' : '' ?></div>
                             </a>
                             <div class="post-meta-line">

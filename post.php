@@ -14,7 +14,7 @@ $postId = (int)($_GET['id'] ?? 0);
 $post = getPostById($postId);
 
 if (!$post) {
-    header('Location: ' . BASE_URL . 'index.php');
+    header('Location: ' . BASE_URL . '404.php');
     exit;
 }
 
@@ -43,6 +43,11 @@ $pageTitle = e($post['title']);
                     · <?= e(formatDate($post['created_at'] ?? '')) ?>
                 </div>
                 <div class="post-content"><?= nl2br(e($post['content'])) ?></div>
+                <?php if (!empty($post['image'])): ?>
+                    <div class="post-full-image-wrap">
+                        <img src="<?= e(BASE_URL . $post['image']) ?>" alt="" class="post-full-image">
+                    </div>
+                <?php endif; ?>
                 <div class="post-actions-bar">
                     <span class="action-link">💬 <?= count($comments) ?> <?= e(t('post_comments_count')) ?></span>
                     <span class="action-link"><?= e(t('post_share')) ?></span>
@@ -57,7 +62,11 @@ $pageTitle = e($post['title']);
             <?php if (isLoggedIn()): ?>
             <form id="commentForm" class="comment-form">
                 <input type="hidden" name="post_id" value="<?= $postId ?>">
-                <textarea name="content" placeholder="Что вы думаете? Напишите комментарий..." required></textarea>
+                <textarea name="content" placeholder="Что вы думаете? Напишите комментарий..."></textarea>
+                <div class="form-group">
+                    <label><?= $lang === 'en' ? 'Image (optional)' : 'Картинка (необязательно)' ?></label>
+                    <input type="file" name="image" accept="image/*">
+                </div>
                 <div class="comment-form-actions">
                     <label class="checkbox-label">
                         <input type="checkbox" name="anonymous" value="1"> Анонимно
@@ -87,6 +96,11 @@ $pageTitle = e($post['title']);
                                 <span class="comment-date"><?= e(formatDate($comment['created_at'] ?? '')) ?></span>
                             </div>
                             <p class="comment-content"><?= nl2br(e($comment['content'])) ?></p>
+                            <?php if (!empty($comment['image'])): ?>
+                                <div class="comment-image-wrap">
+                                    <img src="<?= e(BASE_URL . $comment['image']) ?>" alt="" class="comment-image">
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>

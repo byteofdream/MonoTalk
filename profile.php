@@ -19,7 +19,7 @@ if ($requestedUser !== '') {
     // Смотрим чужой профиль
     $user = getUserByUsername($requestedUser);
     if (!$user) {
-        header('Location: ' . BASE_URL . 'index.php');
+        header('Location: ' . BASE_URL . '404.php');
         exit;
     }
     $isOwnProfile = false;
