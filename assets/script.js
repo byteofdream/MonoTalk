@@ -24,6 +24,81 @@ function apiUrl(path) {
     return url.replace(/([^:])\/\//g, '$1/');
 }
 
+const nativeAlert = window.alert.bind(window);
+
+function ensureAppPopup() {
+    let popup = document.getElementById('appPopup');
+    if (popup) return popup;
+
+    popup = document.createElement('div');
+    popup.id = 'appPopup';
+    popup.className = 'app-popup-overlay';
+    popup.innerHTML = `
+        <div class="app-popup-card" role="dialog" aria-modal="true" aria-labelledby="appPopupTitle">
+            <button type="button" class="app-popup-close" aria-label="Close">&times;</button>
+            <div class="app-popup-badge" id="appPopupBadge">Notice</div>
+            <h3 class="app-popup-title" id="appPopupTitle">Forum message</h3>
+            <p class="app-popup-text" id="appPopupText"></p>
+            <button type="button" class="btn-primary app-popup-action">OK</button>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    const close = () => popup.classList.remove('is-visible');
+    popup.addEventListener('click', (event) => {
+        if (event.target === popup) close();
+    });
+    popup.querySelector('.app-popup-close').addEventListener('click', close);
+    popup.querySelector('.app-popup-action').addEventListener('click', close);
+    return popup;
+}
+
+function inferPopupSeverity(message) {
+    const text = String(message || '').toLowerCase();
+    if (text.includes('ban') || text.includes('blocked') || text.includes('strike')) return 'high';
+    if (text.includes('mute') || text.includes('error') || text.includes('ошиб')) return 'medium';
+    return 'low';
+}
+
+function showAppPopup(message, options = {}) {
+    const popup = ensureAppPopup();
+    const severity = options.severity || inferPopupSeverity(message);
+
+    popup.dataset.severity = severity;
+    popup.querySelector('#appPopupTitle').textContent = options.title || 'Forum message';
+    popup.querySelector('#appPopupBadge').textContent = severity.toUpperCase();
+    popup.querySelector('#appPopupText').textContent = String(message || 'Something happened');
+    popup.classList.add('is-visible');
+}
+
+window.alert = function(message) {
+    try {
+        showAppPopup(message);
+    } catch (error) {
+        nativeAlert(message);
+    }
+};
+
+function getModerationMessage(json, fallback) {
+    if (!json || !json.moderation) {
+        return json?.error || fallback;
+    }
+
+    const parts = [json.moderation.reason || json.error || fallback];
+    if (json.moderation.strike_added) {
+        parts.push('Strikes: ' + (json.moderation.strikes || 0));
+    }
+    if (json.moderation.status === 'muted' && json.moderation.mute_until) {
+        parts.push('Muted until: ' + json.moderation.mute_until);
+    }
+    if (json.moderation.status === 'banned') {
+        parts.push('Account is banned');
+    }
+
+    return parts.join('\n');
+}
+
 // Фильтры на главной
 function initFilters() {
     const categoryFilter = document.getElementById('categoryFilter');
@@ -162,7 +237,7 @@ function initCreatePostForm() {
             if (json.success) {
                 window.location.href = json.redirect || ('post.php?id=' + json.post_id);
             } else {
-                alert(json.error || 'Ошибка создания поста');
+                alert(getModerationMessage(json, 'Ошибка создания поста'));
                 btn.disabled = false;
                 btn.textContent = 'Опубликовать';
             }
@@ -313,7 +388,7 @@ function initCommentForm() {
                     h2.textContent = 'Комментарии (' + count + ')';
                 }
             } else {
-                alert(json.error || 'Ошибка');
+                alert(getModerationMessage(json, 'Ошибка'));
             }
         } catch (err) {
             alert('Ошибка сети');
@@ -447,6 +522,10 @@ function initSubscriptionButtons() {
                         // Switch to subscribe
                         this.textContent = this.getAttribute('data-subscribe-text') || 'Подписаться';
                         this.setAttribute('data-action', 'subscribe');
+                    }
+                    const subscribersCount = document.getElementById('subscribersCount');
+                    if (subscribersCount && typeof data.subscribers_count !== 'undefined') {
+                        subscribersCount.textContent = data.subscribers_count;
                     }
                 } else {
                     alert(data.error || 'Ошибка');

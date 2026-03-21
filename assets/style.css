@@ -86,6 +86,27 @@ body {
     opacity: 0.8;
 }
 
+.logo-text {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    line-height: 1;
+}
+
+.logo-beta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.18rem 0.42rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
 .logo-mark {
     width: 22px;
     height: 22px;
@@ -437,21 +458,29 @@ body {
 
 .banner-info {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .banner-title {
     font-size: 1.8rem;
     font-weight: 700;
-    margin: 0 0 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    margin: 0;
+    display: block;
+    position: relative;
+    padding-left: 3.35rem;
+    min-height: 2.5rem;
     color: var(--text);
 }
 
 .banner-emoji {
     font-size: 2.5rem;
     line-height: 1;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .banner-description {
@@ -459,6 +488,12 @@ body {
     margin: 0;
     font-size: 1rem;
     line-height: 1.6;
+}
+
+.subreddit-meta {
+    margin: 0.35rem 0 0.9rem 3.35rem;
+    color: var(--text-muted);
+    font-size: 0.92rem;
 }
 
 /* Reddit post cards */
@@ -730,6 +765,22 @@ a.sidebar-subreddit-btn.btn-secondary {
 
 .cat-emoji {
     font-size: 1rem;
+}
+
+.cat-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cat-name {
+    font-weight: 500;
+}
+
+.cat-subs {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.35;
 }
 
 .rules-list {
@@ -1996,6 +2047,11 @@ main.container, .main-layout {
     .navbar {
         padding: 1rem;
         flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .logo {
+        flex-shrink: 0;
     }
     
     .nav-search {
@@ -2003,15 +2059,28 @@ main.container, .main-layout {
         width: 100%;
         max-width: none;
         margin: 0.75rem 0 0;
+        min-width: 0;
     }
     
     .nav-links {
         gap: 0.75rem;
         flex-wrap: wrap;
+        width: 100%;
     }
     
     .nav-links > a {
         font-size: 0.9rem;
+    }
+
+    .sort-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: thin;
+    }
+
+    .sort-tab {
+        flex: 0 0 auto;
+        white-space: nowrap;
     }
     
     .lang-btn {
@@ -2058,7 +2127,7 @@ main.container, .main-layout {
     }
     
     .sort-tabs {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
     
     .sort-tab {
@@ -2077,10 +2146,16 @@ main.container, .main-layout {
 
     .banner-title {
         font-size: 1.5rem;
+        padding-left: 2.75rem;
+        min-height: 2rem;
     }
 
     .banner-emoji {
         font-size: 2rem;
+    }
+
+    .subreddit-meta {
+        margin: 0.3rem 0 0.75rem 2.75rem;
     }
 
     .banner-header .btn-primary {
@@ -2111,6 +2186,33 @@ main.container, .main-layout {
     
     .post-full-reddit .post-title {
         font-size: 1.35rem;
+    }
+
+    .post-meta-line {
+        line-height: 1.8;
+    }
+
+    .comments-section-reddit h2 {
+        font-size: 1.15rem;
+    }
+
+    .comment-form {
+        margin-bottom: 1.5rem;
+    }
+
+    .comment-form textarea,
+    .create-form textarea {
+        font-size: 16px;
+    }
+
+    .comment-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .comment-form-actions .checkbox-label {
+        justify-content: flex-start;
     }
     
     .comment-card-reddit {
@@ -2144,6 +2246,8 @@ main.container, .main-layout {
     .category-quick-btn {
         font-size: 0.85rem;
         padding: 0.4rem 0.7rem;
+        flex: 1 1 calc(50% - 0.25rem);
+        justify-content: center;
     }
 
     .auth-card,
@@ -2179,14 +2283,58 @@ main.container, .main-layout {
         font-size: 1.25rem;
     }
 
+    .logo-text {
+        gap: 0.35rem;
+    }
+
+    .logo-beta {
+        font-size: 0.62rem;
+        padding: 0.14rem 0.34rem;
+    }
+
     .nav-links {
         width: 100%;
-        justify-content: flex-start;
+        justify-content: stretch;
         gap: 0.5rem;
+    }
+
+    .nav-links > a,
+    .nav-links > .lang-switcher,
+    .nav-links > .dropdown {
+        flex: 1 1 calc(50% - 0.25rem);
+        min-width: 0;
     }
 
     .nav-links > a {
         font-size: 0.85rem;
+        justify-content: center;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card-bg);
+    }
+
+    .nav-links > a.btn-primary,
+    .nav-links > a.btn-primary:hover {
+        background: var(--text);
+        border-color: var(--text);
+        color: var(--bg);
+    }
+
+    .lang-btn,
+    .dropdown-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        background: var(--card-bg);
+    }
+
+    .dropdown-menu,
+    .lang-dropdown {
+        width: 100%;
+        right: auto;
+        left: 0;
     }
 
     .main-layout,
@@ -2194,8 +2342,39 @@ main.container, .main-layout {
         padding: 0.75rem;
     }
 
+    .sidebar {
+        gap: 0.75rem;
+    }
+
+    .sidebar-card {
+        width: 100%;
+    }
+
+    .post-card-reddit {
+        flex-direction: column;
+    }
+
+    .post-vote-side {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 0.45rem 0.75rem;
+    }
+
     .post-body {
         padding: 0.65rem 0.75rem;
+    }
+
+    .post-full-body {
+        padding: 0.9rem;
+    }
+
+    .post-full-reddit .post-title {
+        font-size: 1.12rem;
+    }
+
+    .post-meta-line {
+        font-size: 0.88rem;
     }
 
     .post-card-reddit .post-title {
@@ -2211,6 +2390,16 @@ main.container, .main-layout {
         padding: 0.75rem;
     }
 
+    .comment-card-reddit .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .comment-date {
+        display: inline-block;
+        margin-top: 0.2rem;
+    }
+
     .create-card,
     .auth-card,
     .profile-card,
@@ -2218,6 +2407,24 @@ main.container, .main-layout {
     .news-card {
         padding: 1rem;
         border-radius: 10px;
+    }
+
+    .create-subtitle,
+    .category-help {
+        font-size: 0.88rem;
+    }
+
+    .create-form textarea {
+        min-height: 180px;
+    }
+
+    .category-quick-list {
+        flex-direction: column;
+    }
+
+    .category-quick-btn {
+        width: 100%;
+        flex: 1 1 100%;
     }
 
     .create-form .btn-primary {
@@ -2419,4 +2626,144 @@ main.container, .main-layout {
     background: var(--card-bg);
     border: 1px solid var(--border);
     color: var(--text);
+}
+
+.app-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 10, 14, 0.62);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+    z-index: 1600;
+    backdrop-filter: blur(6px);
+}
+
+.app-popup-overlay.is-visible {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+.app-popup-card {
+    position: relative;
+    width: min(100%, 500px);
+    padding: 1.35rem;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 32%),
+        linear-gradient(180deg, var(--card-bg), var(--bg));
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+    animation: slideUp 0.25s ease;
+}
+
+.app-popup-close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.app-popup-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 82px;
+    padding: 0.32rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+}
+
+.app-popup-title {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    margin-bottom: 0.6rem;
+}
+
+.app-popup-text {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    white-space: pre-line;
+}
+
+.app-popup-action {
+    width: 100%;
+}
+
+.app-popup-overlay[data-severity="high"] .app-popup-card {
+    border-color: rgba(229, 57, 53, 0.28);
+}
+
+.app-popup-overlay[data-severity="high"] .app-popup-badge {
+    background: rgba(229, 57, 53, 0.14);
+    color: #c62828;
+}
+
+.app-popup-overlay[data-severity="medium"] .app-popup-card {
+    border-color: rgba(245, 124, 0, 0.28);
+}
+
+.app-popup-overlay[data-severity="medium"] .app-popup-badge {
+    background: rgba(245, 124, 0, 0.12);
+    color: #ef6c00;
+}
+
+.app-popup-overlay[data-severity="low"] .app-popup-badge {
+    background: rgba(46, 125, 50, 0.12);
+    color: #2e7d32;
+}
+
+[data-theme="dark"] .app-popup-card {
+    background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
+        linear-gradient(180deg, #1f1f1f, #161616);
+}
+
+[data-theme="dark"] .app-popup-close {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .app-popup-overlay[data-severity="high"] .app-popup-badge {
+    color: #ff8a80;
+}
+
+[data-theme="dark"] .app-popup-overlay[data-severity="medium"] .app-popup-badge {
+    color: #ffb74d;
+}
+
+[data-theme="dark"] .app-popup-overlay[data-severity="low"] .app-popup-badge {
+    color: #81c784;
+}
+
+@media (max-width: 480px) {
+    .app-popup-card {
+        width: 100%;
+        padding: 1.1rem;
+        border-radius: 16px;
+    }
+
+    .app-popup-title {
+        font-size: 1.15rem;
+    }
+
+    .app-popup-text {
+        font-size: 0.94rem;
+    }
+
+    .app-popup-close {
+        top: 0.7rem;
+        right: 0.7rem;
+    }
 }
