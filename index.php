@@ -137,7 +137,7 @@ $excerptLength = 500;
 
         <div class="sidebar-card">
             <h3><?= e(t('sidebar_subs')) ?></h3>
-            <input type="text" id="subredditSearch" class="sidebar-search-input" placeholder="<?= e(t('search') ?? 'Поиск') ?> r/...">
+            <input type="text" id="subredditSearch" class="sidebar-search-input" placeholder="<?= e(t('search'))?>">
             <div class="category-list" id="categoryList">
                 <?php foreach ($subreddits as $cat): ?>
                     <a href="?category=<?= e($cat['id']) ?>" class="category-item <?= $category === $cat['id'] ? 'active' : '' ?>" data-name="<?= e(mb_strtolower(catName($cat, $lang))) ?>">
