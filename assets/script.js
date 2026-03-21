@@ -127,27 +127,32 @@ function initCreatePostForm() {
         const btn = form.querySelector('button[type="submit"]');
         const title = form.querySelector('#title').value.trim();
         const content = form.querySelector('#content').value.trim();
+        const imageFile = form.querySelector('[name="image"]')?.files?.[0] || null;
         
-        if (!title || !content) {
-            alert('Заполните заголовок и текст');
+        if (!title) {
+            alert('Заполните заголовок');
+            return;
+        }
+
+        if (!content && !imageFile) {
+            alert('Добавьте текст или изображение');
             return;
         }
         
         btn.disabled = true;
         btn.textContent = 'Публикация...';
         
-        const data = {
-            title,
-            content,
-            category: form.querySelector('#category').value,
-            anonymous: form.querySelector('[name="anonymous"]').checked
-        };
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('category', form.querySelector('#category').value);
+        formData.append('anonymous', form.querySelector('[name="anonymous"]').checked ? '1' : '0');
+        if (imageFile) formData.append('image', imageFile);
         
         try {
             const res = await fetch('api/create_post.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: formData
             });
             const json = await res.json();
             
@@ -199,8 +204,9 @@ function initCommentForm() {
         e.preventDefault();
         const textarea = form.querySelector('textarea');
         const content = textarea.value.trim();
+        const imageFile = form.querySelector('[name="image"]')?.files?.[0] || null;
         
-        if (!content) {
+        if (!content && !imageFile) {
             alert('Комментарий не может быть пустым');
             return;
         }
@@ -208,17 +214,16 @@ function initCommentForm() {
         const btn = form.querySelector('button[type="submit"]');
         btn.disabled = true;
         
-        const data = {
-            post_id: form.querySelector('[name="post_id"]').value,
-            content,
-            anonymous: form.querySelector('[name="anonymous"]').checked
-        };
+        const formData = new FormData();
+        formData.append('post_id', form.querySelector('[name="post_id"]').value);
+        formData.append('content', content);
+        formData.append('anonymous', form.querySelector('[name="anonymous"]').checked ? '1' : '0');
+        if (imageFile) formData.append('image', imageFile);
         
         try {
             const res = await fetch('api/add_comment.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: formData
             });
             const json = await res.json();
             
@@ -228,6 +233,7 @@ function initCommentForm() {
                 comment.className = 'comment-card-reddit';
                 comment.dataset.id = json.comment.id;
                 const verifiedHtml = json.comment.verified ? '<span class="verified-badge" title="Verified" aria-label="Verified">✔</span>' : '';
+                const imageHtml = json.comment.image ? `<div class="comment-image-wrap"><img src="${escapeHtml(json.comment.image)}" class="comment-image" alt=""></div>` : '';
                 comment.innerHTML = `
                     <div class="comment-vote-side">
                         <button class="vote-btn like-btn like-btn-sm" data-type="comment" data-id="${json.comment.id}">
@@ -241,16 +247,19 @@ function initCommentForm() {
                             <span class="comment-date">только что</span>
                         </div>
                         <p class="comment-content">${escapeHtml(json.comment.content)}</p>
+                        ${imageHtml}
                     </div>
                 `;
                 commentsList.appendChild(comment);
                 initLikeButtons();
                 textarea.value = '';
                 form.querySelector('[name="anonymous"]').checked = false;
+                const imageInput = form.querySelector('[name="image"]');
+                if (imageInput) imageInput.value = '';
                 
                 const h2 = document.querySelector('#comments h2');
                 if (h2) {
-                    const count = commentsList.querySelectorAll('.comment-card').length;
+                    const count = commentsList.querySelectorAll('.comment-card-reddit').length;
                     h2.textContent = 'Комментарии (' + count + ')';
                 }
             } else {
