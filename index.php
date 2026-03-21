@@ -147,7 +147,6 @@ $excerptLength = 500;
                         <span class="cat-emoji"><?= e($cat['emoji'] ?? '') ?></span>
                         <span class="cat-copy">
                             <span class="cat-name">r/<?= e(catName($cat, $lang)) ?></span>
-                            <span class="cat-subs"><?= (int)($cat['subscribers_count'] ?? 0) ?> subscribers</span>
                         </span>
                     </a>
                 <?php endforeach; ?>
