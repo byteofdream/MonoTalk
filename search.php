@@ -12,7 +12,7 @@ require_once __DIR__ . '/includes/lang.php';
 $lang = getLang();
 $query = trim($_GET['q'] ?? '');
 $posts = $query !== '' ? searchPosts($query) : [];
-$categories = getCategories();
+$subreddits = getSubreddits();
 $excerptLength = 300;
 
 $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
@@ -34,7 +34,7 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
             <div class="posts-feed">
                 <?php foreach ($posts as $i => $post): ?>
                     <?php
-                    $cat = getCategoryById($post['category'] ?? '');
+                    $cat = getSubredditById($post['category'] ?? '');
                     $postLiked = isLoggedIn() && hasUserLiked(getCurrentUser()['id'], 'post', (int)$post['id']);
                     $excerpt = mb_substr($post['content'], 0, $excerptLength);
                     $hasMore = mb_strlen($post['content']) > $excerptLength;
@@ -97,9 +97,9 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
         <div class="sidebar-card">
             <h3><?= e(t('sidebar_categories')) ?></h3>
             <div class="category-list">
-                <?php foreach ($categories as $cat): ?>
+                <?php foreach ($subreddits as $cat): ?>
                     <a href="<?= e(BASE_URL) ?>index.php?category=<?= e($cat['id']) ?>" class="category-item">
-                        <span class="cat-emoji"><?= e($cat['emoji']) ?></span>
+                        <span class="cat-emoji"><?= e($cat['emoji'] ?? '') ?></span>
                         <span class="cat-name">r/<?= e(catName($cat, $lang)) ?></span>
                     </a>
                 <?php endforeach; ?>

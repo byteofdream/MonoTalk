@@ -19,7 +19,7 @@ if (!$post) {
 }
 
 $comments = getCommentsByPostId($postId);
-$category = getCategoryById($post['category'] ?? '');
+$category = getSubredditById($post['category'] ?? '');
 $postLiked = isLoggedIn() && hasUserLiked(getCurrentUser()['id'], 'post', $postId);
 $pageTitle = e($post['title']);
 ?>

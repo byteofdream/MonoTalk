@@ -14,7 +14,7 @@ $pageTitle = t('nav_home');
 $category = $_GET['category'] ?? '';
 $sort = $_GET['sort'] ?? 'hot';
 $posts = getPosts($category, $sort);
-$categories = getCategories();
+$subreddits = getSubreddits();
 $excerptLength = 500;
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
@@ -37,7 +37,7 @@ $excerptLength = 500;
         <div class="posts-feed">
             <?php foreach ($posts as $i => $post): ?>
                 <?php
-                $cat = getCategoryById($post['category'] ?? '');
+                $cat = getSubredditById($post['category'] ?? '');
                 $postLiked = isLoggedIn() && hasUserLiked(getCurrentUser()['id'], 'post', (int)$post['id']);
                 $excerpt = mb_substr($post['content'], 0, $excerptLength);
                 $hasMore = mb_strlen($post['content']) > $excerptLength;
@@ -96,6 +96,7 @@ $excerptLength = 500;
             </div>
             <?php if (isLoggedIn()): ?>
                 <a href="<?= e(BASE_URL) ?>create.php" class="btn-primary btn-block sidebar-btn"><?= e(t('nav_create')) ?></a>
+                <a href="<?= e(BASE_URL) ?>create_subreddit.php" class="btn-secondary btn-block sidebar-btn sidebar-subreddit-btn"><?= e(t('nav_create_subreddit')) ?></a>
             <?php else: ?>
                 <a href="<?= e(BASE_URL) ?>register.php" class="btn-primary btn-block sidebar-btn"><?= e(t('sidebar_join')) ?></a>
             <?php endif; ?>
@@ -104,9 +105,9 @@ $excerptLength = 500;
         <div class="sidebar-card">
             <h3><?= e(t('sidebar_categories')) ?></h3>
             <div class="category-list">
-                <?php foreach ($categories as $cat): ?>
+                <?php foreach ($subreddits as $cat): ?>
                     <a href="?category=<?= e($cat['id']) ?>" class="category-item <?= $category === $cat['id'] ? 'active' : '' ?>">
-                        <span class="cat-emoji"><?= e($cat['emoji']) ?></span>
+                        <span class="cat-emoji"><?= e($cat['emoji'] ?? '') ?></span>
                         <span class="cat-name">r/<?= e(catName($cat, $lang)) ?></span>
                     </a>
                 <?php endforeach; ?>

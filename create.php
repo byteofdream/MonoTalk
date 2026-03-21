@@ -12,7 +12,7 @@ requireAuth();
 
 $lang = getLang();
 $pageTitle = t('create_title');
-$categories = getCategories();
+$subreddits = getSubreddits();
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
@@ -31,21 +31,26 @@ $categories = getCategories();
                 <label for="category"><?= e(t('create_category_label')) ?> *</label>
                 <select id="category" name="category" required class="category-select">
                     <option value=""><?= e(t('create_choose_category')) ?></option>
-                    <?php foreach ($categories as $cat): ?>
-                        <option value="<?= e($cat['id']) ?>"><?= e($cat['emoji']) ?> <?= e(catName($cat, $lang)) ?></option>
+                    <?php foreach ($subreddits as $sub): ?>
+                        <option value="<?= e($sub['id']) ?>"><?= e($sub['emoji'] ?? '') ?> <?= e(catName($sub, $lang)) ?></option>
                     <?php endforeach; ?>
                 </select>
                 <p class="category-help">
-                    <?= $lang === 'en' ? 'Tip: choose a category that best matches your topic.' : 'Совет: выберите категорию, которая лучше всего подходит к теме поста.' ?>
+                    <?= $lang === 'en' ? 'Tip: choose a subreddit that best matches your topic.' : 'Совет: выберите сабреддит, который лучше всего подходит к теме поста.' ?>
                 </p>
-                <div class="category-quick-list" aria-label="<?= $lang === 'en' ? 'Quick categories' : 'Быстрый выбор категорий' ?>">
-                    <?php foreach ($categories as $cat): ?>
-                        <button type="button" class="category-quick-btn" data-category="<?= e($cat['id']) ?>">
-                            <span><?= e($cat['emoji']) ?></span>
-                            <span><?= e(catName($cat, $lang)) ?></span>
+                <div class="category-quick-list" aria-label="<?= $lang === 'en' ? 'Quick subreddits' : 'Быстрый выбор сабреддитов' ?>">
+                    <?php foreach ($subreddits as $sub): ?>
+                        <button type="button" class="category-quick-btn" data-category="<?= e($sub['id']) ?>">
+                            <span><?= e($sub['emoji'] ?? '') ?></span>
+                            <span><?= e(catName($sub, $lang)) ?></span>
                         </button>
                     <?php endforeach; ?>
                 </div>
+                <?php if (isLoggedIn()): ?>
+                    <p class="category-help">
+                        <a href="<?= e(BASE_URL) ?>create_subreddit.php"><?= e(t('create_subreddit_link')) ?></a>
+                    </p>
+                <?php endif; ?>
             </div>
             <div class="form-group">
                 <label for="content"><?= e(t('create_content_label')) ?> *</label>
