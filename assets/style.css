@@ -1684,6 +1684,19 @@ main.container, .main-layout {
     .container {
         padding: 1rem;
     }
+
+    .content-area {
+        max-width: 100%;
+    }
+
+    .sidebar {
+        display: block;
+        max-width: 100%;
+    }
+
+    .sidebar-card {
+        min-width: 0;
+    }
     
     .post-vote-side {
         width: 40px;
@@ -1709,6 +1722,14 @@ main.container, .main-layout {
     .sort-tab {
         padding: 0.5rem 0.75rem;
         font-size: 0.9rem;
+    }
+
+    .search-form {
+        flex-direction: column;
+    }
+
+    .search-form .btn-primary {
+        width: 100%;
     }
     
     .post-full-reddit {
@@ -1743,9 +1764,107 @@ main.container, .main-layout {
         flex-direction: column;
         text-align: center;
     }
+
+    .create-card {
+        max-width: 100%;
+        padding: 1.25rem;
+    }
+
+    .create-form textarea {
+        min-height: 220px;
+    }
+
+    .category-quick-list {
+        gap: 0.5rem;
+    }
+
+    .category-quick-btn {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.7rem;
+    }
+
+    .auth-card,
+    .profile-card,
+    .welcome-card,
+    .news-card,
+    .settings-content {
+        padding: 1.25rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
     
     .btn-secondary {
         margin-left: 0;
         margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0.75rem;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 0.5rem;
+    }
+
+    .nav-links > a {
+        font-size: 0.85rem;
+    }
+
+    .main-layout,
+    .container {
+        padding: 0.75rem;
+    }
+
+    .post-body {
+        padding: 0.65rem 0.75rem;
+    }
+
+    .post-card-reddit .post-title {
+        font-size: 0.98rem;
+    }
+
+    .post-actions-bar {
+        flex-wrap: wrap;
+        gap: 0.5rem 0.75rem;
+    }
+
+    .comment-body {
+        padding: 0.75rem;
+    }
+
+    .create-card,
+    .auth-card,
+    .profile-card,
+    .welcome-card,
+    .news-card {
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .create-form .btn-primary {
+        min-width: 0;
+    }
+
+    .theme-options,
+    .lang-options {
+        flex-direction: column;
+    }
+
+    .theme-option,
+    .lang-option {
+        width: 100%;
+        text-align: center;
     }
 }
