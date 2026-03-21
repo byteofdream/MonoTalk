@@ -1069,7 +1069,7 @@ main.container, .main-layout {
 }
 
 .post-content {
-    margin: 0.5rem 0;
+    margin: 0rem 0;
     white-space: normal;
     word-wrap: break-word;
     line-height: 1.6;
@@ -2048,6 +2048,140 @@ main.container, .main-layout {
     gap: 0.75rem;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+}
+
+.modal-header h2 {
+    font-size: 1.35rem;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all var(--transition);
+}
+
+.modal-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text);
+}
+
+[data-theme="dark"] .modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.modal-actions .btn-secondary {
+    margin-left: 0;
+}
+
+/* Edit buttons */
+.edit-post-btn,
+.edit-comment-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all var(--transition);
+    border-radius: 6px;
+}
+
+.edit-post-btn:hover,
+.edit-comment-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text);
+}
+
+[data-theme="dark"] .edit-post-btn:hover,
+[data-theme="dark"] .edit-comment-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.post-meta-line .edit-post-btn {
+    padding: 0;
+    font-size: 0.85rem;
+}
+
+.comment-header .edit-comment-btn {
+    margin-left: 0.5rem;
+}
+
+.post-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-form .form-group {
+    margin-bottom: 1rem;
 }
 
 [data-theme="dark"] .post-textarea {
