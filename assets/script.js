@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLoginForm();
     initRegisterForm();
     initCreatePostForm();
+    initCategoryQuickPick();
     initCommentForm();
     initLikeButtons();
     initProfileForm();
@@ -163,6 +164,30 @@ function initCreatePostForm() {
             btn.textContent = 'Опубликовать';
         }
     });
+}
+
+// Быстрый выбор категории на create.php
+function initCategoryQuickPick() {
+    const select = document.getElementById('category');
+    const quickButtons = document.querySelectorAll('.category-quick-btn');
+    if (!select || !quickButtons.length) return;
+
+    const syncActive = () => {
+        quickButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.category === select.value);
+        });
+    };
+
+    quickButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            select.value = btn.dataset.category || '';
+            syncActive();
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    });
+
+    select.addEventListener('change', syncActive);
+    syncActive();
 }
 
 // Форма комментария
