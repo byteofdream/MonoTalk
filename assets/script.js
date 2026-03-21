@@ -422,6 +422,7 @@ function initSubscriptionButtons() {
             
             const subredditId = this.getAttribute('data-subreddit-id');
             let action = this.getAttribute('data-action');
+            const isSubscribing = action === 'subscribe';
             
             if (!subredditId) return;
             
@@ -438,11 +439,13 @@ function initSubscriptionButtons() {
                 const data = await res.json();
                 
                 if (data.success) {
-                    if (action === 'subscribe') {
-                        this.textContent = 'Отписаться';
+                    if (isSubscribing) {
+                        // Switch to unsubscribe
+                        this.textContent = this.getAttribute('data-unsubscribe-text') || 'Отписаться';
                         this.setAttribute('data-action', 'unsubscribe');
                     } else {
-                        this.textContent = 'Подписаться';
+                        // Switch to subscribe
+                        this.textContent = this.getAttribute('data-subscribe-text') || 'Подписаться';
                         this.setAttribute('data-action', 'subscribe');
                     }
                 } else {

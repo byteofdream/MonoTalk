@@ -38,6 +38,35 @@ $excerptLength = 500;
             </div>
         </div>
 
+        <?php if ($category && $subred = getSubredditById($category)): ?>
+            <div class="subreddit-banner">
+                <div class="banner-header">
+                    <div class="banner-info">
+                        <h1 class="banner-title">
+                            <span class="banner-emoji"><?= e($subred['emoji'] ?? '') ?></span>
+                            r/<?= e(catName($subred, $lang)) ?>
+                        </h1>
+                        <?php if (!empty($subred['description'])): ?>
+                            <p class="banner-description"><?= e($subred['description']) ?></p>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (isLoggedIn()): ?>
+                        <?php
+                        $user = getCurrentUser();
+                        $isSubscribed = in_array($subred['id'], $user['subscriptions'] ?? []);
+                        ?>
+                        <button class="btn-primary subscribe-btn"
+                                data-subreddit-id="<?= e($subred['id']) ?>"
+                                data-action="<?= $isSubscribed ? 'unsubscribe' : 'subscribe' ?>"
+                                data-subscribe-text="<?= e(t('subscribe')) ?>"
+                                data-unsubscribe-text="<?= e(t('unsubscribe')) ?>">
+                            <?= $isSubscribed ? t('unsubscribe') : t('subscribe') ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="posts-feed">
             <?php foreach ($posts as $i => $post): ?>
                 <?php

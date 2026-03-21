@@ -87,6 +87,8 @@ $translations = [
         'support_title' => 'Поддержите нас!',
         'support_text' => 'Если вам нравится MonoTalk, пожалуйста, поддержите нас!',
         'support_btn' => 'Поддержать',
+        'subscribe' => 'Подписаться',
+        'unsubscribe' => 'Отписаться',
     ],
     'en' => [
         'nav_home' => 'Home',
@@ -171,6 +173,8 @@ $translations = [
         'support_title' => 'Support us!',
         'support_text' => 'If you like MonoTalk, please support us!',
         'support_btn' => 'Support',
+        'subscribe' => 'Subscribe',
+        'unsubscribe' => 'Unsubscribe',
     ],
 ];
 
