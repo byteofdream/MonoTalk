@@ -36,21 +36,58 @@ function getFlash(): ?array {
 }
 
 /**
- * Получить все категории
+ * Получить все сабреддиты
  */
-function getCategories(): array {
-    return readData('categories.json');
+function getSubreddits(): array {
+    $subs = readData('subreddits.json');
+    if (!empty($subs)) {
+        return $subs;
+    }
+
+    $legacy = readData('categories.json');
+    if (empty($legacy)) {
+        return [];
+    }
+
+    $mapped = array_map(function($cat) {
+        return [
+            'id' => $cat['id'] ?? '',
+            'name' => $cat['name'] ?? ($cat['name_en'] ?? ''),
+            'name_en' => $cat['name_en'] ?? ($cat['name'] ?? ''),
+            'emoji' => $cat['emoji'] ?? '',
+            'description' => $cat['description'] ?? '',
+            'created_by' => $cat['created_by'] ?? 0,
+            'created_at' => $cat['created_at'] ?? date('Y-m-d H:i:s'),
+        ];
+    }, $legacy);
+
+    writeData('subreddits.json', $mapped);
+    return $mapped;
 }
 
 /**
- * Получить категорию по ID
+ * Получить сабреддит по ID
  */
-function getCategoryById(string $id): ?array {
-    $categories = getCategories();
-    foreach ($categories as $cat) {
-        if ($cat['id'] === $id) return $cat;
+function getSubredditById(string $id): ?array {
+    $subs = getSubreddits();
+    foreach ($subs as $sub) {
+        if (($sub['id'] ?? '') === $id) return $sub;
     }
     return null;
+}
+
+/**
+ * Получить все категории (legacy)
+ */
+function getCategories(): array {
+    return getSubreddits();
+}
+
+/**
+ * Получить категорию по ID (legacy)
+ */
+function getCategoryById(string $id): ?array {
+    return getSubredditById($id);
 }
 
 /**
