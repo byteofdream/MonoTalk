@@ -257,3 +257,132 @@ function checkSpamProtection(string $action, int $cooldown = 5): bool {
     $_SESSION[$key] = time();
     return true;
 }
+
+/**
+ * Получить подписки пользователя (массив ID сабреддитов)
+ */
+function getUserSubscriptions(int $userId): array {
+    $user = getUserById($userId);
+    if (!$user) return [];
+    return $user['subscriptions'] ?? [];
+}
+
+/**
+ * Получить полные данные подписанных сабреддитов пользователя
+ */
+function getUserSubscriptionsData(int $userId): array {
+    $subscriptionIds = getUserSubscriptions($userId);
+    if (empty($subscriptionIds)) return [];
+    
+    $allSubreddits = getSubreddits();
+    $result = [];
+    
+    foreach ($allSubreddits as $sub) {
+        if (in_array($sub['id'] ?? '', $subscriptionIds, true)) {
+            $result[] = $sub;
+        }
+    }
+    
+    return $result;
+}
+
+/**
+ * Подписать пользователя на сабреддит
+ */
+function subscribeToSubreddit(int $userId, string $subredditId): bool {
+    $users = readData('users.json');
+    $subreddit = getSubredditById($subredditId);
+    
+    if (!$subreddit) return false;
+    
+    foreach ($users as &$user) {
+        if ((int)$user['id'] === $userId) {
+            if (!isset($user['subscriptions'])) {
+                $user['subscriptions'] = [];
+            }
+            
+            if (!in_array($subredditId, $user['subscriptions'], true)) {
+                $user['subscriptions'][] = $subredditId;
+            }
+            
+            writeData('users.json', $users);
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Отписать пользователя от сабреддита
+ */
+function unsubscribeFromSubreddit(int $userId, string $subredditId): bool {
+    $users = readData('users.json');
+    
+    foreach ($users as &$user) {
+        if ((int)$user['id'] === $userId) {
+            if (isset($user['subscriptions'])) {
+                $user['subscriptions'] = array_filter(
+                    $user['subscriptions'],
+                    fn($id) => $id !== $subredditId
+                );
+                $user['subscriptions'] = array_values($user['subscriptions']);
+            }
+            
+            writeData('users.json', $users);
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Поиск сабреддитов по названию
+ */
+function searchSubreddits(string $query, string $lang = 'ru'): array {
+    $query = mb_strtolower(trim($query));
+    if (strlen($query) < 2) return [];
+    
+    $subreddits = getSubreddits();
+    $results = [];
+    
+    foreach ($subreddits as $sub) {
+        $nameKey = $lang === 'en' ? 'name_en' : 'name';
+        $name = mb_strtolower($sub[$nameKey] ?? '');
+        $description = mb_strtolower($sub['description'] ?? '');
+        
+        if (mb_strpos($name, $query) !== false || mb_strpos($description, $query) !== false) {
+            $results[] = $sub;
+        }
+    }
+    
+    return $results;
+}
+
+/**
+ * Поиск пользователей по никнейму
+ */
+function searchUsers(string $query): array {
+    $query = mb_strtolower(trim($query));
+    if (strlen($query) < 2) return [];
+    
+    $users = readData('users.json');
+    $results = [];
+    
+    foreach ($users as $user) {
+        $username = mb_strtolower($user['username'] ?? '');
+        
+        if (mb_strpos($username, $query) !== false) {
+            $results[] = [
+                'id' => $user['id'] ?? 0,
+                'username' => $user['username'] ?? '',
+                'avatar' => $user['avatar'] ?? '',
+                'verified' => $user['verified'] ?? false,
+                'created_at' => $user['created_at'] ?? ''
+            ];
+        }
+    }
+    
+    return $results;
+}

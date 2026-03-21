@@ -14,7 +14,11 @@ $pageTitle = t('nav_home');
 $category = $_GET['category'] ?? '';
 $sort = $_GET['sort'] ?? 'hot';
 $posts = getPosts($category, $sort);
-$subreddits = getSubreddits();
+
+// Показываем подписанные сабреддиты если залогирован, иначе - все
+$currentUser = isLoggedIn() ? getCurrentUser() : null;
+$subreddits = $currentUser ? getUserSubscriptionsData((int)$currentUser['id']) : getSubreddits();
+
 $excerptLength = 500;
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
@@ -104,9 +108,10 @@ $excerptLength = 500;
 
         <div class="sidebar-card">
             <h3><?= e(t('sidebar_categories')) ?></h3>
-            <div class="category-list">
+            <input type="text" id="subredditSearch" class="sidebar-search-input" placeholder="<?= e(t('search') ?? 'Поиск') ?> r/...">
+            <div class="category-list" id="categoryList">
                 <?php foreach ($subreddits as $cat): ?>
-                    <a href="?category=<?= e($cat['id']) ?>" class="category-item <?= $category === $cat['id'] ? 'active' : '' ?>">
+                    <a href="?category=<?= e($cat['id']) ?>" class="category-item <?= $category === $cat['id'] ? 'active' : '' ?>" data-name="<?= e(mb_strtolower(catName($cat, $lang))) ?>">
                         <span class="cat-emoji"><?= e($cat['emoji'] ?? '') ?></span>
                         <span class="cat-name">r/<?= e(catName($cat, $lang)) ?></span>
                     </a>

@@ -19,6 +19,39 @@ function isLoggedIn(): bool {
 }
 
 /**
+ * Миграция данных пользователя (добавление недостающих полей)
+ */
+function migrateUserData(array $user): array {
+    $needsSave = false;
+    
+    // Проверяем наличие поля subscriptions
+    if (!isset($user['subscriptions'])) {
+        $user['subscriptions'] = [];
+        $needsSave = true;
+    }
+    
+    // Добавьте другие поля, которые могут появиться в будущем
+    // if (!isset($user['some_new_field'])) {
+    //     $user['some_new_field'] = default_value;
+    //     $needsSave = true;
+    // }
+    
+    // Если были изменения - сохраняем в JSON
+    if ($needsSave) {
+        $users = readData('users.json');
+        foreach ($users as &$u) {
+            if ((int)$u['id'] === (int)$user['id']) {
+                $u = $user;
+                break;
+            }
+        }
+        writeData('users.json', $users);
+    }
+    
+    return $user;
+}
+
+/**
  * Получить текущего пользователя
  */
 function getCurrentUser(): ?array {
@@ -27,7 +60,7 @@ function getCurrentUser(): ?array {
     $users = readData('users.json');
     foreach ($users as $user) {
         if ((int)$user['id'] === (int)$_SESSION['user_id']) {
-            return $user;
+            return migrateUserData($user);
         }
     }
     return null;
@@ -39,7 +72,9 @@ function getCurrentUser(): ?array {
 function getUserById(int $id): ?array {
     $users = readData('users.json');
     foreach ($users as $user) {
-        if ((int)$user['id'] === $id) return $user;
+        if ((int)$user['id'] === $id) {
+            return migrateUserData($user);
+        }
     }
     return null;
 }
@@ -66,7 +101,7 @@ function getUserByUsername(string $username): ?array {
     $users = readData('users.json');
     foreach ($users as $user) {
         if (strtolower($user['username']) === strtolower($username)) {
-            return $user;
+            return migrateUserData($user);
         }
     }
     return null;
@@ -76,6 +111,11 @@ function getUserByUsername(string $username): ?array {
  * Логин пользователя
  */
 function loginUser(int $userId): void {
+    // Проверяем и мигрируем данные пользователя при входе
+    $user = getUserById($userId);
+    if ($user) {
+        migrateUserData($user);
+    }
     $_SESSION['user_id'] = $userId;
 }
 

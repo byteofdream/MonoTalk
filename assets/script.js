@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initCommentForm();
     initLikeButtons();
     initProfileForm();
+    initSubredditSearch();
+    initSubscriptionButtons();
 });
 
 // Базовый URL из data-атрибута или текущий путь
@@ -385,5 +387,70 @@ function initProfileForm() {
         } catch (err) {
             alert('Ошибка сети');
         }
+    });
+}
+
+// Поиск сабреддитов в боковой панели
+function initSubredditSearch() {
+    const searchInput = document.getElementById('subredditSearch');
+    const categoryList = document.getElementById('categoryList');
+    
+    if (!searchInput || !categoryList) return;
+    
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        const items = categoryList.querySelectorAll('.category-item');
+        
+        items.forEach(item => {
+            const name = item.getAttribute('data-name') || '';
+            if (query === '' || name.includes(query)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Подписка/отписка на сабреддиты
+function initSubscriptionButtons() {
+    const subscribeButtons = document.querySelectorAll('.subscribe-btn');
+    
+    subscribeButtons.forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const subredditId = this.getAttribute('data-subreddit-id');
+            let action = this.getAttribute('data-action');
+            
+            if (!subredditId) return;
+            
+            try {
+                const res = await fetch(apiUrl('api/toggle_subscription.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subreddit_id: subredditId,
+                        action: action
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (action === 'subscribe') {
+                        this.textContent = 'Отписаться';
+                        this.setAttribute('data-action', 'unsubscribe');
+                    } else {
+                        this.textContent = 'Подписаться';
+                        this.setAttribute('data-action', 'subscribe');
+                    }
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            } catch (err) {
+                alert('Ошибка сети');
+            }
+        });
     });
 }

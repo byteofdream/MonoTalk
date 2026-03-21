@@ -11,7 +11,25 @@ require_once __DIR__ . '/includes/lang.php';
 
 $lang = getLang();
 $query = trim($_GET['q'] ?? '');
-$posts = $query !== '' ? searchPosts($query) : [];
+$searchType = $_GET['type'] ?? 'posts'; // posts, subreddits, users
+$currentUser = isLoggedIn() ? getCurrentUser() : null;
+
+$posts = [];
+$foundSubreddits = [];
+$foundUsers = [];
+
+if ($query !== '') {
+    if ($searchType === 'posts' || $searchType === 'all') {
+        $posts = searchPosts($query);
+    }
+    if ($searchType === 'subreddits' || $searchType === 'all') {
+        $foundSubreddits = searchSubreddits($query, $lang);
+    }
+    if ($searchType === 'users' || $searchType === 'all') {
+        $foundUsers = searchUsers($query);
+    }
+}
+
 $subreddits = getSubreddits();
 $excerptLength = 300;
 
@@ -30,8 +48,24 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
         </div>
 
         <?php if ($query !== ''): ?>
-            <p class="search-results-count"><?= e(t('search_found')) ?>: <?= count($posts) ?></p>
-            <div class="posts-feed">
+            <!-- Search result tabs -->
+            <div class="search-tabs">
+                <a href="?q=<?= urlencode($query) ?>&type=posts" class="search-tab <?= $searchType === 'posts' ? 'active' : '' ?>">
+                    💬 Посты (<?= count($posts) ?>)
+                </a>
+                <a href="?q=<?= urlencode($query) ?>&type=subreddits" class="search-tab <?= $searchType === 'subreddits' ? 'active' : '' ?>">
+                    📝 Сабреддиты (<?= count($foundSubreddits) ?>)
+                </a>
+                <a href="?q=<?= urlencode($query) ?>&type=users" class="search-tab <?= $searchType === 'users' ? 'active' : '' ?>">
+                    👤 Пользователи (<?= count($foundUsers) ?>)
+                </a>
+            </div>
+
+            <!-- Posts results -->
+            <?php if ($searchType === 'posts' || $searchType === 'all'): ?>
+                <?php if (!empty($posts)): ?>
+                    <p class="search-results-count"><?= e(t('search_found')) ?>: <?= count($posts) ?> постов</p>
+                    <div class="posts-feed"
                 <?php foreach ($posts as $i => $post): ?>
                     <?php
                     $cat = getSubredditById($post['category'] ?? '');
@@ -70,13 +104,82 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
                         </div>
                     </article>
                 <?php endforeach; ?>
-            </div>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-state-reddit">
+                        <p><?= e(t('search_no_results')) ?> «<?= e($query) ?>»</p>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
 
-            <?php if (empty($posts)): ?>
-                <div class="empty-state-reddit">
-                    <p><?= e(t('search_no_results')) ?> «<?= e($query) ?>»</p>
-                    <p><?= e(t('search_try_other')) ?></p>
-                </div>
+            <!-- Subreddits results -->
+            <?php if ($searchType === 'subreddits' || $searchType === 'all'): ?>
+                <?php if (!empty($foundSubreddits)): ?>
+                    <p class="search-results-count">Найдено сабреддитов: <?= count($foundSubreddits) ?></p>
+                    <div class="subreddits-results">
+                        <?php foreach ($foundSubreddits as $sub): ?>
+                            <div class="sub-card-reddit">
+                                <div class="sub-header">
+                                    <h3 class="sub-name">
+                                        <span class="sub-emoji"><?= e($sub['emoji'] ?? '') ?></span>
+                                        r/<?= e(catName($sub, $lang)) ?>
+                                    </h3>
+                                </div>
+                                <?php if (!empty($sub['description'])): ?>
+                                    <p class="sub-description"><?= e($sub['description']) ?></p>
+                                <?php endif; ?>
+                                <div class="sub-actions">
+                                    <a href="<?= e(BASE_URL) ?>index.php?category=<?= e($sub['id']) ?>" class="btn-secondary">Посмотреть</a>
+                                    <?php if ($currentUser): ?>
+                                        <button class="btn-secondary subscribe-btn" data-subreddit-id="<?= e($sub['id']) ?>" data-action="subscribe">
+                                            Подписаться
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-state-reddit">
+                        <p>Сабреддиты не найдены</p>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <!-- Users results -->
+            <?php if ($searchType === 'users' || $searchType === 'all'): ?>
+                <?php if (!empty($foundUsers)): ?>
+                    <p class="search-results-count">Найдено пользователей: <?= count($foundUsers) ?></p>
+                    <div class="users-results">
+                        <?php foreach ($foundUsers as $user): ?>
+                            <div class="user-card-reddit">
+                                <div class="user-header">
+                                    <?php if (!empty($user['avatar'])): ?>
+                                        <img src="<?= e(BASE_URL . $user['avatar']) ?>" alt="<?= e($user['username']) ?>" class="user-avatar">
+                                    <?php else: ?>
+                                        <div class="user-avatar-placeholder"><?= mb_substr(e($user['username']), 0, 1) ?></div>
+                                    <?php endif; ?>
+                                    <div class="user-info">
+                                        <h3>
+                                            <a href="<?= e(BASE_URL) ?>profile.php?user=<?= e($user['username']) ?>" class="user-link">
+                                                u/<?= e($user['username']) ?>
+                                                <?= $user['verified'] ? verifiedBadge() : '' ?>
+                                            </a>
+                                        </h3>
+                                        <p class="user-joined">Присоединился <?= e(formatDate($user['created_at'])) ?></p>
+                                    </div>
+                                </div>
+                                <div class="user-actions">
+                                    <a href="<?= e(BASE_URL) ?>profile.php?user=<?= e($user['username']) ?>" class="btn-secondary">Профиль</a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-state-reddit">
+                        <p>Пользователи не найдены</p>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         <?php else: ?>
             <div class="search-hint">

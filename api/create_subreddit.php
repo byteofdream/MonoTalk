@@ -84,6 +84,9 @@ $newSub = [
 $subs[] = $newSub;
 writeData('subreddits.json', $subs);
 
+// Автоматически подписываем создателя на новый сабреддит
+subscribeToSubreddit((int)$user['id'], $id);
+
 echo json_encode([
     'success' => true,
     'redirect' => BASE_URL . 'index.php?category=' . urlencode($id),

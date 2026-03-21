@@ -50,7 +50,8 @@ $newUser = [
     'avatar' => '',
     'created_at' => date('Y-m-d H:i:s'),
     'seen_welcome' => false,
-    'verified' => false
+    'verified' => false,
+    'subscriptions' => []
 ];
 
 $users[] = $newUser;
