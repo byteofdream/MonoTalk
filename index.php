@@ -46,6 +46,9 @@ $excerptLength = 500;
                             <span class="banner-emoji"><?= e($subred['emoji'] ?? '') ?></span>
                             r/<?= e(catName($subred, $lang)) ?>
                         </h1>
+                        <p class="subreddit-meta">
+                            <span id="subscribersCount"><?= (int)($subred['subscribers_count'] ?? 0) ?></span> subscribers
+                        </p>
                         <?php if (!empty($subred['description'])): ?>
                             <p class="banner-description"><?= e($subred['description']) ?></p>
                         <?php endif; ?>
@@ -142,7 +145,10 @@ $excerptLength = 500;
                 <?php foreach ($subreddits as $cat): ?>
                     <a href="?category=<?= e($cat['id']) ?>" class="category-item <?= $category === $cat['id'] ? 'active' : '' ?>" data-name="<?= e(mb_strtolower(catName($cat, $lang))) ?>">
                         <span class="cat-emoji"><?= e($cat['emoji'] ?? '') ?></span>
-                        <span class="cat-name">r/<?= e(catName($cat, $lang)) ?></span>
+                        <span class="cat-copy">
+                            <span class="cat-name">r/<?= e(catName($cat, $lang)) ?></span>
+                            <span class="cat-subs"><?= (int)($cat['subscribers_count'] ?? 0) ?> subscribers</span>
+                        </span>
                     </a>
                 <?php endforeach; ?>
                 <a href="?category=" class="category-item"><?= e(t('sidebar_reset')) ?></a>
