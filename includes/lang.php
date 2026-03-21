@@ -84,6 +84,9 @@ $translations = [
         'post_category' => 'Сабреддит',
         'post_published_at' => 'Опубликовано',
         'post_likes' => 'Лайков',
+        'support_title' => 'Поддержите нас!',
+        'support_text' => 'Если вам нравится MonoTalk, пожалуйста, поддержите нас!',
+        'support_btn' => 'Поддержать',
     ],
     'en' => [
         'nav_home' => 'Home',
@@ -165,6 +168,9 @@ $translations = [
         'post_category' => 'Subreddit',
         'post_published_at' => 'Published',
         'post_likes' => 'Likes',
+        'support_title' => 'Support us!',
+        'support_text' => 'If you like MonoTalk, please support us!',
+        'support_btn' => 'Support',
     ],
 ];
 

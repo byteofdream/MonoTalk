@@ -126,6 +126,13 @@ $excerptLength = 500;
             <a href="<?= e(BASE_URL) ?>rules.php" class="btn-rules-link"><?= e(t('btn_all_rules')) ?></a>
         </div>
 
+
+        <div class="sidebar-card">
+            <h3><?= e(t('support_title')) ?></h3>
+            <p style="margin-bottom: 15px;"><?= e(t('support_text')) ?></p>
+            <a style="width: 100%;" href="https://google.com" class="btn-primary"><center><?= e(t('support_btn')) ?></center></a>
+        </div>
+
         <div class="sidebar-card sidebar-footer">
             <p>MonoTalk © <?= date('Y') ?></p>
         </div>

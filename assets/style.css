@@ -2048,3 +2048,9 @@ main.container, .main-layout {
     justify-content: center;
     flex-wrap: wrap;
 }
+
+[data-theme="dark"] .post-textarea {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+}

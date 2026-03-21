@@ -62,7 +62,7 @@ $pageTitle = e($post['title']);
             <?php if (isLoggedIn()): ?>
             <form id="commentForm" class="comment-form">
                 <input type="hidden" name="post_id" value="<?= $postId ?>">
-                <textarea name="content" placeholder="Что вы думаете? Напишите комментарий..."></textarea>
+                <textarea name="content" placeholder="Что вы думаете? Напишите комментарий..." class="post-textarea"></textarea>
                 <div class="form-group">
                     <label><?= $lang === 'en' ? 'Image (optional)' : 'Картинка (необязательно)' ?></label>
                     <input type="file" name="image" accept="image/*">
