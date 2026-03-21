@@ -19,15 +19,9 @@ $foundSubreddits = [];
 $foundUsers = [];
 
 if ($query !== '') {
-    if ($searchType === 'posts' || $searchType === 'all') {
-        $posts = searchPosts($query);
-    }
-    if ($searchType === 'subreddits' || $searchType === 'all') {
-        $foundSubreddits = searchSubreddits($query, $lang);
-    }
-    if ($searchType === 'users' || $searchType === 'all') {
-        $foundUsers = searchUsers($query);
-    }
+    $posts = searchPosts($query);
+    $foundSubreddits = searchSubreddits($query, $lang);
+    $foundUsers = searchUsers($query);
 }
 
 $subreddits = getSubreddits();
@@ -65,7 +59,7 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
             <?php if ($searchType === 'posts' || $searchType === 'all'): ?>
                 <?php if (!empty($posts)): ?>
                     <p class="search-results-count"><?= e(t('search_found')) ?>: <?= count($posts) ?> постов</p>
-                    <div class="posts-feed"
+                    <div class="posts-feed">
                 <?php foreach ($posts as $i => $post): ?>
                     <?php
                     $cat = getSubredditById($post['category'] ?? '');
