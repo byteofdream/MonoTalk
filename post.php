@@ -132,23 +132,7 @@ $pageTitle = e($post['title']);
             </dl>
         </div>
     </aside>
-    </div>
-
-    <aside class="sidebar">
-        <div class="sidebar-card">
-            <h3><?= e(t('post_about')) ?></h3>
-            <dl class="post-stats-dl">
-                <dt><?= e(t('post_author')) ?></dt>
-                <dd><?php if ((int)($post['author_id'] ?? 0) > 0): $authorId = (int)($post['author_id'] ?? 0); ?><a href="<?= e(BASE_URL) ?>profile.php?user=<?= e($post['author_name'] ?? '') ?>">u/<?= e($post['author_name'] ?? '') ?></a><?= isUserVerifiedById($authorId) ? verifiedBadge() : '' ?><?php else: ?>u/<?= e($post['author_name'] ?? 'Anonymous') ?><?php endif; ?></dd>
-                <dt><?= e(t('post_category')) ?></dt>
-                <dd><a href="<?= e(BASE_URL) ?>index.php?category=<?= e($post['category'] ?? '') ?>">r/<?= e(catName($category, $lang)) ?></a></dd>
-                <dt><?= e(t('post_published_at')) ?></dt>
-                <dd><?= e(formatDate($post['created_at'] ?? '')) ?></dd>
-                <dt><?= e(t('post_likes')) ?></dt>
-                <dd><?= (int)($post['likes'] ?? 0) ?></dd>
-            </dl>
-        </div>
-    </aside>
+</main>
 </main>
 
 <!-- Modal для редактирования поста -->
