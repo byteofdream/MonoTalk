@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLoginForm();
     initRegisterForm();
     initCreatePostForm();
+    initCreateSubredditForm();
     initCategoryQuickPick();
     initCommentForm();
     initLikeButtons();
@@ -167,6 +168,53 @@ function initCreatePostForm() {
             alert('Ошибка сети');
             btn.disabled = false;
             btn.textContent = 'Опубликовать';
+        }
+    });
+}
+
+// Форма создания сабреддита
+function initCreateSubredditForm() {
+    const form = document.getElementById('createSubredditForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = form.querySelector('button[type=\"submit\"]');
+        const name = form.querySelector('#subreddit_name').value.trim();
+        const description = form.querySelector('#subreddit_desc').value.trim();
+        const emoji = form.querySelector('#subreddit_emoji').value.trim();
+
+        if (name.length < 3) {
+            alert('Название слишком короткое');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Создание...';
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('description', description);
+        formData.append('emoji', emoji);
+
+        try {
+            const res = await fetch('api/create_subreddit.php', {
+                method: 'POST',
+                body: formData
+            });
+            const json = await res.json();
+
+            if (json.success) {
+                window.location.href = json.redirect || ('index.php?category=' + encodeURIComponent(json.subreddit.id));
+            } else {
+                alert(json.error || 'Ошибка создания сабреддита');
+                btn.disabled = false;
+                btn.textContent = 'Создать';
+            }
+        } catch (err) {
+            alert('Ошибка сети');
+            btn.disabled = false;
+            btn.textContent = 'Создать';
         }
     });
 }
