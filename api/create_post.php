@@ -38,8 +38,8 @@ if (empty($title)) {
     exit;
 }
 
-if (empty($category) || !getCategoryById($category)) {
-    echo json_encode(['success' => false, 'error' => 'Выберите категорию']);
+if (empty($category) || !getSubredditById($category)) {
+    echo json_encode(['success' => false, 'error' => 'Выберите сабреддит']);
     exit;
 }
 
