@@ -136,7 +136,7 @@ $excerptLength = 500;
         </div>
 
         <div class="sidebar-card">
-            <h3><?= e(t('sidebar_categories')) ?></h3>
+            <h3><?= e(t('sidebar_subs')) ?></h3>
             <input type="text" id="subredditSearch" class="sidebar-search-input" placeholder="<?= e(t('search') ?? 'Поиск') ?> r/...">
             <div class="category-list" id="categoryList">
                 <?php foreach ($subreddits as $cat): ?>
@@ -164,7 +164,7 @@ $excerptLength = 500;
         <div class="sidebar-card">
             <h3><?= e(t('support_title')) ?></h3>
             <p style="margin-bottom: 15px;"><?= e(t('support_text')) ?></p>
-            <a style="width: 100%;" href="https://google.com" class="btn-primary"><center><?= e(t('support_btn')) ?></center></a>
+            <a style="width: 100%;" href="https://buymeacoffee.com/dreamybyte" class="btn-primary"><center><?= e(t('support_btn')) ?></center></a>
         </div>
 
         <div class="sidebar-card sidebar-footer">

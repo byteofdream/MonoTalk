@@ -89,6 +89,7 @@ $translations = [
         'support_btn' => 'Поддержать',
         'subscribe' => 'Подписаться',
         'unsubscribe' => 'Отписаться',
+        'sidebar_subs' => 'Подписки',
     ],
     'en' => [
         'nav_home' => 'Home',
@@ -175,6 +176,7 @@ $translations = [
         'support_btn' => 'Support',
         'subscribe' => 'Subscribe',
         'unsubscribe' => 'Unsubscribe',
+        'sidebar_subs' => 'Subscriptions',
     ],
 ];
 
