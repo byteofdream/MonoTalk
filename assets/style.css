@@ -1070,8 +1070,9 @@ main.container, .main-layout {
 
 .post-content {
     margin: 1.5rem 0;
-    white-space: pre-wrap;
+    white-space: normal;
     word-wrap: break-word;
+    line-height: 1.6;
 }
 
 /* Post page Reddit style */
