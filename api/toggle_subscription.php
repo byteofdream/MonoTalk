@@ -1,6 +1,6 @@
 <?php
 /**
- * MonoTalk - API для подписки/отписки на сабреддиты
+ * MonoTalk - subscribe/unsubscribe API
  */
 
 require_once __DIR__ . '/../includes/config.php';
@@ -17,34 +17,33 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 if (!isLoggedIn()) {
-    echo json_encode(['success' => false, 'error' => 'Требуется авторизация']);
+    echo json_encode(['success' => false, 'error' => 'Authorization required']);
     exit;
 }
 
 $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $subredditId = trim($input['subreddit_id'] ?? '');
-$action = trim($input['action'] ?? ''); // 'subscribe' или 'unsubscribe'
+$action = trim($input['action'] ?? '');
 
-if (!$subredditId || !in_array($action, ['subscribe', 'unsubscribe'], true)) {
-    echo json_encode(['success' => false, 'error' => 'Неверные параметры']);
+if ($subredditId === '' || !in_array($action, ['subscribe', 'unsubscribe'], true)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid parameters']);
     exit;
 }
 
 $user = getCurrentUser();
-$result = false;
+$result = $action === 'subscribe'
+    ? subscribeToSubreddit((int)$user['id'], $subredditId)
+    : unsubscribeFromSubreddit((int)$user['id'], $subredditId);
 
-if ($action === 'subscribe') {
-    $result = subscribeToSubreddit((int)$user['id'], $subredditId);
-} else {
-    $result = unsubscribeFromSubreddit((int)$user['id'], $subredditId);
+if (!$result) {
+    echo json_encode(['success' => false, 'error' => 'Failed to update subscription']);
+    exit;
 }
 
-if ($result) {
-    echo json_encode([
-        'success' => true,
-        'message' => $action === 'subscribe' ? 'Вы подписались' : 'Вы отписались',
-        'action' => $action
-    ]);
-} else {
-    echo json_encode(['success' => false, 'error' => 'Ошибка при обновлении подписки']);
-}
+$subreddit = getSubredditById($subredditId);
+echo json_encode([
+    'success' => true,
+    'message' => $action === 'subscribe' ? 'Subscribed' : 'Unsubscribed',
+    'action' => $action,
+    'subscribers_count' => (int)($subreddit['subscribers_count'] ?? 0)
+]);

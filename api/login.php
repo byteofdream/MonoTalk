@@ -1,6 +1,6 @@
 <?php
 /**
- * MonoTalk - API авторизации
+ * MonoTalk - login API
  */
 
 require_once __DIR__ . '/../includes/config.php';
@@ -19,21 +19,26 @@ $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $username = trim($input['username'] ?? '');
 $password = $input['password'] ?? '';
 
-if (empty($username) || empty($password)) {
-    echo json_encode(['success' => false, 'error' => 'Заполните все поля']);
+if ($username === '' || $password === '') {
+    echo json_encode(['success' => false, 'error' => 'Fill in all fields']);
     exit;
 }
 
 $user = getUserByUsername($username);
 if (!$user || !password_verify($password, $user['password'])) {
-    echo json_encode(['success' => false, 'error' => 'Неверный логин или пароль']);
+    echo json_encode(['success' => false, 'error' => 'Invalid username or password']);
+    exit;
+}
+
+if (isUserBanned($user)) {
+    echo json_encode(['success' => false, 'error' => 'Account is banned']);
     exit;
 }
 
 loginUser((int)$user['id']);
 $redirect = trim($input['redirect'] ?? '');
-// Защита от open redirect
-if (empty($redirect) || strpos($redirect, '://') !== false) {
+if ($redirect === '' || strpos($redirect, '://') !== false) {
     $redirect = BASE_URL . 'index.php';
 }
+
 echo json_encode(['success' => true, 'redirect' => $redirect]);

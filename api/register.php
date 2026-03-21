@@ -51,7 +51,12 @@ $newUser = [
     'created_at' => date('Y-m-d H:i:s'),
     'seen_welcome' => false,
     'verified' => false,
-    'subscriptions' => []
+    'subscriptions' => [],
+    'role' => 'user',
+    'strikes' => 0,
+    'mute_until' => null,
+    'banned_at' => null,
+    'status' => 'active'
 ];
 
 $users[] = $newUser;
