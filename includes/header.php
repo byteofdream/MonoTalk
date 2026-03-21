@@ -26,7 +26,10 @@ $currentTheme = getTheme();
         <a href="<?= e(BASE_URL) ?>index.php" class="logo">
             <img src="<?= e(BASE_URL) ?>assets/icons/brand.svg" alt="" class="logo-mark logo-mark--light">
             <img src="<?= e(BASE_URL) ?>assets/icons/brand-white.svg" alt="" class="logo-mark logo-mark--dark">
-            <span>MonoTalk</span>
+            <span class="logo-text">
+                <span>MonoTalk</span>
+                <span class="logo-beta">&beta;eta</span>
+            </span>
         </a>
         <form class="nav-search" action="<?= e(BASE_URL) ?>search.php" method="get">
             <input type="search" name="q" placeholder="<?= e(t('nav_search_placeholder')) ?>" minlength="2" class="nav-search-input">

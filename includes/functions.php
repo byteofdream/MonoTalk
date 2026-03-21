@@ -41,7 +41,7 @@ function getFlash(): ?array {
 function getSubreddits(): array {
     $subs = readData('subreddits.json');
     if (!empty($subs)) {
-        return $subs;
+        return attachSubredditSubscriberCounts($subs);
     }
 
     $legacy = readData('categories.json');
@@ -62,7 +62,32 @@ function getSubreddits(): array {
     }, $legacy);
 
     writeData('subreddits.json', $mapped);
-    return $mapped;
+    return attachSubredditSubscriberCounts($mapped);
+}
+
+function getSubredditSubscriberCount(string $subredditId): int {
+    if ($subredditId === '') {
+        return 0;
+    }
+
+    $users = readData('users.json');
+    $count = 0;
+    foreach ($users as $user) {
+        if (in_array($subredditId, $user['subscriptions'] ?? [], true)) {
+            $count++;
+        }
+    }
+
+    return $count;
+}
+
+function attachSubredditSubscriberCounts(array $subreddits): array {
+    foreach ($subreddits as &$subreddit) {
+        $subreddit['subscribers_count'] = getSubredditSubscriberCount((string)($subreddit['id'] ?? ''));
+    }
+    unset($subreddit);
+
+    return $subreddits;
 }
 
 /**

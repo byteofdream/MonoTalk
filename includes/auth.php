@@ -30,6 +30,31 @@ function migrateUserData(array $user): array {
         $needsSave = true;
     }
     
+    if (!isset($user['role']) || !in_array($user['role'], ['user', 'mod', 'admin'], true)) {
+        $user['role'] = 'user';
+        $needsSave = true;
+    }
+    
+    if (!isset($user['strikes']) || !is_numeric($user['strikes'])) {
+        $user['strikes'] = 0;
+        $needsSave = true;
+    }
+    
+    if (!array_key_exists('mute_until', $user)) {
+        $user['mute_until'] = null;
+        $needsSave = true;
+    }
+    
+    if (!array_key_exists('banned_at', $user)) {
+        $user['banned_at'] = null;
+        $needsSave = true;
+    }
+    
+    if (!isset($user['status']) || !in_array($user['status'], ['active', 'muted', 'banned'], true)) {
+        $user['status'] = 'active';
+        $needsSave = true;
+    }
+    
     // Добавьте другие поля, которые могут появиться в будущем
     // if (!isset($user['some_new_field'])) {
     //     $user['some_new_field'] = default_value;
@@ -143,4 +168,44 @@ function requireAuth(): void {
         header('Location: ' . BASE_URL . 'login.php?redirect=' . $redirect);
         exit;
     }
+}
+
+function getUserRole(?array $user = null): string {
+    $user = $user ?? getCurrentUser();
+    return $user['role'] ?? 'user';
+}
+
+function hasRole(string $requiredRole, ?array $user = null): bool {
+    $levels = ['user' => 1, 'mod' => 2, 'admin' => 3];
+    $currentRole = getUserRole($user);
+    return ($levels[$currentRole] ?? 0) >= ($levels[$requiredRole] ?? PHP_INT_MAX);
+}
+
+function requireRole(string $requiredRole): void {
+    requireAuth();
+    if (!hasRole($requiredRole)) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['success' => false, 'error' => 'Недостаточно прав'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+function isUserBanned(?array $user = null): bool {
+    $user = $user ?? getCurrentUser();
+    return !empty($user['banned_at']) || (($user['status'] ?? 'active') === 'banned');
+}
+
+function isUserMuted(?array $user = null): bool {
+    $user = $user ?? getCurrentUser();
+    if (!$user) {
+        return false;
+    }
+
+    $muteUntil = $user['mute_until'] ?? null;
+    if (!$muteUntil) {
+        return false;
+    }
+
+    return strtotime($muteUntil) > time();
 }
