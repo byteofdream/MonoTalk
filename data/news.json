@@ -22,5 +22,13 @@
     "title_en": "View other users' profiles",
     "content_ru": "Кликните на имя пользователя (u/username) в любом посте или комментарии, чтобы открыть его профиль и посмотреть его посты.",
     "content_en": "Click on a username (u/username) in any post or comment to open their profile and view their posts."
+  },
+  {
+    "id": 4,
+    "date": "2026-03-21",
+    "title_ru": "Крупное обновление интерфейса и функций",
+    "title_en": "Major UI and feature update",
+    "content_ru": "Мы обновили MonoTalk: добавили переключение языков (RU/EN), светлую и тёмную тему, страницу правил с полным переводом, страницу настроек и новости, верификацию пользователей (синяя галочка рядом с ником), улучшили создание поста (более широкая форма, быстрый выбор категорий, согласие с правилами), а также исправили стили кнопок и форм.",
+    "content_en": "MonoTalk has been updated: we added language switching (RU/EN), light and dark themes, a fully translated rules page, settings and news pages, user verification (blue badge next to username), improved post creation (wider form, quick category picker, rules agreement), and fixed button/form styling issues."
   }
 ]
