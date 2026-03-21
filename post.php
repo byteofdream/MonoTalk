@@ -98,8 +98,10 @@ $pageTitle = e($post['title']);
                         </div>
                         <div class="comment-body">
                             <div class="comment-header">
-                                <span class="comment-author">u/<?= e($comment['author_name'] ?? 'Anonymous') ?><?php if ((int)($comment['author_id'] ?? 0) > 0): $cAuthorId = (int)($comment['author_id'] ?? 0); ?><?= isUserVerifiedById($cAuthorId) ? verifiedBadge() : '' ?><?php endif; ?></span>
-                                <span class="comment-date"><?= e(formatDate($comment['created_at'] ?? '')) ?></span>
+                                <div>
+                                    <span class="comment-author">u/<?= e($comment['author_name'] ?? 'Anonymous') ?><?php if ((int)($comment['author_id'] ?? 0) > 0): $cAuthorId = (int)($comment['author_id'] ?? 0); ?><?= isUserVerifiedById($cAuthorId) ? verifiedBadge() : '' ?><?php endif; ?></span>
+                                    <span class="comment-date"> · <?= e(formatDate($comment['created_at'] ?? '')) ?></span>
+                                </div>
                                 <?php if ($isCommentAuthor): ?>
                                 <button class="edit-comment-btn" data-comment-id="<?= (int)$comment['id'] ?>" title="Редактировать комментарий">✏️</button>
                                 <?php endif; ?>

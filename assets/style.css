@@ -1170,7 +1170,12 @@ main.container, .main-layout {
 }
 
 .comment-card-reddit .comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
+    font-size: 0.9rem;
 }
 
 .comment-card-reddit .comment-content {
@@ -1262,6 +1267,7 @@ main.container, .main-layout {
 
 .comment-date {
     color: var(--text-muted);
+    font-size: 0.9rem;
 }
 
 .comment-content {
@@ -2172,7 +2178,8 @@ main.container, .main-layout {
 }
 
 .comment-header .edit-comment-btn {
-    margin-left: 0.5rem;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .post-form {
