@@ -83,8 +83,8 @@ $excerptLength = 500;
                         <span class="vote-count"><?= (int)($post['likes'] ?? 0) ?></span>
                     </div>
                     <div class="post-body">
+                        <a href="?category=<?= e($cat['id']) ?>" class="post-category-badge" onclick="event.stopPropagation();"><?= e($cat['emoji'] ?? '') ?> r/<?= e(catName($cat, $lang)) ?></a>
                         <a href="<?= e(BASE_URL) ?>post.php?id=<?= (int)$post['id'] ?>" class="post-link">
-                            <span class="post-category-badge"><?= e($cat['emoji'] ?? '') ?> r/<?= e(catName($cat, $lang)) ?></span>
                             <h2 class="post-title"><?= e($post['title']) ?></h2>
                             <?php if (!empty($post['image'])): ?>
                                 <div class="post-image-preview-wrap">

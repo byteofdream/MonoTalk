@@ -550,6 +550,13 @@ body {
     color: var(--text-muted);
     display: inline-block;
     margin-bottom: 0.35rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color var(--transition);
+}
+
+.post-category-badge:hover {
+    color: var(--text);
 }
 
 .post-card-reddit .post-title {

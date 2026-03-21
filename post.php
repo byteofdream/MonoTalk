@@ -37,7 +37,7 @@ $pageTitle = e($post['title']);
                 <span class="vote-count"><?= (int)($post['likes'] ?? 0) ?></span>
             </div>
             <div class="post-full-body">
-                <span class="post-category-badge"><?= e($category['emoji'] ?? '') ?> r/<?= e(catName($category, $lang)) ?></span>
+                <a href="<?= e(BASE_URL) ?>index.php?category=<?= e($category['id']) ?>" class="post-category-badge"><?= e($category['emoji'] ?? '') ?> r/<?= e(catName($category, $lang)) ?></a>
                 <h1 class="post-title"><?= e($post['title']) ?></h1>
                 <div class="post-meta-line">
                     <?= e(t('post_published')) ?> <?php if ((int)($post['author_id'] ?? 0) > 0): $authorId = (int)($post['author_id'] ?? 0); ?><a href="<?= e(BASE_URL) ?>profile.php?user=<?= e($post['author_name'] ?? '') ?>"><strong>u/<?= e($post['author_name'] ?? '') ?></strong><?= isUserVerifiedById($authorId) ? verifiedBadge() : '' ?></a><?php else: ?><strong>u/<?= e($post['author_name'] ?? 'Anonymous') ?></strong><?php endif; ?>
