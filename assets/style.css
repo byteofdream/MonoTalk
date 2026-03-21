@@ -1069,7 +1069,7 @@ main.container, .main-layout {
 }
 
 .post-content {
-    margin: 1.5rem 0;
+    margin: 1rem 0;
     white-space: normal;
     word-wrap: break-word;
     line-height: 1.6;
@@ -1097,7 +1097,7 @@ main.container, .main-layout {
 
 .post-full-body {
     flex: 1;
-    padding: 1.5rem 2rem;
+    padding: 1rem 1.5rem;
 }
 
 .post-full-reddit .post-title {
@@ -1110,7 +1110,7 @@ main.container, .main-layout {
 .post-full-reddit .post-content {
     font-size: 1.05rem;
     line-height: 1.7;
-    margin: 1.5rem 0;
+    margin: 1rem 0;
 }
 
 .post-full-image-wrap {
