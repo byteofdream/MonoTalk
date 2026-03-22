@@ -268,6 +268,88 @@
 
 ---
 
+#### Получение информации о посте
+**GET/POST** `/api/get_post_info.php`
+- **Параметры:**
+  - `post_id` (int, обязательно) - ID поста
+
+- **Успешный ответ (200):**
+```json
+{
+  "success": true,
+  "post": {
+    "id": 123,
+    "title": "...",
+    "content": "...",
+    "category": "1",
+    "category_info": { ... },
+    "author_id": 456,
+    "author_name": "...",
+    "author_info": { ... },
+    "anonymous": false,
+    "image": "...",
+    "created_at": "...",
+    "likes": 10,
+    "comments_count": 5
+  }
+}
+```
+
+- **Ошибки:**
+```json
+{
+  "success": false,
+  "error": "Invalid post_id"
+}
+// или
+{
+  "success": false,
+  "error": "Post not found"
+}
+```
+
+- **Статус код:** 405 (если метод не GET/POST), 200 (OK), 404 (пост не найден)
+
+---
+
+#### Получение информации о пользователе
+**GET/POST** `/api/get_user_info_from_id.php`
+- **Параметры:**
+  - `user_id` (int, обязательно) - ID пользователя
+
+- **Успешный ответ (200):**
+```json
+{
+  "success": true,
+  "user": {
+    "id": 456,
+    "username": "...",
+    "verified": true,
+    "created_at": "...",
+    "subscriptions_count": 5,
+    "role": "user",
+    "status": "active"
+  }
+}
+```
+
+- **Ошибки:**
+```json
+{
+  "success": false,
+  "error": "Invalid user_id"
+}
+// или
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+- **Статус код:** 405 (если метод не GET/POST), 200 (OK), 404 (пользователь не найден)
+
+---
+
 #### Редактирование поста
 **POST** `/api/edit_post.php`
 - **Требует:** Авторизация + автор поста
