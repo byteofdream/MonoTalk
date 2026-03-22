@@ -26,6 +26,7 @@ $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $postId = (int)($input['post_id'] ?? 0);
 $title = trim($input['title'] ?? '');
 $content = trim($input['content'] ?? '');
+$removeImage = !empty($input['remove_image']);
 
 if (!$postId) {
     echo json_encode(['success' => false, 'error' => 'Post ID is required']);
@@ -62,6 +63,11 @@ if ($title === '') {
 }
 
 $imagePath = $post['image'] ?? '';
+if ($removeImage && $imagePath !== '' && file_exists(__DIR__ . '/../' . $imagePath)) {
+    unlink(__DIR__ . '/../' . $imagePath);
+    $imagePath = '';
+}
+
 if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
     if (($_FILES['image']['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
         echo json_encode(['success' => false, 'error' => 'Image upload failed']);

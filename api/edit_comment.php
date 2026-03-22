@@ -25,6 +25,7 @@ if (!isLoggedIn()) {
 $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $commentId = (int)($input['comment_id'] ?? 0);
 $content = trim($input['content'] ?? '');
+$removeImage = !empty($input['remove_image']);
 
 if (!$commentId) {
     echo json_encode(['success' => false, 'error' => 'Comment ID is required']);
@@ -56,9 +57,9 @@ if ((int)($comment['author_id'] ?? 0) !== (int)$currentUser['id']) {
 }
 
 $imagePath = $comment['image'] ?? '';
-if ($content === '' && $imagePath === '') {
-    echo json_encode(['success' => false, 'error' => 'Comment cannot be empty']);
-    exit;
+if ($removeImage && $imagePath !== '' && file_exists(__DIR__ . '/../' . $imagePath)) {
+    unlink(__DIR__ . '/../' . $imagePath);
+    $imagePath = '';
 }
 
 if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
@@ -96,6 +97,11 @@ if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE)
     }
 
     $imagePath = 'uploads/comments/' . $filename;
+}
+
+if ($content === '' && $imagePath === '') {
+    echo json_encode(['success' => false, 'error' => 'Comment cannot be empty']);
+    exit;
 }
 
 $moderation = moderateSubmissionOrFail($currentUser, $content, [
