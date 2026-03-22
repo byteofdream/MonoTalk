@@ -44,6 +44,18 @@ if ($category === '' || !getSubredditById($category)) {
     exit;
 }
 
+$user = getCurrentUser();
+if (!$user) {
+    echo json_encode(['success' => false, 'error' => 'Authorization required']);
+    exit;
+}
+
+$subscriptions = $user['subscriptions'] ?? [];
+if (!in_array($category, $subscriptions, true)) {
+    echo json_encode(['success' => false, 'error' => 'Subscribe to this subreddit before posting']);
+    exit;
+}
+
 if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
     if (($_FILES['image']['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
         echo json_encode(['success' => false, 'error' => 'Image upload failed']);
