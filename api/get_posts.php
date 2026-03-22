@@ -30,7 +30,6 @@ if (!in_array($sort, $allowedSorts, true)) {
 }
 
 if ($search !== '') {
-    // Поиск по заголовку и содержанию
     $posts = searchPosts($search);
     if ($category !== '') {
         $posts = array_filter($posts, fn($p) => ($p['category'] ?? '') === $category);
@@ -51,6 +50,21 @@ if ($search !== '') {
 } else {
     $posts = getPosts($category, $sort);
 }
+
+// Прикрепляем данные авторов (аватарки) прямо к постам
+$users = readData('users.json');
+$usersMap = [];
+foreach ($users as $u) {
+    $usersMap[(int)$u['id']] = $u['avatar'] ?? '';
+}
+
+foreach ($posts as &$post) {
+    $authorId = (int)($post['author_id'] ?? 0);
+    if ($authorId > 0) {
+        $post['author_avatar'] = $usersMap[$authorId] ?? '';
+    }
+}
+unset($post);
 
 $total = count($posts);
 
