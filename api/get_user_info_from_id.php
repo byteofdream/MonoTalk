@@ -37,6 +37,7 @@ if (!$user) {
 $userInfo = [
     'id' => $user['id'],
     'username' => $user['username'],
+    'avatar' => $user['avatar'] ?? null,
     'verified' => !empty($user['verified']),
     'created_at' => $user['created_at'] ?? null,
     'subscriptions_count' => count($user['subscriptions'] ?? []),
