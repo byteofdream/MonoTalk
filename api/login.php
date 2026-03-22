@@ -41,4 +41,13 @@ if ($redirect === '' || strpos($redirect, '://') !== false) {
     $redirect = BASE_URL . 'index.php';
 }
 
-echo json_encode(['success' => true, 'redirect' => $redirect]);
+echo json_encode([
+    'success' => true,
+    'redirect' => $redirect,
+    'user_id' => (int)$user['id'],
+    'user' => [
+        'id' => (int)$user['id'],
+        'username' => $user['username'],
+        'avatar' => $user['avatar'] ?? null
+    ]
+]);
