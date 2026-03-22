@@ -750,6 +750,123 @@
 
 ---
 
+### Дополнительные API для клиентов
+
+#### Получение списка сабреддитов
+**GET/POST** `/api/get_subreddits.php`
+- **Параметры:**
+  - `limit` (int, опционально) - количество сабреддитов в ответе
+  - `offset` (int, опционально) - смещение для пагинации
+  - `search` (string, опционально) - поиск по названию и описанию
+
+- **Успешный ответ (200):**
+```json
+{
+  "success": true,
+  "total": 50,
+  "count": 20,
+  "subreddits": [ ... ]
+}
+```
+
+- **Статус код:** 405 (если метод не GET/POST), 200 (OK)
+
+---
+
+#### Получение комментариев поста
+**GET/POST** `/api/get_comments.php`
+- **Параметры:**
+  - `post_id` (int, обязательно) - ID поста
+
+- **Успешный ответ (200):**
+```json
+{
+  "success": true,
+  "post_id": 123,
+  "count": 5,
+  "comments": [ ... ]
+}
+```
+
+- **Ошибки:**
+```json
+{
+  "success": false,
+  "error": "Invalid post_id"
+}
+```
+
+- **Статус код:** 405 (если метод не GET/POST), 200 (OK), 400 (невалидный ID)
+
+---
+
+#### Получение постов пользователя
+**GET/POST** `/api/get_user_posts.php`
+- **Параметры:**
+  - `user_id` (int, обязательно) - ID пользователя
+  - `sort` (string, опционально) - `hot|new|popular|discussed` (по умолчанию `new`)
+  - `limit` (int, опционально) - количество постов
+  - `offset` (int, опционально) - смещение для пагинации
+
+- **Успешный ответ (200):**
+```json
+{
+  "success": true,
+  "user_id": 456,
+  "total": 25,
+  "count": 10,
+  "sort": "new",
+  "posts": [ ... ]
+}
+```
+
+- **Ошибки:**
+```  "success": false,
+  "error": "Invalid user_id"
+}
+// или
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+- **Статус код:** 405 (если метод не GET/POST), 200 (OK), 400 (невалидный ID), 404 (пользователь не найден)
+
+---
+
+#### Получение подписок пользователя
+**GET/POST** `/api/get_user_subscriptions.php`
+- **Параметры:**
+  - `user_id` (int, обязательно) - ID пользователя
+
+- **Успешный ответ (200):**
+```json
+{
+  "success": true,
+  "user_id": 456,
+  "count": 5,
+  "subscriptions": [ ... ]
+}
+```
+
+- **Ошибки:**
+```json
+{
+  "success": false,
+  "error": "Invalid user_id"
+}
+// или
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+- **Статус код:** 405 (если метод не GET/POST), 200 (OK), 400 (невалидный ID), 404 (пользователь не найден)
+
+---
+
 ## 📊 HTTP методы по эндпойнтам
 
 | Метод  | Эндпойнт | Требует | JSON |
@@ -772,6 +889,13 @@
 | POST   | /api/logout.php | Авт. | - |
 | POST/GET | /api/set_theme.php | - | - |
 | POST/GET | /api/set_language.php | - | - |
+| GET/POST | /api/get_posts.php | - | - |
+| GET/POST | /api/get_post_info.php | - | - |
+| GET/POST | /api/get_user_info_from_id.php | - | - |
+| GET/POST | /api/get_subreddits.php | - | - |
+| GET/POST | /api/get_comments.php | - | - |
+| GET/POST | /api/get_user_posts.php | - | - |
+| GET/POST | /api/get_user_subscriptions.php | - | - |
 
 ---
 
