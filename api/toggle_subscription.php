@@ -45,5 +45,6 @@ echo json_encode([
     'success' => true,
     'message' => $action === 'subscribe' ? 'Subscribed' : 'Unsubscribed',
     'action' => $action,
+    'subscribed' => $action === 'subscribe',
     'subscribers_count' => (int)($subreddit['subscribers_count'] ?? 0)
 ]);

@@ -52,17 +52,9 @@ if ($search !== '') {
 }
 
 // Прикрепляем данные авторов (аватарки) прямо к постам
-$users = readData('users.json');
-$usersMap = [];
-foreach ($users as $u) {
-    $usersMap[(int)$u['id']] = $u['avatar'] ?? '';
-}
-
+$currentUserId = isLoggedIn() ? (int)((getCurrentUser()['id'] ?? 0)) : 0;
 foreach ($posts as &$post) {
-    $authorId = (int)($post['author_id'] ?? 0);
-    if ($authorId > 0) {
-        $post['author_avatar'] = $usersMap[$authorId] ?? '';
-    }
+    $post = attachPostApiFields($post, $currentUserId ?: null);
 }
 unset($post);
 
@@ -74,6 +66,7 @@ if ($offset > 0 || $limit > 0) {
 
 echo json_encode([
     'success' => true,
+    'current_user_id' => $currentUserId ?: null,
     'total' => $total,
     'count' => count($posts),
     'category' => $category,

@@ -33,17 +33,13 @@ if (!$user) {
     exit;
 }
 
-// Публичная информация о пользователе
-$userInfo = [
-    'id' => $user['id'],
-    'username' => $user['username'],
-    'avatar' => $user['avatar'] ?? null,
-    'verified' => !empty($user['verified']),
-    'created_at' => $user['created_at'] ?? null,
-    'subscriptions_count' => count($user['subscriptions'] ?? []),
-    'role' => $user['role'] ?? 'user',
-    'status' => $user['status'] ?? 'active'
-];
+$userInfo = getPublicUserInfo($user) ?? [];
+$userInfo['posts_count'] = count(array_filter(
+    readData('posts.json'),
+    fn($post) => (int)($post['author_id'] ?? 0) === $userId
+));
+$currentUser = getCurrentUser();
+$userInfo['is_current_user'] = $currentUser ? (int)($currentUser['id'] ?? 0) === $userId : false;
 
 echo json_encode([
     'success' => true,

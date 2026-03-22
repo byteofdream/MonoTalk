@@ -37,6 +37,7 @@ if (!$user) {
 
 $posts = readData('posts.json');
 $posts = array_filter($posts, fn($p) => (int)($p['author_id'] ?? 0) === $userId);
+$currentUserId = isLoggedIn() ? (int)((getCurrentUser()['id'] ?? 0)) : 0;
 
 usort($posts, function($a, $b) use ($sort) {
     if ($sort === 'popular') {
@@ -57,8 +58,14 @@ if ($offset > 0 || $limit > 0) {
     $posts = array_slice($posts, $offset, $limit > 0 ? $limit : null);
 }
 
+foreach ($posts as &$post) {
+    $post = attachPostApiFields($post, $currentUserId ?: null);
+}
+unset($post);
+
 echo json_encode([
     'success' => true,
+    'current_user_id' => $currentUserId ?: null,
     'user_id' => $userId,
     'total' => $total,
     'count' => count($posts),

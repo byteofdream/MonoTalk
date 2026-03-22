@@ -5,6 +5,58 @@
 
 require_once __DIR__ . '/db.php';
 
+function getDefaultSubreddits(): array {
+    $createdAt = date('Y-m-d H:i:s');
+
+    return [
+        [
+            'id' => 'games',
+            'name' => 'Игры',
+            'name_en' => 'Games',
+            'emoji' => '🎮',
+            'description' => 'Обсуждение игр, новинок и любимых тайтлов.',
+            'created_by' => 0,
+            'created_at' => $createdAt,
+        ],
+        [
+            'id' => 'programming',
+            'name' => 'Программирование',
+            'name_en' => 'Programming',
+            'emoji' => '💻',
+            'description' => 'Код, технологии, архитектура и жизнь разработчика.',
+            'created_by' => 0,
+            'created_at' => $createdAt,
+        ],
+        [
+            'id' => 'memes',
+            'name' => 'Мемы',
+            'name_en' => 'Memes',
+            'emoji' => '😂',
+            'description' => 'Шутки, мемы и всё, что помогает пережить дедлайны.',
+            'created_by' => 0,
+            'created_at' => $createdAt,
+        ],
+        [
+            'id' => 'discussion',
+            'name' => 'Обсуждения',
+            'name_en' => 'Discussion',
+            'emoji' => '💬',
+            'description' => 'Свободное общение на любые темы.',
+            'created_by' => 0,
+            'created_at' => $createdAt,
+        ],
+        [
+            'id' => 'news',
+            'name' => 'Новости',
+            'name_en' => 'News',
+            'emoji' => '📰',
+            'description' => 'Важные новости сообщества и мира вокруг.',
+            'created_by' => 0,
+            'created_at' => $createdAt,
+        ],
+    ];
+}
+
 /**
  * Безопасный вывод текста (защита от XSS)
  */
@@ -46,7 +98,9 @@ function getSubreddits(): array {
 
     $legacy = readData('categories.json');
     if (empty($legacy)) {
-        return [];
+        $defaults = getDefaultSubreddits();
+        writeData('subreddits.json', $defaults);
+        return attachSubredditSubscriberCounts($defaults);
     }
 
     $mapped = array_map(function($cat) {
@@ -252,6 +306,73 @@ function hasUserLiked(int $userId, string $type, int $targetId): bool {
         }
     }
     return false;
+}
+
+function getPublicUserInfo(?array $user): ?array {
+    if (!$user) {
+        return null;
+    }
+
+    return [
+        'id' => (int)($user['id'] ?? 0),
+        'username' => $user['username'] ?? '',
+        'avatar' => $user['avatar'] ?? null,
+        'verified' => !empty($user['verified']),
+        'created_at' => $user['created_at'] ?? null,
+        'subscriptions_count' => count($user['subscriptions'] ?? []),
+        'role' => $user['role'] ?? 'user',
+        'status' => $user['status'] ?? 'active',
+    ];
+}
+
+function attachPostApiFields(array $post, ?int $currentUserId = null): array {
+    $authorId = (int)($post['author_id'] ?? 0);
+    $author = $authorId > 0 ? getUserById($authorId) : null;
+
+    if ($author) {
+        $post['author_name'] = $post['author_name'] ?? ($author['username'] ?? 'Anonymous');
+        $post['author_avatar'] = $author['avatar'] ?? '';
+        $post['author_info'] = getPublicUserInfo($author);
+    } else {
+        $post['author_avatar'] = '';
+        $post['author_info'] = null;
+        $post['author_name'] = $post['author_name'] ?? 'Anonymous';
+    }
+
+    $subreddit = getSubredditById((string)($post['category'] ?? ''));
+    if ($subreddit) {
+        $post['category_info'] = [
+            'id' => $subreddit['id'] ?? '',
+            'name' => $subreddit['name'] ?? '',
+            'name_en' => $subreddit['name_en'] ?? '',
+            'emoji' => $subreddit['emoji'] ?? '',
+            'description' => $subreddit['description'] ?? '',
+            'subscribers_count' => (int)($subreddit['subscribers_count'] ?? 0),
+        ];
+    }
+
+    $post['liked_by_me'] = $currentUserId ? hasUserLiked($currentUserId, 'post', (int)($post['id'] ?? 0)) : false;
+
+    return $post;
+}
+
+function attachCommentApiFields(array $comment, ?int $currentUserId = null): array {
+    $authorId = (int)($comment['author_id'] ?? 0);
+    $author = $authorId > 0 ? getUserById($authorId) : null;
+
+    if ($author) {
+        $comment['author_name'] = $comment['author_name'] ?? ($author['username'] ?? 'Anonymous');
+        $comment['author_avatar'] = $author['avatar'] ?? '';
+        $comment['author_info'] = getPublicUserInfo($author);
+    } else {
+        $comment['author_avatar'] = '';
+        $comment['author_info'] = null;
+        $comment['author_name'] = $comment['author_name'] ?? 'Anonymous';
+    }
+
+    $comment['liked_by_me'] = $currentUserId ? hasUserLiked($currentUserId, 'comment', (int)($comment['id'] ?? 0)) : false;
+
+    return $comment;
 }
 
 /**

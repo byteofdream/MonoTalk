@@ -26,9 +26,22 @@ if ($query === '') {
 $posts = searchPosts($query);
 $subreddits = searchSubreddits($query);
 $users = searchUsers($query);
+$currentUserId = isLoggedIn() ? (int)((getCurrentUser()['id'] ?? 0)) : 0;
+$subscriptionIds = $currentUserId ? getUserSubscriptions($currentUserId) : [];
+
+foreach ($posts as &$post) {
+    $post = attachPostApiFields($post, $currentUserId ?: null);
+}
+unset($post);
+
+foreach ($subreddits as &$subreddit) {
+    $subreddit['subscribed_by_me'] = in_array($subreddit['id'] ?? '', $subscriptionIds, true);
+}
+unset($subreddit);
 
 echo json_encode([
     'success' => true,
+    'current_user_id' => $currentUserId ?: null,
     'posts' => array_values($posts),
     'subreddits' => array_values($subreddits),
     'users' => array_values($users)

@@ -57,4 +57,9 @@ foreach ($users as &$u) {
 }
 writeData('users.json', $users);
 
-echo json_encode(['success' => true, 'redirect' => BASE_URL . 'profile.php']);
+$updatedUser = getCurrentUser();
+echo json_encode([
+    'success' => true,
+    'redirect' => BASE_URL . 'profile.php',
+    'user' => $updatedUser ? getPublicUserInfo($updatedUser) : null
+]);

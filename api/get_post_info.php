@@ -33,34 +33,11 @@ if (!$post) {
     exit;
 }
 
-// Получаем информацию о категории
-$category = getSubredditById($post['category'] ?? '');
-if ($category) {
-    $post['category_info'] = [
-        'id' => $category['id'],
-        'name' => $category['name'] ?? '',
-        'name_en' => $category['name_en'] ?? '',
-        'emoji' => $category['emoji'] ?? '',
-        'description' => $category['description'] ?? '',
-        'subscribers_count' => $category['subscribers_count'] ?? 0
-    ];
-}
-
-// Получаем информацию об авторе (публичную)
-$authorId = (int)($post['author_id'] ?? 0);
-if ($authorId > 0) {
-    $author = getUserById($authorId);
-    if ($author) {
-        $post['author_info'] = [
-            'id' => $author['id'],
-            'username' => $author['username'],
-            'verified' => !empty($author['verified']),
-            'created_at' => $author['created_at'] ?? null
-        ];
-    }
-}
+$currentUserId = isLoggedIn() ? (int)((getCurrentUser()['id'] ?? 0)) : 0;
+$post = attachPostApiFields($post, $currentUserId ?: null);
 
 echo json_encode([
     'success' => true,
+    'current_user_id' => $currentUserId ?: null,
     'post' => $post
 ]);

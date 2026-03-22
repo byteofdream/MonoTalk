@@ -23,6 +23,8 @@ $offset = isset($input['offset']) ? max(0, (int)$input['offset']) : 0;
 $search = trim((string)($input['search'] ?? ''));
 
 $subreddits = getSubreddits();
+$currentUserId = isLoggedIn() ? (int)((getCurrentUser()['id'] ?? 0)) : 0;
+$subscriptionIds = $currentUserId ? getUserSubscriptions($currentUserId) : [];
 
 if ($search !== '') {
     $searchLower = mb_strtolower($search);
@@ -43,8 +45,14 @@ if ($offset > 0 || $limit > 0) {
     $subreddits = array_slice($subreddits, $offset, $limit > 0 ? $limit : null);
 }
 
+foreach ($subreddits as &$subreddit) {
+    $subreddit['subscribed_by_me'] = in_array($subreddit['id'] ?? '', $subscriptionIds, true);
+}
+unset($subreddit);
+
 echo json_encode([
     'success' => true,
+    'current_user_id' => $currentUserId ?: null,
     'total' => $total,
     'count' => count($subreddits),
     'subreddits' => array_values($subreddits)

@@ -26,25 +26,15 @@ if ($postId <= 0) {
 }
 
 $comments = getCommentsByPostId($postId);
-
-// Добавляем информацию об авторах комментариев
+$currentUserId = isLoggedIn() ? (int)((getCurrentUser()['id'] ?? 0)) : 0;
 foreach ($comments as &$comment) {
-    $authorId = (int)($comment['author_id'] ?? 0);
-    if ($authorId > 0) {
-        $author = getUserById($authorId);
-        if ($author) {
-            $comment['author_info'] = [
-                'id' => $author['id'],
-                'username' => $author['username'],
-                'verified' => !empty($author['verified'])
-            ];
-        }
-    }
+    $comment = attachCommentApiFields($comment, $currentUserId ?: null);
 }
 unset($comment);
 
 echo json_encode([
     'success' => true,
+    'current_user_id' => $currentUserId ?: null,
     'post_id' => $postId,
     'count' => count($comments),
     'comments' => array_values($comments)
