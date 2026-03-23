@@ -1163,6 +1163,67 @@ main.container, .main-layout {
     resize: vertical;
 }
 
+.form-group input[type="file"] {
+    padding: 0.55rem;
+    cursor: pointer;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 248, 252, 0.98));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.form-group input[type="file"]::file-selector-button {
+    margin-right: 0.85rem;
+    padding: 0.68rem 1rem;
+    border: 1px solid #111111;
+    border-radius: 10px;
+    background: #111111;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+}
+
+.form-group input[type="file"]::file-selector-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+    filter: brightness(1.06);
+}
+
+.form-group input[type="file"]::file-selector-button:active {
+    transform: translateY(0);
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button {
+    margin-right: 0.85rem;
+    padding: 0.68rem 1rem;
+    border: 1px solid #111111;
+    border-radius: 10px;
+    background: #111111;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="dark"] .form-group input[type="file"] {
+    background: linear-gradient(180deg, rgba(32, 38, 50, 0.95), rgba(22, 27, 37, 0.98));
+    border-color: rgba(143, 188, 255, 0.12);
+    color: var(--text);
+}
+
+[data-theme="dark"] .form-group input[type="file"]::file-selector-button,
+[data-theme="dark"] .form-group input[type="file"]::-webkit-file-upload-button {
+    border-color: #000000;
+    background: #000000;
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -1575,6 +1636,383 @@ main.container, .main-layout {
 .profile-date {
     color: var(--text-muted);
     font-size: 0.9rem;
+}
+
+.level-card {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(20, 122, 255, 0.16);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at top right, rgba(82, 178, 255, 0.26), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(20, 122, 255, 0.16), transparent 34%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(244, 248, 255, 0.98));
+    box-shadow: 0 22px 50px rgba(20, 122, 255, 0.12);
+}
+
+.level-card-glow {
+    position: absolute;
+    top: -50px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(73, 179, 255, 0.32), transparent 68%);
+    pointer-events: none;
+}
+
+.level-card-header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-bottom: 1.15rem;
+}
+
+.level-card-header h2 {
+    font-size: 2rem;
+    line-height: 1;
+    margin: 0.35rem 0 0.4rem;
+}
+
+.level-card-copy {
+    max-width: 520px;
+}
+
+.level-card-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4a6b92;
+    font-weight: 700;
+}
+
+.level-rank-line {
+    color: var(--text-muted);
+    font-size: 0.96rem;
+}
+
+.level-rank-line strong {
+    color: var(--text);
+}
+
+.trust-inline-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.7rem;
+}
+
+.trust-inline-note {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.48rem 0.82rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.trust-badge-icon {
+    line-height: 1;
+}
+
+.trust-badge-success {
+    background: rgba(46, 160, 67, 0.12);
+    color: #1b7f35;
+    border-color: rgba(46, 160, 67, 0.18);
+}
+
+.trust-badge-warning {
+    background: rgba(251, 188, 5, 0.16);
+    color: #8a6700;
+    border-color: rgba(251, 188, 5, 0.2);
+}
+
+.trust-badge-danger {
+    background: rgba(217, 48, 37, 0.12);
+    color: #b42318;
+    border-color: rgba(217, 48, 37, 0.18);
+}
+
+.level-badge-stack {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.55rem;
+}
+
+.level-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.52rem 0.95rem;
+    border-radius: 999px;
+    background: rgba(20, 122, 255, 0.12);
+    color: #1157b3;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border: 1px solid rgba(20, 122, 255, 0.1);
+}
+
+.level-chip-soft {
+    background: rgba(255, 255, 255, 0.72);
+    color: #48627d;
+}
+
+.level-hero {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.level-orb {
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.18) 32%, transparent 33%),
+        conic-gradient(from 210deg, #147aff, #52b2ff, #91d6ff, #147aff);
+    box-shadow:
+        inset 0 0 0 8px rgba(255, 255, 255, 0.75),
+        0 18px 38px rgba(20, 122, 255, 0.2);
+}
+
+.level-orb-value {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.94);
+    color: #1157b3;
+    font-size: 1.7rem;
+    font-weight: 800;
+}
+
+.level-next-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4a6b92;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+
+.level-hero-copy h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.35rem;
+}
+
+.level-next-text {
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.level-stats-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.1rem;
+}
+
+.level-stat-box {
+    padding: 0.95rem 1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.66);
+    border: 1px solid rgba(20, 122, 255, 0.09);
+    backdrop-filter: blur(8px);
+}
+
+.level-stat-label {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #587494;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+}
+
+.level-stat-value {
+    display: block;
+    font-size: 1.05rem;
+    line-height: 1.35;
+}
+
+.xp-progress-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+.xp-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.82rem;
+    color: #56708f;
+    margin-bottom: 0.45rem;
+}
+
+.level-progress-note {
+    font-size: 0.95rem;
+}
+
+.level-progress-note {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.85rem;
+    color: #4a6787;
+    font-weight: 500;
+}
+
+.xp-progress {
+    width: 100%;
+    height: 16px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(20, 122, 255, 0.12);
+    box-shadow: inset 0 1px 3px rgba(17, 87, 179, 0.12);
+}
+
+.xp-progress-bar {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background:
+        linear-gradient(90deg, #147aff, #49b3ff 55%, #9fdfff);
+    box-shadow: 0 8px 18px rgba(20, 122, 255, 0.3);
+    transition: width 0.25s ease;
+}
+
+.level-track {
+    position: relative;
+    z-index: 1;
+    margin-top: 1rem;
+    padding-top: 1.05rem;
+}
+
+.level-track-line,
+.level-track-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 8px;
+    border-radius: 999px;
+}
+
+.level-track-line {
+    width: 100%;
+    background: rgba(20, 122, 255, 0.12);
+}
+
+.level-track-fill {
+    background: linear-gradient(90deg, #147aff, #52b2ff);
+    box-shadow: 0 8px 18px rgba(20, 122, 255, 0.22);
+}
+
+.level-track-start,
+.level-track-current,
+.level-track-end {
+    font-size: 0.8rem;
+    color: #5e7896;
+    font-weight: 700;
+}
+
+.level-track-current {
+    position: absolute;
+    top: 0.85rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+[data-theme="dark"] .level-chip {
+    color: #8dc4ff;
+    background: rgba(73, 179, 255, 0.18);
+}
+
+[data-theme="dark"] .level-card {
+    border-color: rgba(82, 178, 255, 0.16);
+    background:
+        radial-gradient(circle at top right, rgba(73, 179, 255, 0.18), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(20, 122, 255, 0.16), transparent 34%),
+        linear-gradient(135deg, rgba(24, 30, 41, 0.96), rgba(18, 22, 31, 0.98));
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .level-card-label,
+[data-theme="dark"] .level-next-label,
+[data-theme="dark"] .xp-progress-labels,
+[data-theme="dark"] .level-stat-label,
+[data-theme="dark"] .level-progress-note,
+[data-theme="dark"] .level-track-start,
+[data-theme="dark"] .level-track-current,
+[data-theme="dark"] .level-track-end {
+    color: #93afd0;
+}
+
+[data-theme="dark"] .level-chip-soft,
+[data-theme="dark"] .level-stat-box {
+    background: rgba(255, 255, 255, 0.05);
+    color: #d2e5ff;
+    border-color: rgba(143, 188, 255, 0.12);
+}
+
+[data-theme="dark"] .level-rank-line strong,
+[data-theme="dark"] .level-orb-value {
+    color: #d5e9ff;
+}
+
+[data-theme="dark"] .trust-inline-note {
+    color: #b6c8df;
+}
+
+[data-theme="dark"] .trust-badge-success {
+    background: rgba(46, 160, 67, 0.18);
+    color: #7ee19b;
+    border-color: rgba(126, 225, 155, 0.16);
+}
+
+[data-theme="dark"] .trust-badge-warning {
+    background: rgba(251, 188, 5, 0.18);
+    color: #ffd76f;
+    border-color: rgba(255, 215, 111, 0.16);
+}
+
+[data-theme="dark"] .trust-badge-danger {
+    background: rgba(217, 48, 37, 0.2);
+    color: #ff9c92;
+    border-color: rgba(255, 156, 146, 0.16);
+}
+
+[data-theme="dark"] .level-orb-value {
+    background: rgba(16, 22, 32, 0.92);
+}
+
+[data-theme="dark"] .xp-progress {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .profile-form .btn-primary {
@@ -2228,6 +2666,47 @@ main.container, .main-layout {
     .profile-header {
         flex-direction: column;
         text-align: center;
+    }
+
+    .level-card {
+        padding: 1.2rem;
+    }
+
+    .level-card-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .level-badge-stack {
+        justify-content: flex-start;
+    }
+
+    .level-chip {
+        align-self: flex-start;
+    }
+
+    .level-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .level-orb {
+        margin: 0 auto;
+    }
+
+    .level-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .trust-inline-row {
+        justify-content: center;
+    }
+
+    .level-track-current {
+        position: static;
+        display: inline-block;
+        transform: none;
+        margin-top: 0.55rem;
     }
 
     .create-card {

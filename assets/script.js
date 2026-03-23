@@ -3,6 +3,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    window.LevelSystem?.mountProfileCard?.();
     initFilters();
     initLoginForm();
     initRegisterForm();
@@ -235,6 +236,7 @@ function initCreatePostForm() {
             const json = await res.json();
             
             if (json.success) {
+                window.LevelSystem?.applyLevelingUpdate?.(json.leveling);
                 window.location.href = json.redirect || ('post.php?id=' + json.post_id);
             } else {
                 alert(getModerationMessage(json, 'Ошибка создания поста'));
@@ -353,6 +355,7 @@ function initCommentForm() {
             const json = await res.json();
             
             if (json.success) {
+                window.LevelSystem?.applyLevelingUpdate?.(json.leveling);
                 const commentsList = document.querySelector('.comments-list');
                 const comment = document.createElement('div');
                 comment.className = 'comment-card-reddit';
