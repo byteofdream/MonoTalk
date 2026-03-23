@@ -2483,37 +2483,91 @@ main.container, .main-layout {
 
 @media (max-width: 768px) {
     .navbar {
-        padding: 1rem;
-        flex-wrap: wrap;
-        gap: 0.75rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        padding: 0.85rem;
+        gap: 0.85rem;
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
     }
 
     .logo {
         flex-shrink: 0;
+        justify-self: start;
     }
     
     .nav-search {
-        order: 3;
+        order: 2;
         width: 100%;
         max-width: none;
-        margin: 0.75rem 0 0;
+        margin: 0;
         min-width: 0;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .nav-search-input {
+        min-width: 0;
+        border: 0;
+        border-radius: 0;
+        padding: 0.8rem 0.95rem;
+        background: transparent;
+    }
+
+    .nav-search-btn {
+        min-width: 50px;
+        border: 0;
+        border-left: 1px solid var(--border);
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
     }
     
     .nav-links {
+        order: 3;
         gap: 0.75rem;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         width: 100%;
+        align-items: stretch;
     }
     
     .nav-links > a {
         font-size: 0.9rem;
+        justify-content: center;
+        padding: 0.72rem 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card-bg);
+        min-width: 0;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-links > .lang-switcher,
+    .nav-links > .dropdown {
+        min-width: 0;
+    }
+
+    .lang-btn,
+    .dropdown-btn {
+        width: 100%;
+        min-height: 46px;
+        justify-content: center;
+        border-radius: 12px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
     }
 
     .sort-tabs {
         overflow-x: auto;
         flex-wrap: nowrap;
         scrollbar-width: thin;
+        border-radius: 14px;
     }
 
     .sort-tab {
@@ -2528,6 +2582,7 @@ main.container, .main-layout {
     
     .main-layout {
         padding: 1rem;
+        gap: 1rem;
     }
     
     .container {
@@ -2545,6 +2600,10 @@ main.container, .main-layout {
 
     .sidebar-card {
         min-width: 0;
+    }
+
+    .feed-header {
+        margin-bottom: 0.85rem;
     }
     
     .post-vote-side {
@@ -2677,6 +2736,10 @@ main.container, .main-layout {
         align-items: stretch;
     }
 
+    .level-card-header h2 {
+        font-size: 1.65rem;
+    }
+
     .level-badge-stack {
         justify-content: flex-start;
     }
@@ -2688,18 +2751,34 @@ main.container, .main-layout {
     .level-hero {
         grid-template-columns: 1fr;
         text-align: center;
+        gap: 0.85rem;
     }
 
     .level-orb {
         margin: 0 auto;
+        width: 92px;
+        height: 92px;
+    }
+
+    .level-orb-value {
+        width: 64px;
+        height: 64px;
+        font-size: 1.45rem;
     }
 
     .level-stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .trust-inline-row {
         justify-content: center;
+    }
+
+    .level-track {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem 0.75rem;
+        justify-content: space-between;
     }
 
     .level-track-current {
@@ -2707,6 +2786,17 @@ main.container, .main-layout {
         display: inline-block;
         transform: none;
         margin-top: 0.55rem;
+    }
+
+    .form-group input[type="file"] {
+        padding: 0.6rem;
+        font-size: 0.95rem;
+    }
+
+    .form-group input[type="file"]::file-selector-button,
+    .form-group input[type="file"]::-webkit-file-upload-button {
+        padding: 0.7rem 0.95rem;
+        font-size: 0.9rem;
     }
 
     .create-card {
@@ -2755,11 +2845,15 @@ main.container, .main-layout {
 
 @media (max-width: 480px) {
     .navbar {
-        padding: 0.75rem;
+        padding: 0.7rem;
+        gap: 0.7rem;
+        border-radius: 0 0 16px 16px;
     }
 
     .logo {
         font-size: 1.25rem;
+        width: 100%;
+        justify-content: center;
     }
 
     .logo-text {
@@ -2774,7 +2868,8 @@ main.container, .main-layout {
     .nav-links {
         width: 100%;
         justify-content: stretch;
-        gap: 0.5rem;
+        gap: 0.55rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .nav-links > a,
@@ -2787,7 +2882,7 @@ main.container, .main-layout {
     .nav-links > a {
         font-size: 0.85rem;
         justify-content: center;
-        padding: 0.65rem 0.75rem;
+        padding: 0.72rem 0.72rem;
         border: 1px solid var(--border);
         border-radius: 10px;
         background: var(--card-bg);
@@ -2804,6 +2899,7 @@ main.container, .main-layout {
     .dropdown-btn {
         width: 100%;
         justify-content: center;
+        min-height: 44px;
         padding: 0.65rem 0.75rem;
         border-radius: 10px;
         background: var(--card-bg);
@@ -2816,9 +2912,35 @@ main.container, .main-layout {
         left: 0;
     }
 
+    .nav-search {
+        border-radius: 12px;
+    }
+
+    .nav-search-input {
+        padding: 0.76rem 0.82rem;
+        font-size: 0.92rem;
+    }
+
+    .nav-search-btn {
+        min-width: 46px;
+    }
+
     .main-layout,
     .container {
         padding: 0.75rem;
+    }
+
+    .feed-header {
+        margin-bottom: 0.7rem;
+    }
+
+    .sort-tabs {
+        border-radius: 12px;
+    }
+
+    .sort-tab {
+        padding: 0.6rem 0.72rem;
+        font-size: 0.84rem;
     }
 
     .sidebar {
@@ -2886,6 +3008,79 @@ main.container, .main-layout {
     .news-card {
         padding: 1rem;
         border-radius: 10px;
+    }
+
+    .level-card {
+        padding: 1rem;
+        border-radius: 18px;
+    }
+
+    .level-card-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .level-rank-line,
+    .level-next-text,
+    .level-progress-note,
+    .trust-inline-note {
+        font-size: 0.88rem;
+    }
+
+    .level-chip,
+    .trust-badge {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .level-badge-stack {
+        width: 100%;
+    }
+
+    .level-hero-copy h3 {
+        font-size: 1.02rem;
+    }
+
+    .level-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+    }
+
+    .level-stat-box {
+        padding: 0.85rem 0.9rem;
+        border-radius: 14px;
+    }
+
+    .xp-progress {
+        height: 14px;
+    }
+
+    .xp-progress-labels {
+        font-size: 0.76rem;
+    }
+
+    .level-track {
+        gap: 0.35rem 0.6rem;
+        padding-top: 0.9rem;
+    }
+
+    .level-track-start,
+    .level-track-current,
+    .level-track-end {
+        font-size: 0.74rem;
+    }
+
+    .form-group input[type="file"] {
+        padding: 0.65rem;
+        font-size: 0.92rem;
+    }
+
+    .form-group input[type="file"]::file-selector-button,
+    .form-group input[type="file"]::-webkit-file-upload-button {
+        display: block;
+        width: 100%;
+        margin: 0 0 0.55rem;
+        text-align: center;
+        padding: 0.78rem 0.9rem;
     }
 
     .create-subtitle,
