@@ -75,8 +75,9 @@ $excerptLength = 500;
                 <?php
                 $cat = getSubredditById($post['category'] ?? '');
                 $postLiked = isLoggedIn() && hasUserLiked(getCurrentUser()['id'], 'post', (int)$post['id']);
-                $excerpt = mb_substr($post['content'], 0, $excerptLength);
-                $hasMore = mb_strlen($post['content']) > $excerptLength;
+                $preview = getPostPreviewText((string)($post['content'] ?? ''), $excerptLength);
+                $excerpt = $preview['excerpt'];
+                $hasMore = !empty($preview['has_more']);
                 ?>
                 <article class="post-card-reddit" data-id="<?= (int)$post['id'] ?>" style="animation-delay: <?= $i * 0.03 ?>s">
                     <div class="post-vote-side">

@@ -54,7 +54,17 @@ $subreddits = getSubreddits();
             </div>
             <div class="form-group">
                 <label for="content"><?= e(t('create_content_label')) ?> *</label>
+                <div class="format-toolbar" aria-label="<?= e(t('create_format_toolbar')) ?>">
+                    <button type="button" class="format-btn" data-format-target="content" data-format-wrap="**">B</button>
+                    <button type="button" class="format-btn" data-format-target="content" data-format-wrap="*">I</button>
+                </div>
                 <textarea id="content" name="content" placeholder="<?= e(t('create_details')) ?>"></textarea>
+                <p class="category-help">
+                    <?= e(t('create_format_help')) ?>
+                </p>
+                <p class="category-help">
+                    <?= e(t('create_image_flow_help')) ?>
+                </p>
             </div>
             <div class="form-group">
                 <label for="post_image"><?= $lang === 'en' ? 'Image (optional)' : 'Картинка (необязательно)' ?></label>

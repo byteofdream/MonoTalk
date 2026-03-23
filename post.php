@@ -47,12 +47,7 @@ $pageTitle = e($post['title']);
                     · <button class="edit-post-btn" data-post-id="<?= $postId ?>" title="Редактировать пост">✏️ Редактировать</button>
                     <?php endif; ?>
                 </div>
-                <div class="post-content"><?= nl2br(e($post['content'])) ?></div>
-                <?php if (!empty($post['image'])): ?>
-                    <div class="post-full-image-wrap">
-                        <img src="<?= e(BASE_URL . $post['image']) ?>" alt="" class="post-full-image">
-                    </div>
-                <?php endif; ?>
+                <?= renderPostContentBlocks((string)($post['content'] ?? ''), (string)($post['image'] ?? ''), BASE_URL) ?>
                 <div class="post-actions-bar">
                     <span class="action-link">💬 <?= count($comments) ?> <?= e(t('post_comments_count')) ?></span>
                     <span class="action-link"><?= e(t('post_share')) ?></span>
@@ -150,6 +145,7 @@ $pageTitle = e($post['title']);
             <div class="form-group">
                 <label for="editPostTitle">Заголовок *</label>
                 <input type="text" id="editPostTitle" name="title" required placeholder="Введите заголовок поста">
+                <small>Форматирование: **жирный** и *курсив*.</small>
             </div>
             
             <div class="form-group">
@@ -232,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.getElementById('editPostId').value = postId;
             document.getElementById('editPostTitle').value = titleEl.textContent.trim();
-            document.getElementById('editPostContent').value = contentEl.textContent.trim();
+            document.getElementById('editPostContent').value = contentEl.dataset.rawContent || contentEl.textContent.trim();
             
             document.getElementById('editPostModal').style.display = 'flex';
         });
