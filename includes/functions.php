@@ -4,6 +4,8 @@
  */
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/leveling.php';
+require_once __DIR__ . '/trust.php';
 
 function getDefaultSubreddits(): array {
     $createdAt = date('Y-m-d H:i:s');
@@ -313,6 +315,11 @@ function getPublicUserInfo(?array $user): ?array {
         return null;
     }
 
+    $user = ensureUserLevelData($user);
+    $user = ensureUserTrustData($user);
+    $progress = getLevelProgressData($user);
+    $trust = getTrustData($user);
+
     return [
         'id' => (int)($user['id'] ?? 0),
         'username' => $user['username'] ?? '',
@@ -322,6 +329,17 @@ function getPublicUserInfo(?array $user): ?array {
         'subscriptions_count' => count($user['subscriptions'] ?? []),
         'role' => $user['role'] ?? 'user',
         'status' => $user['status'] ?? 'active',
+        'xp' => (int)$progress['xp'],
+        'level' => (int)$progress['level'],
+        'level_name' => (string)$progress['level_name'],
+        'next_level_xp' => $progress['next_level_xp'],
+        'progress_percent' => (int)$progress['progress_percent'],
+        'trust' => (int)$trust['trust'],
+        'trust_status' => (string)$trust['status'],
+        'trust_color' => (string)$trust['color'],
+        'trust_icon' => (string)$trust['icon'],
+        'is_trusted' => !empty($trust['is_trusted']),
+        'needs_moderation' => !empty($trust['needs_moderation']),
     ];
 }
 

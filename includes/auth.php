@@ -5,6 +5,8 @@
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/leveling.php';
+require_once __DIR__ . '/trust.php';
 
 // Запуск сессии если не запущена
 if (session_status() === PHP_SESSION_NONE) {
@@ -23,6 +25,7 @@ function isLoggedIn(): bool {
  */
 function migrateUserData(array $user): array {
     $needsSave = false;
+    $levelsConfig = getLevelsConfig();
     
     // Проверяем наличие поля subscriptions
     if (!isset($user['subscriptions'])) {
@@ -52,6 +55,22 @@ function migrateUserData(array $user): array {
     
     if (!isset($user['status']) || !in_array($user['status'], ['active', 'muted', 'banned'], true)) {
         $user['status'] = 'active';
+        $needsSave = true;
+    }
+
+    $normalizedTrustUser = ensureUserTrustData($user);
+    if ((int)($normalizedTrustUser['trust'] ?? TRUST_DEFAULT) !== (int)($user['trust'] ?? -1)) {
+        $user['trust'] = (int)$normalizedTrustUser['trust'];
+        $needsSave = true;
+    }
+
+    $normalizedLevelUser = ensureUserLevelData($user, $levelsConfig);
+    if ((int)($normalizedLevelUser['xp'] ?? 0) !== (int)($user['xp'] ?? -1)) {
+        $user['xp'] = (int)$normalizedLevelUser['xp'];
+        $needsSave = true;
+    }
+    if ((int)($normalizedLevelUser['level'] ?? 0) !== (int)($user['level'] ?? 0)) {
+        $user['level'] = (int)$normalizedLevelUser['level'];
         $needsSave = true;
     }
     
