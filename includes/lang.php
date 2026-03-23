@@ -1,6 +1,6 @@
 <?php
 /**
- * MonoTalk - Система переводов
+ * MonoTalk - translation system
  */
 
 $translations = [
@@ -59,6 +59,8 @@ $translations = [
         'create_content_label' => 'Текст поста',
         'create_placeholder' => 'О чём ваш пост?',
         'create_details' => 'Подробности...',
+        'create_format_toolbar' => 'Форматирование текста',
+        'create_format_help' => 'Сначала выделите нужную часть текста, а потом нажмите B или I. Форматирование: **жирный** и *курсив*.',
         'create_anonymous' => 'Опубликовать анонимно',
         'create_submit' => 'Опубликовать',
         'welcome_title' => 'Добро пожаловать',
@@ -147,6 +149,8 @@ $translations = [
         'create_content_label' => 'Post content',
         'create_placeholder' => 'What is your post about?',
         'create_details' => 'Details...',
+        'create_format_toolbar' => 'Text formatting',
+        'create_format_help' => 'First select the part of the text you want to format, then click B or I. Formatting: **bold** and *italic*.',
         'create_anonymous' => 'Post anonymously',
         'create_submit' => 'Publish',
         'welcome_title' => 'Welcome',
@@ -182,18 +186,21 @@ $translations = [
     ],
 ];
 
+$translations['ru']['create_image_flow_help'] = 'Если хотите получить схему "текст -> картинка -> текст", напишите первую часть текста, оставьте пустую строку, потом продолжите текст. Загруженная картинка встанет между этими блоками.';
+$translations['en']['create_image_flow_help'] = 'If you want a "text -> image -> text" layout, write the first part of the text, leave an empty line, then continue the text. The uploaded image will appear between those text blocks.';
+
 function getLang(): string {
     $allowed = ['ru', 'en'];
-    if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed)) {
+    if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed, true)) {
         $lang = $_GET['lang'];
         $_SESSION['lang'] = $lang;
         setcookie('lang', $lang, time() + 60 * 60 * 24 * 365, '/');
         return $lang;
     }
-    if (isset($_SESSION['lang']) && in_array($_SESSION['lang'], $allowed)) {
+    if (isset($_SESSION['lang']) && in_array($_SESSION['lang'], $allowed, true)) {
         return $_SESSION['lang'];
     }
-    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], $allowed)) {
+    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], $allowed, true)) {
         $_SESSION['lang'] = $_COOKIE['lang'];
         return $_COOKIE['lang'];
     }

@@ -409,6 +409,69 @@ function formatDate(string $date): string {
 }
 
 /**
+ * Safe lightweight formatter for post text.
+ * Supports **bold** and *italic* after escaping HTML.
+ */
+function renderPostFormatting(string $text): string {
+    $safe = e($text);
+
+    // Bold first so paired double asterisks are not consumed by italic parsing.
+    $safe = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $safe) ?? $safe;
+    $safe = preg_replace('/(?<!\*)\*(.+?)\*(?!\*)/s', '<em>$1</em>', $safe) ?? $safe;
+
+    return nl2br($safe);
+}
+
+/**
+ * Creates a clean plain-text preview from formatted post text.
+ */
+function getPostPreviewText(string $text, int $length = 500): array {
+    $plain = preg_replace('/\*\*(.+?)\*\*/s', '$1', $text) ?? $text;
+    $plain = preg_replace('/(?<!\*)\*(.+?)\*(?!\*)/s', '$1', $plain) ?? $plain;
+    $plain = trim(preg_replace('/\s+/u', ' ', $plain) ?? $plain);
+
+    return [
+        'excerpt' => mb_substr($plain, 0, $length),
+        'has_more' => mb_strlen($plain) > $length,
+    ];
+}
+
+/**
+ * Renders post text and a single image as content blocks.
+ * If the text has multiple paragraph groups, the image is inserted
+ * between the first block and the rest so posts read more naturally.
+ */
+function renderPostContentBlocks(string $text, string $imagePath = '', string $baseUrl = ''): string {
+    $blocks = preg_split("/\R{2,}/u", trim($text)) ?: [];
+    $blocks = array_values(array_filter(array_map('trim', $blocks), static fn(string $block): bool => $block !== ''));
+
+    if ($imagePath === '') {
+        return '<div class="post-content formatted-post-content" data-raw-content="' . e($text) . '">' . renderPostFormatting($text) . '</div>';
+    }
+
+    if (empty($blocks) && $imagePath !== '') {
+        return '<div class="post-full-image-wrap"><img src="' . e($baseUrl . $imagePath) . '" alt="" class="post-full-image"></div>';
+    }
+
+    $html = [];
+
+    if (!empty($blocks)) {
+        $html[] = '<div class="post-content formatted-post-content" data-raw-content="' . e($text) . '">' . renderPostFormatting($blocks[0]) . '</div>';
+    }
+
+    if ($imagePath !== '') {
+        $html[] = '<div class="post-full-image-wrap"><img src="' . e($baseUrl . $imagePath) . '" alt="" class="post-full-image"></div>';
+    }
+
+    if (count($blocks) > 1) {
+        $remaining = implode("\n\n", array_slice($blocks, 1));
+        $html[] = '<div class="post-content formatted-post-content post-content-secondary" data-raw-content="' . e($text) . '">' . renderPostFormatting($remaining) . '</div>';
+    }
+
+    return implode("\n", $html);
+}
+
+/**
  * Базовая защита от спама (rate limiting через сессию)
  */
 function checkSpamProtection(string $action, int $cooldown = 5): bool {
