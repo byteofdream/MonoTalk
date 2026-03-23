@@ -4,6 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     window.LevelSystem?.mountProfileCard?.();
+    initFormattingToolbar();
     initFilters();
     initLoginForm();
     initRegisterForm();
@@ -120,6 +121,28 @@ function applyFilters() {
     if (category) params.set('category', category);
     if (sort !== 'new') params.set('sort', sort);
     window.location.href = 'index.php' + (params.toString() ? '?' + params : '');
+}
+
+function initFormattingToolbar() {
+    document.querySelectorAll('.format-btn').forEach((button) => {
+        if (button.dataset.initialized) return;
+        button.dataset.initialized = '1';
+
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-format-target');
+            const wrap = button.getAttribute('data-format-wrap') || '';
+            const textarea = targetId ? document.getElementById(targetId) : null;
+            if (!textarea) return;
+
+            const start = textarea.selectionStart ?? textarea.value.length;
+            const end = textarea.selectionEnd ?? textarea.value.length;
+            const selected = textarea.value.slice(start, end) || (wrap === '**' ? 'bold text' : 'italic text');
+            const replacement = `${wrap}${selected}${wrap}`;
+
+            textarea.setRangeText(replacement, start, end, 'end');
+            textarea.focus();
+        });
+    });
 }
 
 // Форма входа

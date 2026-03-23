@@ -1454,6 +1454,18 @@ main.container, .main-layout {
     margin-bottom: 0.5rem;
 }
 
+.formatted-post-content {
+    line-height: 1.75;
+}
+
+.formatted-post-content strong {
+    font-weight: 700;
+}
+
+.formatted-post-content em {
+    font-style: italic;
+}
+
 .like-btn-sm {
     font-size: 0.85rem;
 }
@@ -1481,6 +1493,33 @@ main.container, .main-layout {
 
 .create-form textarea {
     min-height: 320px;
+}
+
+.format-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+}
+
+.format-btn {
+    min-width: 42px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+
+.format-btn:hover {
+    background: rgba(20, 122, 255, 0.08);
+    border-color: rgba(20, 122, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 .create-form .btn-primary {
@@ -2702,6 +2741,10 @@ main.container, .main-layout {
         font-size: 16px;
     }
 
+    .format-toolbar {
+        flex-wrap: wrap;
+    }
+
     .comment-form-actions {
         flex-direction: column;
         align-items: stretch;
@@ -3086,6 +3129,11 @@ main.container, .main-layout {
     .create-subtitle,
     .category-help {
         font-size: 0.88rem;
+    }
+
+    .format-btn {
+        min-width: 48px;
+        height: 40px;
     }
 
     .create-form textarea {
