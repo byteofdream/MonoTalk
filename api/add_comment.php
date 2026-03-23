@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/leveling.php';
 require_once __DIR__ . '/../includes/moderation.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -122,6 +123,8 @@ foreach ($posts as &$item) {
 unset($item);
 writeData('posts.json', $posts);
 
+$leveling = addXPToUser((int)$user['id'], XP_REWARD_COMMENT);
+
 echo json_encode([
     'success' => true,
     'comment' => [
@@ -133,5 +136,6 @@ echo json_encode([
         'likes' => 0,
         'verified' => $verified
     ],
+    'leveling' => $leveling,
     'moderation' => $moderation
 ]);

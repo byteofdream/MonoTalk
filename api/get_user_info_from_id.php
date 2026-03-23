@@ -7,6 +7,8 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/leveling.php';
+require_once __DIR__ . '/../includes/trust.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -34,6 +36,8 @@ if (!$user) {
 }
 
 $userInfo = getPublicUserInfo($user) ?? [];
+$userInfo['leveling'] = getLevelProgressData(ensureUserLevelData($user));
+$userInfo['trust_data'] = getTrustData(ensureUserTrustData($user));
 $userInfo['posts_count'] = count(array_filter(
     readData('posts.json'),
     fn($post) => (int)($post['author_id'] ?? 0) === $userId

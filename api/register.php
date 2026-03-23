@@ -6,6 +6,8 @@
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/leveling.php';
+require_once __DIR__ . '/../includes/trust.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -41,6 +43,9 @@ if (getUserByUsername($username)) {
     exit;
 }
 
+$levelsConfig = getLevelsConfig();
+$startingLevel = calculateLevel(0, $levelsConfig);
+
 $users = readData('users.json');
 $newUser = [
     'id' => getNextId('users.json'),
@@ -53,6 +58,9 @@ $newUser = [
     'verified' => false,
     'subscriptions' => [],
     'role' => 'user',
+    'xp' => 0,
+    'level' => (int)$startingLevel['level'],
+    'trust' => TRUST_DEFAULT,
     'strikes' => 0,
     'mute_until' => null,
     'banned_at' => null,

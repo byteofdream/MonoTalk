@@ -7,6 +7,8 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/leveling.php';
+require_once __DIR__ . '/../includes/trust.php';
 require_once __DIR__ . '/../includes/moderation.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -49,6 +51,8 @@ if (!$user) {
     echo json_encode(['success' => false, 'error' => 'Authorization required']);
     exit;
 }
+$user = ensureUserTrustData($user);
+$trustData = getTrustData($user);
 
 $subscriptions = $user['subscriptions'] ?? [];
 if (!in_array($category, $subscriptions, true)) {
@@ -121,15 +125,23 @@ $newPost = [
     'image' => $imagePath,
     'created_at' => date('Y-m-d H:i:s'),
     'likes' => 0,
-    'comments_count' => 0
+    'comments_count' => 0,
+    // Low-trust authors are flagged for moderation without changing the
+    // existing publish/XP flow.
+    'needs_moderation' => !empty($trustData['needs_moderation']),
+    'trusted_author' => !empty($trustData['is_trusted']),
 ];
 
 $posts[] = $newPost;
 writeData('posts.json', $posts);
 
+$leveling = addXPToUser((int)$user['id'], XP_REWARD_POST);
+
 echo json_encode([
     'success' => true,
     'redirect' => BASE_URL . 'post.php?id=' . $newPost['id'],
     'post_id' => $newPost['id'],
+    'leveling' => $leveling,
+    'trust' => $trustData,
     'moderation' => $moderation
 ]);
