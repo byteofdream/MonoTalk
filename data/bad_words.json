@@ -1,0 +1,51 @@
+{
+    "high": {
+        "reason": "Blocked: abusive, hateful, or explicit content",
+        "words": [
+            "faggot",
+            "kill yourself",
+            "i will kill",
+            "rape",
+            "whore",
+            "сука",
+            "мразь",
+            "пидор",
+            "пидорас",
+            "убью тебя",
+            "сдохни",
+            "шлюха"
+        ]
+    },
+    "medium": {
+        "reason": "Blocked: toxic or spam-like language",
+        "words": [
+            "fuck",
+            "bitch",
+            "idiot",
+            "stupid",
+            "debil",
+            "идиот",
+            "дебил",
+            "тупой",
+            "мудак",
+            "casino",
+            "betting",
+            "free money",
+            "giveaway",
+            "telegram"
+        ]
+    },
+    "nsfw": {
+        "reason": "Blocked: NSFW content",
+        "words": [
+            "porn",
+            "sex",
+            "nude",
+            "onlyfans",
+            "xxx",
+            "порно",
+            "секс",
+            "голая"
+        ]
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "levels": [
+        { "level": 1, "xp_required": 0, "name": "Newbie" },
+        { "level": 2, "xp_required": 60, "name": "Starter" },
+        { "level": 3, "xp_required": 140, "name": "Beginner" },
+        { "level": 4, "xp_required": 240, "name": "Explorer" },
+        { "level": 5, "xp_required": 360, "name": "Talker" },
+        { "level": 6, "xp_required": 520, "name": "Contributor" },
+        { "level": 7, "xp_required": 720, "name": "Regular" },
+        { "level": 8, "xp_required": 980, "name": "Engaged" },
+        { "level": 9, "xp_required": 1300, "name": "Active" },
+        { "level": 10, "xp_required": 1680, "name": "Skilled" },
+        { "level": 11, "xp_required": 2120, "name": "Trusted" },
+        { "level": 12, "xp_required": 2640, "name": "Advanced" },
+        { "level": 13, "xp_required": 3240, "name": "Veteran" },
+        { "level": 14, "xp_required": 3920, "name": "Pro" },
+        { "level": 15, "xp_required": 4700, "name": "Specialist" },
+        { "level": 16, "xp_required": 5580, "name": "Elite" },
+        { "level": 17, "xp_required": 6560, "name": "Champion" },
+        { "level": 18, "xp_required": 7660, "name": "Master" },
+        { "level": 19, "xp_required": 8880, "name": "Grandmaster" },
+        { "level": 20, "xp_required": 10240, "name": "Legend" },
+        { "level": 21, "xp_required": 11740, "name": "Mythic" },
+        { "level": 22, "xp_required": 13400, "name": "Immortal" },
+        { "level": 23, "xp_required": 15240, "name": "Eternal" },
+        { "level": 24, "xp_required": 17280, "name": "Cosmic" },
+        { "level": 25, "xp_required": 19540, "name": "Forum Titan" }
+    ]
+}
