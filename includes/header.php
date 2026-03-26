@@ -8,6 +8,7 @@ $currentLang = getLang();
 if (!isset($pageTitle)) $pageTitle = 'MonoTalk';
 $currentUrl = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/');
 $currentTheme = getTheme();
+$headerUser = isLoggedIn() ? getCurrentUser() : null;
 ?>
 <!DOCTYPE html>
 <html lang="<?= $currentLang === 'en' ? 'en' : 'ru' ?>" data-theme="<?= e($currentTheme) ?>">
@@ -20,8 +21,19 @@ $currentTheme = getTheme();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/style.css">
+    <base href="<?= e(BASE_URL) ?>/">
 </head>
-<body>
+<body
+    data-base-url="<?= e(BASE_URL) ?>"
+    data-current-user-id="<?= (int)($headerUser['id'] ?? 0) ?>"
+    data-status-online="<?= e(t('user_status_online')) ?>"
+    data-status-recent="<?= e(t('user_status_recent')) ?>"
+    data-status-minutes-template="<?= e(t('user_status_minutes_ago')) ?>"
+    data-status-hours-template="<?= e(t('user_status_hours_ago')) ?>"
+    data-status-days-template="<?= e(t('user_status_days_ago')) ?>"
+    data-status-weeks-template="<?= e(t('user_status_weeks_ago')) ?>"
+    data-status-months-template="<?= e(t('user_status_months_ago')) ?>"
+    data-status-years-template="<?= e(t('user_status_years_ago')) ?>">
     <nav class="navbar">
         <a href="<?= e(BASE_URL) ?>index.php" class="logo">
             <img src="<?= e(BASE_URL) ?>assets/icons/brand.svg" alt="" class="logo-mark logo-mark--light">
@@ -57,7 +69,7 @@ $currentTheme = getTheme();
                     <a href="<?= e(BASE_URL) ?>api/set_language.php?lang=en&redirect=<?= urlencode($currentUrl) ?>"><?= e(t('lang_en')) ?></a>
                 </div>
             </div>
-            <?php if (isLoggedIn()): ?>
+            <?php if ($headerUser): ?>
                 <a href="<?= e(BASE_URL) ?>create.php">
                     <img src="<?= e(BASE_URL) ?>assets/icons/plus-circle.svg" alt="" class="nav-icon nav-icon--light">
                     <img src="<?= e(BASE_URL) ?>assets/icons/plus-circle-white.svg" alt="" class="nav-icon nav-icon--dark">
@@ -65,11 +77,10 @@ $currentTheme = getTheme();
                 </a>
                 <div class="dropdown">
                     <button class="dropdown-btn" aria-haspopup="true" aria-expanded="false">
-                        <?php $u = getCurrentUser(); ?>
-                        <?php if (!empty($u['avatar'])): ?>
-                            <img src="<?= e(strpos($u['avatar'], 'http') === 0 ? $u['avatar'] : BASE_URL . $u['avatar']) ?>" alt="" class="nav-avatar">
+                        <?php if (!empty($headerUser['avatar'])): ?>
+                            <img src="<?= e(strpos($headerUser['avatar'], 'http') === 0 ? $headerUser['avatar'] : BASE_URL . $headerUser['avatar']) ?>" alt="" class="nav-avatar">
                         <?php else: ?>
-                            <span class="nav-avatar-placeholder"><?= e(mb_substr($u['username'], 0, 1)) ?></span>
+                            <span class="nav-avatar-placeholder"><?= e(mb_substr($headerUser['username'], 0, 1)) ?></span>
                         <?php endif; ?>
                         <span class="dropdown-arrow">▼</span>
                     </button>

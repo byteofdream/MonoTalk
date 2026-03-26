@@ -6,6 +6,7 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/leveling.php';
 require_once __DIR__ . '/trust.php';
+require_once __DIR__ . '/lang.php';
 
 function getDefaultSubreddits(): array {
     $createdAt = date('Y-m-d H:i:s');
@@ -319,11 +320,19 @@ function getPublicUserInfo(?array $user): ?array {
     $user = ensureUserTrustData($user);
     $progress = getLevelProgressData($user);
     $trust = getTrustData($user);
+    $presence = getUserStatus((int)($user['id'] ?? 0));
 
     return [
         'id' => (int)($user['id'] ?? 0),
         'username' => $user['username'] ?? '',
         'avatar' => $user['avatar'] ?? null,
+        'bio' => (string)($user['bio'] ?? ''),
+        'website' => (string)($user['website'] ?? ''),
+        'github' => (string)($user['github'] ?? ''),
+        'telegram' => (string)($user['telegram'] ?? ''),
+        'discord' => (string)($user['discord'] ?? ''),
+        'other_links' => array_values(array_filter($user['other_links'] ?? [], 'is_string')),
+        'profile_links' => buildUserProfileLinks($user),
         'verified' => !empty($user['verified']),
         'created_at' => $user['created_at'] ?? null,
         'subscriptions_count' => count($user['subscriptions'] ?? []),
@@ -340,7 +349,183 @@ function getPublicUserInfo(?array $user): ?array {
         'trust_icon' => (string)$trust['icon'],
         'is_trusted' => !empty($trust['is_trusted']),
         'needs_moderation' => !empty($trust['needs_moderation']),
+        'last_seen' => $presence['last_seen'] ?? null,
+        'presence' => $presence,
     ];
+}
+
+function sanitizeProfileText(?string $value, int $maxLength): string {
+    $value = trim((string)$value);
+    $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
+    return mb_substr($value, 0, $maxLength);
+}
+
+function sanitizeProfileMultiline(?string $value, int $maxLength): string {
+    $value = str_replace(["\r\n", "\r"], "\n", (string)$value);
+    $value = trim($value);
+    $value = preg_replace("/[ \t]+/u", ' ', $value) ?? $value;
+    $value = preg_replace("/\n{3,}/u", "\n\n", $value) ?? $value;
+    return mb_substr($value, 0, $maxLength);
+}
+
+function normalizeExternalUrl(?string $value, int $maxLength = 255): string {
+    $value = sanitizeProfileText($value, $maxLength);
+    if ($value === '') {
+        return '';
+    }
+
+    if (!preg_match('#^https?://#i', $value)) {
+        return '';
+    }
+
+    return filter_var($value, FILTER_VALIDATE_URL) ? $value : '';
+}
+
+function normalizeSocialHandle(?string $value, int $maxLength = 255): string {
+    return sanitizeProfileText($value, $maxLength);
+}
+
+function normalizeOtherLinks(?string $value, int $maxItems = 8, int $maxLength = 255): array {
+    $value = str_replace(["\r\n", "\r"], "\n", (string)$value);
+    $lines = explode("\n", $value);
+    $result = [];
+
+    foreach ($lines as $line) {
+        $normalized = normalizeExternalUrl($line, $maxLength);
+        if ($normalized === '') {
+            continue;
+        }
+
+        $result[] = $normalized;
+        if (count($result) >= $maxItems) {
+            break;
+        }
+    }
+
+    return array_values(array_unique($result));
+}
+
+function buildUserProfileLinks(array $user): array {
+    $links = [];
+
+    $website = normalizeExternalUrl($user['website'] ?? '');
+    if ($website !== '') {
+        $links[] = ['type' => 'website', 'label' => '🌐 ' . t('profile_link_website'), 'href' => $website];
+    }
+
+    $github = normalizeExternalUrl($user['github'] ?? '');
+    if ($github !== '') {
+        $links[] = ['type' => 'github', 'label' => '💻 GitHub', 'href' => $github];
+    }
+
+    $telegramHref = buildTelegramLink($user['telegram'] ?? '');
+    if ($telegramHref !== null) {
+        $links[] = ['type' => 'telegram', 'label' => '📱 Telegram', 'href' => $telegramHref];
+    }
+
+    $discordHref = buildDiscordLink($user['discord'] ?? '');
+    if ($discordHref !== null) {
+        $links[] = ['type' => 'discord', 'label' => '🎮 Discord', 'href' => $discordHref];
+    }
+
+    foreach (array_values(array_filter($user['other_links'] ?? [], 'is_string')) as $index => $otherLink) {
+        $href = normalizeExternalUrl($otherLink);
+        if ($href === '') {
+            continue;
+        }
+
+        $links[] = [
+            'type' => 'other',
+            'label' => t('profile_link_other') . ' ' . ($index + 1),
+            'href' => $href,
+        ];
+    }
+
+    return $links;
+}
+
+function buildTelegramLink(?string $value): ?string {
+    $value = normalizeSocialHandle($value);
+    if ($value === '') {
+        return null;
+    }
+
+    if (preg_match('#^https?://#i', $value)) {
+        return normalizeExternalUrl($value) ?: null;
+    }
+
+    $username = ltrim($value, '@');
+    if (!preg_match('/^[A-Za-z0-9_]{3,32}$/', $username)) {
+        return null;
+    }
+
+    return 'https://t.me/' . $username;
+}
+
+function buildDiscordLink(?string $value): ?string {
+    $value = normalizeSocialHandle($value);
+    if ($value === '') {
+        return null;
+    }
+
+    if (preg_match('#^https?://#i', $value)) {
+        return normalizeExternalUrl($value) ?: null;
+    }
+
+    return 'https://discord.com/users/' . rawurlencode($value);
+}
+
+function formatUserStatusLabel(?array $presence): string {
+    if (!$presence || empty($presence['last_seen'])) {
+        return t('user_status_recent');
+    }
+
+    if (!empty($presence['is_online'])) {
+        return t('user_status_online');
+    }
+
+    $lastSeenTs = (int)($presence['last_seen_timestamp'] ?? 0);
+    $elapsed = $lastSeenTs > 0 ? max(0, time() - $lastSeenTs) : 0;
+
+    if ($elapsed < 60) {
+        return t('user_status_recent');
+    }
+
+    $periods = [
+        ['seconds' => 31536000, 'key' => 'user_status_years_ago'],
+        ['seconds' => 2592000, 'key' => 'user_status_months_ago'],
+        ['seconds' => 604800, 'key' => 'user_status_weeks_ago'],
+        ['seconds' => 86400, 'key' => 'user_status_days_ago'],
+        ['seconds' => 3600, 'key' => 'user_status_hours_ago'],
+        ['seconds' => 60, 'key' => 'user_status_minutes_ago'],
+    ];
+
+    foreach ($periods as $period) {
+        if ($elapsed >= $period['seconds']) {
+            $value = max(1, (int)floor($elapsed / $period['seconds']));
+            return sprintf(t($period['key']), $value);
+        }
+    }
+
+    return t('user_status_recent');
+}
+
+function renderUserStatusBadgeById(int $userId, string $className = 'user-status-badge'): string {
+    if ($userId <= 0) {
+        return '';
+    }
+
+    $presence = getUserStatus($userId);
+    if (!$presence) {
+        return '';
+    }
+
+    $label = formatUserStatusLabel($presence);
+    $stateClass = !empty($presence['is_online']) ? 'is-online' : 'is-offline';
+    $lastSeen = e((string)($presence['last_seen'] ?? ''));
+    $status = e((string)($presence['status'] ?? 'offline'));
+
+    return '<span class="' . e($className) . ' ' . $stateClass . '" data-user-status data-user-id="' . $userId . '" data-last-seen="' . $lastSeen . '" data-status="' . $status . '">' . e($label) . '</span>';
 }
 
 function attachPostApiFields(array $post, ?int $currentUserId = null): array {
@@ -606,7 +791,9 @@ function searchUsers(string $query): array {
                 'username' => $user['username'] ?? '',
                 'avatar' => $user['avatar'] ?? '',
                 'verified' => $user['verified'] ?? false,
-                'created_at' => $user['created_at'] ?? ''
+                'created_at' => $user['created_at'] ?? '',
+                'last_seen' => $user['last_seen'] ?? null,
+                'presence' => getUserStatus((int)($user['id'] ?? 0)),
             ];
         }
     }

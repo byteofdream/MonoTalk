@@ -13,6 +13,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+define('USER_ONLINE_TIMEOUT', 300);
+define('USER_ACTIVITY_THROTTLE', 60);
+
 /**
  * Проверка авторизации
  */
@@ -58,6 +61,28 @@ function migrateUserData(array $user): array {
         $needsSave = true;
     }
 
+    if (!array_key_exists('last_seen', $user)) {
+        $user['last_seen'] = $user['created_at'] ?? date('Y-m-d H:i:s');
+        $needsSave = true;
+    }
+
+    if (!isset($user['bio']) || !is_string($user['bio'])) {
+        $user['bio'] = '';
+        $needsSave = true;
+    }
+
+    foreach (['website', 'github', 'telegram', 'discord'] as $profileField) {
+        if (!isset($user[$profileField]) || !is_string($user[$profileField])) {
+            $user[$profileField] = '';
+            $needsSave = true;
+        }
+    }
+
+    if (!isset($user['other_links']) || !is_array($user['other_links'])) {
+        $user['other_links'] = [];
+        $needsSave = true;
+    }
+
     $normalizedTrustUser = ensureUserTrustData($user);
     if ((int)($normalizedTrustUser['trust'] ?? TRUST_DEFAULT) !== (int)($user['trust'] ?? -1)) {
         $user['trust'] = (int)$normalizedTrustUser['trust'];
@@ -95,16 +120,112 @@ function migrateUserData(array $user): array {
     return $user;
 }
 
+function getLastSeenTimestamp(?string $lastSeen): ?int {
+    if (!$lastSeen) {
+        return null;
+    }
+
+    $timestamp = strtotime($lastSeen);
+    return $timestamp !== false ? $timestamp : null;
+}
+
+function updateUserLastSeen(int $userId, ?int $timestamp = null): ?string {
+    if ($userId <= 0) {
+        return null;
+    }
+
+    $timestamp = $timestamp ?? time();
+    $formatted = date('Y-m-d H:i:s', $timestamp);
+    $users = readData('users.json');
+    $updated = false;
+
+    foreach ($users as &$user) {
+        if ((int)($user['id'] ?? 0) === $userId) {
+            $user['last_seen'] = $formatted;
+            $updated = true;
+            break;
+        }
+    }
+    unset($user);
+
+    if ($updated) {
+        writeData('users.json', $users);
+        return $formatted;
+    }
+
+    return null;
+}
+
+function touchUserActivity(int $userId, bool $force = false): ?string {
+    if ($userId <= 0) {
+        return null;
+    }
+
+    $sessionKey = 'last_seen_touch_' . $userId;
+    $now = time();
+    $lastTouch = isset($_SESSION[$sessionKey]) ? (int)$_SESSION[$sessionKey] : 0;
+
+    if (!$force && $lastTouch > 0 && ($now - $lastTouch) < USER_ACTIVITY_THROTTLE) {
+        $user = getUserById($userId);
+        return $user['last_seen'] ?? null;
+    }
+
+    $user = getUserById($userId);
+    if (!$user) {
+        return null;
+    }
+
+    $lastSeenTs = getLastSeenTimestamp($user['last_seen'] ?? null);
+    if (!$force && $lastSeenTs !== null && ($now - $lastSeenTs) < USER_ACTIVITY_THROTTLE) {
+        $_SESSION[$sessionKey] = $now;
+        return $user['last_seen'] ?? null;
+    }
+
+    $updated = updateUserLastSeen($userId, $now);
+    if ($updated !== null) {
+        $_SESSION[$sessionKey] = $now;
+    }
+
+    return $updated;
+}
+
+function getUserStatus(int $userId): ?array {
+    $user = getUserById($userId);
+    if (!$user) {
+        return null;
+    }
+
+    $lastSeen = $user['last_seen'] ?? null;
+    $lastSeenTs = getLastSeenTimestamp($lastSeen);
+    $minutesAgo = $lastSeenTs !== null ? max(0, (int)floor((time() - $lastSeenTs) / 60)) : null;
+    $isOnline = $lastSeenTs !== null && (time() - $lastSeenTs) < USER_ONLINE_TIMEOUT;
+
+    return [
+        'status' => $isOnline ? 'online' : 'offline',
+        'last_seen' => $lastSeen,
+        'last_seen_timestamp' => $lastSeenTs,
+        'minutes_ago' => $minutesAgo,
+        'is_online' => $isOnline,
+    ];
+}
+
 /**
  * Получить текущего пользователя
  */
-function getCurrentUser(): ?array {
+function getCurrentUser(bool $touchActivity = true): ?array {
     if (!isLoggedIn()) return null;
     
     $users = readData('users.json');
     foreach ($users as $user) {
         if ((int)$user['id'] === (int)$_SESSION['user_id']) {
-            return migrateUserData($user);
+            $user = migrateUserData($user);
+            if ($touchActivity) {
+                $lastSeen = touchUserActivity((int)$user['id']);
+                if ($lastSeen !== null) {
+                    $user['last_seen'] = $lastSeen;
+                }
+            }
+            return $user;
         }
     }
     return null;
@@ -161,6 +282,7 @@ function loginUser(int $userId): void {
         migrateUserData($user);
     }
     $_SESSION['user_id'] = $userId;
+    touchUserActivity($userId, true);
 }
 
 /**
