@@ -161,6 +161,7 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
                                                 <?= $user['verified'] ? verifiedBadge() : '' ?>
                                             </a>
                                         </h3>
+                                        <p class="search-user-status"><?= e(formatUserStatusLabel($user['presence'] ?? null)) ?></p>
                                         <p class="user-joined">Присоединился <?= e(formatDate($user['created_at'])) ?></p>
                                     </div>
                                 </div>

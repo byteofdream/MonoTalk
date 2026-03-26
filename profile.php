@@ -67,8 +67,18 @@ $pageTitle = $user['username'];
                 <div class="profile-avatar-placeholder"><?= e(mb_substr($user['username'], 0, 1)) ?></div>
             <?php endif; ?>
             <div class="profile-info">
-                <h1>u/<?= e($user['username']) ?><?php if (isUserVerifiedById($userId)): ?><?= verifiedBadge() ?><?php endif; ?></h1>
+                <div class="profile-title-row">
+                    <h1>u/<?= e($user['username']) ?><?php if (isUserVerifiedById($userId)): ?><?= verifiedBadge() ?><?php endif; ?></h1>
+                    <?php if ($isOwnProfile): ?>
+                        <a href="<?= e(BASE_URL) ?>edit_profile.php" class="profile-edit-icon-btn" title="<?= e(t('profile_edit')) ?>" aria-label="<?= e(t('profile_edit')) ?>">
+                            <img src="<?= e(BASE_URL) ?>assets/icons/edit.svg" alt="" class="nav-icon--light">
+                            <img src="<?= e(BASE_URL) ?>assets/icons/edit-white.svg" alt="" class="nav-icon--dark">
+                        </a>
+                    <?php endif; ?>
+                </div>
                 <p class="profile-date"><?= e(t('profile_since')) ?> <?= e(date('d.m.Y', strtotime($user['created_at'] ?? 'now'))) ?></p>
+                <p class="profile-status-line"><?= renderUserStatusBadgeById($userId, 'user-status-badge user-status-badge-lg') ?></p>
+                <?php $profileLinks = buildUserProfileLinks($user); ?>
                 <?php if ($isOwnProfile): ?>
                     <p class="profile-badge"><?= e(t('profile_badge')) ?></p>
                 <?php endif; ?>
@@ -161,20 +171,27 @@ $pageTitle = $user['username'];
             </p>
         </section>
 
-        <?php if ($isOwnProfile): ?>
-        <form id="profileForm" class="profile-form" enctype="multipart/form-data">
-            <div class="form-group">
-                <label><?= e(t('profile_avatar_url')) ?></label>
-                <input type="url" name="avatar_url" placeholder="https://..." value="<?= e($user['avatar'] ?? '') ?>">
-            </div>
-            <div class="form-group">
-                <label><?= e(t('profile_avatar_file')) ?></label>
-                <input type="file" name="avatar" accept="image/*">
-            </div>
-            <button type="submit" class="btn-primary"><?= e(t('profile_save')) ?></button>
-        </form>
-        <?php endif; ?>
     </div>
+
+    <?php if (!empty($user['bio'])): ?>
+    <section class="profile-bio-card sidebar-card">
+        <h2><?= e(t('profile_bio')) ?></h2>
+        <p class="profile-bio profile-bio-panel"><?= nl2br(e($user['bio'])) ?></p>
+    </section>
+    <?php endif; ?>
+
+    <?php if (!empty($profileLinks)): ?>
+    <section class="profile-links-panel sidebar-card">
+        <h2><?= e(t('profile_links')) ?></h2>
+        <div class="profile-links-list profile-links-list-panel">
+            <?php foreach ($profileLinks as $link): ?>
+                <a href="<?= e($link['href']) ?>" target="_blank" rel="noopener noreferrer nofollow" class="profile-link-chip profile-link-chip--<?= e($link['type']) ?>">
+                    <?= e($link['label']) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <?php endif; ?>
 
     <section class="user-posts">
         <h2><?= $isOwnProfile ? e(t('profile_my_posts')) : e(t('profile_user_posts')) ?></h2>
