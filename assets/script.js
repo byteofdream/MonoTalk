@@ -4,6 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     window.LevelSystem?.mountProfileCard?.();
+    initUserPresence();
     initFormattingToolbar();
     initFilters();
     initLoginForm();
@@ -19,11 +20,113 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Базовый URL из data-атрибута или текущий путь
-const baseUrl = document.querySelector('base')?.href?.replace(/\/$/, '') || '';
+const baseUrl = document.body?.dataset?.baseUrl || document.querySelector('base')?.href?.replace(/\/$/, '') || '';
+const currentUserId = Number(document.body?.dataset?.currentUserId || 0);
+const statusI18n = {
+    online: document.body?.dataset?.statusOnline || '🟢 Online',
+    recent: document.body?.dataset?.statusRecent || '⚫ Seen recently',
+    minutes: document.body?.dataset?.statusMinutesTemplate || '⚫ Seen %d min ago',
+    hours: document.body?.dataset?.statusHoursTemplate || '⚫ Seen %d hr ago',
+    days: document.body?.dataset?.statusDaysTemplate || '⚫ Seen %d day(s) ago',
+    weeks: document.body?.dataset?.statusWeeksTemplate || '⚫ Seen %d week(s) ago',
+    months: document.body?.dataset?.statusMonthsTemplate || '⚫ Seen %d month(s) ago',
+    years: document.body?.dataset?.statusYearsTemplate || '⚫ Seen %d year(s) ago'
+};
 
 function apiUrl(path) {
     const url = path.startsWith('/') ? path : baseUrl + '/' + path.replace(/^\//, '');
     return url.replace(/([^:])\/\//g, '$1/');
+}
+
+function initUserPresence() {
+    if (!currentUserId) return;
+
+    const throttleMs = 60000;
+    let lastPingAt = 0;
+    let pingInFlight = false;
+
+    const ping = async (force = false) => {
+        const now = Date.now();
+        if (!force && document.visibilityState === 'hidden') return;
+        if (!force && now - lastPingAt < throttleMs) return;
+        if (pingInFlight) return;
+
+        pingInFlight = true;
+        try {
+            const res = await fetch(apiUrl('api/activity_ping.php'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const json = await res.json();
+            if (json.success && json.presence) {
+                updateStatusNodes(currentUserId, json.presence);
+                lastPingAt = now;
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            pingInFlight = false;
+        }
+    };
+
+    ping(true);
+    ['click', 'keydown', 'scroll', 'touchstart'].forEach((eventName) => {
+        window.addEventListener(eventName, () => ping(), { passive: true });
+    });
+    window.addEventListener('focus', () => ping());
+    window.addEventListener('pageshow', () => ping());
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            ping();
+        }
+    });
+    window.setInterval(() => ping(), throttleMs);
+}
+
+function formatPresenceLabel(presence) {
+    if (!presence || !presence.last_seen) {
+        return statusI18n.recent;
+    }
+
+    if (presence.is_online || presence.status === 'online') {
+        return statusI18n.online;
+    }
+
+    const lastSeenTs = Number(presence.last_seen_timestamp || 0) * 1000;
+    const elapsedMs = lastSeenTs > 0 ? Math.max(0, Date.now() - lastSeenTs) : 0;
+
+    if (elapsedMs < 60000) {
+        return statusI18n.recent;
+    }
+
+    const periods = [
+        { ms: 31536000000, template: statusI18n.years },
+        { ms: 2592000000, template: statusI18n.months },
+        { ms: 604800000, template: statusI18n.weeks },
+        { ms: 86400000, template: statusI18n.days },
+        { ms: 3600000, template: statusI18n.hours },
+        { ms: 60000, template: statusI18n.minutes }
+    ];
+
+    for (const period of periods) {
+        if (elapsedMs >= period.ms) {
+            const value = Math.max(1, Math.floor(elapsedMs / period.ms));
+            return period.template.replace('%d', String(value));
+        }
+    }
+
+    return statusI18n.recent;
+}
+
+function updateStatusNodes(userId, presence) {
+    document.querySelectorAll(`[data-user-status][data-user-id="${userId}"]`).forEach((node) => {
+        node.textContent = formatPresenceLabel(presence);
+        node.dataset.status = presence.status || 'offline';
+        node.dataset.lastSeen = presence.last_seen || '';
+        node.classList.toggle('is-online', Boolean(presence.is_online || presence.status === 'online'));
+        node.classList.toggle('is-offline', !Boolean(presence.is_online || presence.status === 'online'));
+    });
 }
 
 const nativeAlert = window.alert.bind(window);
@@ -468,6 +571,78 @@ async function handleLike(e) {
 function initProfileForm() {
     const form = document.getElementById('profileForm');
     if (!form) return;
+
+    const bio = form.querySelector('#profileBio');
+    const bioCounter = document.getElementById('profileBioCounter');
+    const preview = document.getElementById('profilePreview');
+    const syncBioCounter = () => {
+        if (!bio || !bioCounter) return;
+        const template = bioCounter.dataset.template || '%d / 300';
+        bioCounter.textContent = template.replace('%d', String((bio.value || '').length));
+    };
+
+    const escapePreview = (value) => escapeHtml(String(value || ''));
+    const buildExternalLink = (rawValue, label) => {
+        const trimmed = String(rawValue || '').trim();
+        if (!trimmed) return '';
+        const safeHref = /^https?:\/\//i.test(trimmed) ? trimmed : '';
+        if (!safeHref) return '';
+        return `<a href="${escapePreview(safeHref)}" target="_blank" rel="noopener noreferrer nofollow" class="profile-link-chip">${escapePreview(label)}</a>`;
+    };
+
+    const buildTelegramHref = (rawValue) => {
+        const trimmed = String(rawValue || '').trim();
+        if (!trimmed) return '';
+        if (/^https?:\/\//i.test(trimmed)) return trimmed;
+        const username = trimmed.replace(/^@/, '');
+        return /^[A-Za-z0-9_]{3,32}$/.test(username) ? `https://t.me/${username}` : '';
+    };
+
+    const buildDiscordHref = (rawValue) => {
+        const trimmed = String(rawValue || '').trim();
+        if (!trimmed) return '';
+        if (/^https?:\/\//i.test(trimmed)) return trimmed;
+        return `https://discord.com/users/${encodeURIComponent(trimmed)}`;
+    };
+
+    const syncPreview = () => {
+        if (!preview) return;
+
+        const bioValue = String(form.querySelector('[name="bio"]')?.value || '').trim();
+        const otherLinks = String(form.querySelector('[name="other_links"]')?.value || '')
+            .split(/\r?\n/)
+            .map((item) => item.trim())
+            .filter((item) => /^https?:\/\//i.test(item));
+
+        const linksHtml = [
+            buildExternalLink(form.querySelector('[name="website"]')?.value, preview.dataset.websiteLabel || 'Website'),
+            buildExternalLink(form.querySelector('[name="github"]')?.value, preview.dataset.githubLabel || 'GitHub'),
+            buildExternalLink(buildTelegramHref(form.querySelector('[name="telegram"]')?.value), preview.dataset.telegramLabel || 'Telegram'),
+            buildExternalLink(buildDiscordHref(form.querySelector('[name="discord"]')?.value), preview.dataset.discordLabel || 'Discord'),
+            ...otherLinks.map((href, index) => buildExternalLink(href, `${preview.dataset.otherLabel || 'Link'} ${index + 1}`))
+        ].filter(Boolean);
+
+        if (!bioValue && linksHtml.length === 0) {
+            preview.innerHTML = `<p class="profile-preview-empty">${escapePreview(preview.dataset.emptyText || 'Nothing to preview yet.')}</p>`;
+            return;
+        }
+
+        preview.innerHTML = `
+            ${bioValue ? `<p class="profile-preview-bio">${escapePreview(bioValue).replace(/\n/g, '<br>')}</p>` : ''}
+            ${linksHtml.length ? `<div class="profile-links-list">${linksHtml.join('')}</div>` : ''}
+        `;
+    };
+
+    if (bio) {
+        bio.addEventListener('input', syncBioCounter);
+    }
+
+    form.querySelectorAll('input, textarea').forEach((field) => {
+        field.addEventListener('input', syncPreview);
+    });
+
+    syncBioCounter();
+    syncPreview();
     
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -481,7 +656,7 @@ function initProfileForm() {
             const json = await res.json();
             
             if (json.success) {
-                window.location.reload();
+                window.location.href = json.redirect || 'profile.php';
             } else {
                 alert(json.error || 'Ошибка сохранения');
             }
