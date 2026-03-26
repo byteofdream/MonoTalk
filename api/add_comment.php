@@ -129,12 +129,15 @@ echo json_encode([
     'success' => true,
     'comment' => [
         'id' => $newComment['id'],
+        'author_id' => (int)$newComment['author_id'],
         'author_name' => $newComment['author_name'],
         'content' => $newComment['content'],
         'image' => $newComment['image'],
         'created_at' => $newComment['created_at'],
         'likes' => 0,
-        'verified' => $verified
+        'verified' => $verified,
+        'last_seen' => !$anonymous ? ($user['last_seen'] ?? null) : null,
+        'presence' => !$anonymous ? getUserStatus((int)$user['id']) : null,
     ],
     'leveling' => $leveling,
     'moderation' => $moderation

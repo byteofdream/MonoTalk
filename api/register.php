@@ -64,7 +64,13 @@ $newUser = [
     'strikes' => 0,
     'mute_until' => null,
     'banned_at' => null,
-    'status' => 'active'
+    'status' => 'active',
+    'bio' => '',
+    'website' => '',
+    'github' => '',
+    'telegram' => '',
+    'discord' => '',
+    'other_links' => []
 ];
 
 $users[] = $newUser;
@@ -74,5 +80,6 @@ loginUser((int)$newUser['id']);
 echo json_encode([
     'success' => true,
     'redirect' => BASE_URL . 'welcome.php',
-    'user_id' => $newUser['id']
+    'user_id' => $newUser['id'],
+    'presence' => getUserStatus((int)$newUser['id']),
 ]);

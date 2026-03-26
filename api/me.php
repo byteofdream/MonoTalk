@@ -49,6 +49,13 @@ $userInfo = [
     'username' => $user['username'] ?? '',
     'email' => $user['email'] ?? '',
     'avatar' => $user['avatar'] ?? null,
+    'bio' => (string)($user['bio'] ?? ''),
+    'website' => (string)($user['website'] ?? ''),
+    'github' => (string)($user['github'] ?? ''),
+    'telegram' => (string)($user['telegram'] ?? ''),
+    'discord' => (string)($user['discord'] ?? ''),
+    'other_links' => array_values(array_filter($user['other_links'] ?? [], 'is_string')),
+    'profile_links' => buildUserProfileLinks($user),
     'verified' => !empty($user['verified']),
     'created_at' => $user['created_at'] ?? null,
     'subscriptions_count' => count($user['subscriptions'] ?? []),
@@ -71,6 +78,8 @@ $userInfo = [
         readData('posts.json'),
         fn($post) => (int)($post['author_id'] ?? 0) === (int)($user['id'] ?? 0)
     )),
+    'last_seen' => $user['last_seen'] ?? null,
+    'presence' => getUserStatus((int)($user['id'] ?? 0)),
 ];
 
 echo json_encode([

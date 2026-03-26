@@ -49,5 +49,6 @@ echo json_encode([
         'id' => (int)$user['id'],
         'username' => $user['username'],
         'avatar' => $user['avatar'] ?? null
-    ]
+    ],
+    'presence' => getUserStatus((int)$user['id']),
 ]);

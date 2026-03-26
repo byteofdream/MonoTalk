@@ -44,6 +44,7 @@ $userInfo['posts_count'] = count(array_filter(
 ));
 $currentUser = getCurrentUser();
 $userInfo['is_current_user'] = $currentUser ? (int)($currentUser['id'] ?? 0) === $userId : false;
+$userInfo['presence'] = getUserStatus($userId);
 
 echo json_encode([
     'success' => true,
