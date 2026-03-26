@@ -3723,3 +3723,182 @@ main.container, .main-layout {
         right: 0.7rem;
     }
 }
+
+@media (max-width: 768px) {
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
+    .search-tabs,
+    .settings-tabs {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .search-tab,
+    .settings-tab {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .post-actions-bar,
+    .post-stats-dl,
+    .profile-links-list,
+    .search-header,
+    .user-header,
+    .sub-actions {
+        flex-wrap: wrap;
+    }
+
+    .profile-card,
+    .profile-editor-card,
+    .settings-content,
+    .sidebar-card,
+    .sub-card-reddit,
+    .user-card-reddit {
+        padding: 1.1rem;
+        border-radius: 18px;
+    }
+
+    .profile-bio-card,
+    .profile-links-panel,
+    .user-posts {
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-title-row,
+    .profile-links-list,
+    .sub-actions,
+    .user-actions {
+        justify-content: center;
+    }
+
+    .profile-info,
+    .profile-editor-head,
+    .user-info {
+        min-width: 0;
+    }
+
+    .profile-links-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .search-input,
+    .nav-search-input,
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px;
+    }
+
+    .modal-content {
+        width: min(100%, 680px);
+        max-height: calc(100vh - 2rem);
+        margin: 1rem;
+        border-radius: 16px;
+    }
+
+    .post-image-preview-wrap,
+    .post-full-image-wrap,
+    .comment-image-wrap {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-tabs,
+    .settings-tabs,
+    .sort-tabs {
+        margin-left: -0.1rem;
+        margin-right: -0.1rem;
+        padding-bottom: 0.1rem;
+    }
+
+    .search-tab,
+    .settings-tab,
+    .sort-tab {
+        font-size: 0.84rem;
+    }
+
+    .profile-card,
+    .profile-editor-card,
+    .settings-content,
+    .sidebar-card,
+    .sub-card-reddit,
+    .user-card-reddit,
+    .profile-bio-card,
+    .profile-links-panel,
+    .user-posts {
+        padding: 0.95rem;
+        border-radius: 14px;
+    }
+
+    .profile-avatar,
+    .profile-avatar-placeholder {
+        width: 84px;
+        height: 84px;
+    }
+
+    .profile-title-row {
+        gap: 0.5rem;
+    }
+
+    .profile-title-row h1 {
+        font-size: 1.3rem;
+        line-height: 1.25;
+    }
+
+    .profile-edit-icon-btn {
+        width: 2.2rem;
+        height: 2.2rem;
+    }
+
+    .profile-links-list {
+        gap: 0.5rem;
+    }
+
+    .profile-link-chip {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .post-actions-bar {
+        gap: 0.55rem;
+    }
+
+    .action-link {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .level-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .user-header,
+    .sub-header,
+    .search-header {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .user-actions .btn-secondary,
+    .sub-actions .btn-secondary,
+    .sub-actions .btn-primary {
+        width: 100%;
+    }
+
+    .modal-content {
+        margin: 0.65rem;
+        max-height: calc(100vh - 1.3rem);
+    }
+}
