@@ -74,7 +74,7 @@ $pageTitle = $titles[$tab] ?? 'Settings';
                     <p><strong>Технологии:</strong> PHP, JSON-хранилище, vanilla JavaScript.</p>
                 <?php endif; ?>
                 <div class="about-github">
-                    <a href="<?= e(GITHUB_URL) ?>" target="_blank" rel="noopener" class="btn-primary github-btn">
+                    <a href="<?= e(GITHUB_URL) ?>" target="_blank" rel="noopener noreferrer" class="btn-primary github-btn">
                         GitHub →
                     </a>
                 </div>

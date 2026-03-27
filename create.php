@@ -77,7 +77,7 @@ $subreddits = getSubreddits();
             <label class="checkbox-label checkbox-rules">
                 <input type="checkbox" name="agree_rules" value="1" required>
                 <?= $lang === 'en' ? 'I agree with the ' : 'Я соглашаюсь с ' ?>
-                <a href="<?= e(BASE_URL) ?>rules.php" target="_blank" rel="noopener">
+                <a href="<?= e(BASE_URL) ?>rules.php" target="_blank" rel="noopener noreferrer">
                     <?= $lang === 'en' ? 'community rules' : 'правилами сообщества' ?>
                 </a>
             </label>
