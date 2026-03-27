@@ -9,6 +9,8 @@ if (!isset($pageTitle)) $pageTitle = 'MonoTalk';
 $currentUrl = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/');
 $currentTheme = getTheme();
 $headerUser = isLoggedIn() ? getCurrentUser() : null;
+$baseHref = rtrim((string)BASE_URL, '/');
+$baseHref = ($baseHref === '') ? '/' : ($baseHref . '/');
 ?>
 <!DOCTYPE html>
 <html lang="<?= $currentLang === 'en' ? 'en' : 'ru' ?>" data-theme="<?= e($currentTheme) ?>">
@@ -21,7 +23,7 @@ $headerUser = isLoggedIn() ? getCurrentUser() : null;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/style.css">
-    <base href="<?= e(BASE_URL) ?>/">
+    <base href="<?= e($baseHref) ?>">
 </head>
 <body
     data-base-url="<?= e(BASE_URL) ?>"
