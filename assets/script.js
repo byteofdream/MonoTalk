@@ -38,6 +38,30 @@ function apiUrl(path) {
     return url.replace(/([^:])\/\//g, '$1/');
 }
 
+function resolveNavigationUrl(rawUrl, fallbackUrl) {
+    const fallback = String(fallbackUrl || 'index.php').trim() || 'index.php';
+    const candidate = String(rawUrl || '').trim();
+    const target = candidate || fallback;
+
+    if (!target || target === '#' || /^about:blank/i.test(target) || /^javascript:/i.test(target)) {
+        return fallback;
+    }
+
+    try {
+        const resolved = new URL(target, window.location.href);
+        if (!/^https?:$/i.test(resolved.protocol)) {
+            return fallback;
+        }
+        return resolved.href;
+    } catch (error) {
+        return fallback;
+    }
+}
+
+function navigateTo(rawUrl, fallbackUrl) {
+    window.location.assign(resolveNavigationUrl(rawUrl, fallbackUrl));
+}
+
 function initUserPresence() {
     if (!currentUserId) return;
 
@@ -223,7 +247,7 @@ function applyFilters() {
     const params = new URLSearchParams();
     if (category) params.set('category', category);
     if (sort !== 'new') params.set('sort', sort);
-    window.location.href = 'index.php' + (params.toString() ? '?' + params : '');
+    navigateTo('index.php' + (params.toString() ? '?' + params : ''), 'index.php');
 }
 
 function initFormattingToolbar() {
@@ -271,7 +295,7 @@ function initLoginForm() {
             const json = await res.json();
             
             if (json.success) {
-                window.location.href = json.redirect || 'index.php';
+                navigateTo(json.redirect, 'index.php');
             } else {
                 alert(json.error || 'Ошибка входа');
                 btn.disabled = false;
@@ -308,7 +332,7 @@ function initRegisterForm() {
             const json = await res.json();
             
             if (json.success) {
-                window.location.href = json.redirect || 'welcome.php';
+                navigateTo(json.redirect, 'welcome.php');
             } else {
                 alert(json.error || 'Ошибка регистрации');
                 btn.disabled = false;
@@ -363,7 +387,11 @@ function initCreatePostForm() {
             
             if (json.success) {
                 window.LevelSystem?.applyLevelingUpdate?.(json.leveling);
-                window.location.href = json.redirect || ('post.php?id=' + json.post_id);
+                const fallbackPostId = Number(json.post_id);
+                const fallbackPostUrl = Number.isFinite(fallbackPostId) && fallbackPostId > 0
+                    ? ('post.php?id=' + fallbackPostId)
+                    : 'index.php';
+                navigateTo(json.redirect, fallbackPostUrl);
             } else {
                 alert(getModerationMessage(json, 'Ошибка создания поста'));
                 btn.disabled = false;
@@ -410,7 +438,9 @@ function initCreateSubredditForm() {
             const json = await res.json();
 
             if (json.success) {
-                window.location.href = json.redirect || ('index.php?category=' + encodeURIComponent(json.subreddit.id));
+                const fallbackCategoryId = json?.subreddit?.id ? encodeURIComponent(String(json.subreddit.id)) : '';
+                const fallbackCategoryUrl = fallbackCategoryId ? ('index.php?category=' + fallbackCategoryId) : 'index.php';
+                navigateTo(json.redirect, fallbackCategoryUrl);
             } else {
                 alert(json.error || 'Ошибка создания сабреддита');
                 btn.disabled = false;
@@ -656,7 +686,7 @@ function initProfileForm() {
             const json = await res.json();
             
             if (json.success) {
-                window.location.href = json.redirect || 'profile.php';
+                navigateTo(json.redirect, 'profile.php');
             } else {
                 alert(json.error || 'Ошибка сохранения');
             }
