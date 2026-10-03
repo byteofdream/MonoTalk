@@ -412,41 +412,44 @@ body {
 
 .sort-tabs {
     display: flex;
-    gap: 0;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius) var(--radius) 0 0;
-    overflow: hidden;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    overflow: visible;
 }
 
 .sort-tab {
-    padding: 0.75rem 1.25rem;
+    padding: 0.55rem 1.1rem;
     text-decoration: none;
     color: var(--text-muted);
-    font-weight: 500;
-    font-size: 0.95rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     transition: all var(--transition);
-    border-bottom: 2px solid transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg);
 }
 
 .sort-tab:hover {
     color: var(--text);
-    background: rgba(0,0,0,0.03);
+    border-color: var(--text);
 }
 
 .sort-tab.active {
-    color: var(--text);
-    border-bottom-color: var(--text);
+    color: var(--bg);
+    background: var(--text);
+    border-color: var(--text);
 }
 
 /* Subreddit banner */
 .subreddit-banner {
-    background: var(--card-bg);
+    background: linear-gradient(135deg, var(--card-bg), var(--bg));
     border: 1px solid var(--border);
-    border-radius: 0 0 var(--radius) var(--radius);
+    border-radius: 16px;
     padding: 2rem;
     margin-bottom: 1rem;
     animation: fadeIn 0.3s ease;
+    box-shadow: var(--shadow);
 }
 
 .banner-header {
@@ -507,24 +510,27 @@ body {
     display: flex;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: background var(--transition);
+    border-radius: 16px;
+    transition: all var(--transition);
     animation: fadeIn 0.4s ease forwards;
     overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
 .post-card-reddit:hover {
     background: var(--card-bg);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
 }
 
 .post-vote-side {
-    width: 48px;
-    padding: 0.5rem;
+    width: 52px;
+    padding: 0.75rem 0.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    background: rgba(0,0,0,0.02);
+    background: transparent;
 }
 
 .vote-btn {
@@ -704,14 +710,17 @@ body {
 .sidebar-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
+    border-radius: 16px;
+    padding: 1.4rem;
     margin-bottom: 1rem;
+    box-shadow: var(--shadow);
 }
 
 .sidebar-card h3 {
     font-size: 1rem;
+    font-weight: 700;
     margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
 }
 
 .sidebar-header p {
@@ -778,16 +787,22 @@ a.sidebar-subreddit-btn.btn-secondary {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0;
+    padding: 0.55rem 0.65rem;
     text-decoration: none;
     color: var(--text);
     font-size: 0.95rem;
-    transition: background var(--transition);
-    border-radius: 6px;
+    transition: all var(--transition);
+    border-radius: 10px;
 }
 
-.category-item:hover, .category-item.active {
+.category-item:hover {
     background: rgba(0,0,0,0.05);
+    transform: translateX(3px);
+}
+
+.category-item.active {
+    background: rgba(0,0,0,0.07);
+    font-weight: 600;
 }
 
 .cat-emoji {
@@ -2584,6 +2599,12 @@ main.container, .main-layout {
     color: var(--text-muted);
     line-height: 1.6;
 }
+
+/* Settings options */
+body.compact-mode .post-card-reddit .post-excerpt { display: none; }
+body.compact-mode .post-card-reddit .post-image-preview-wrap { display: none; }
+body.hide-images .post-image-preview-wrap,
+body.hide-images .post-full-image-wrap { display: none; }
 
 /* Settings page */
 .settings-page h1 {
