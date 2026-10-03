@@ -25,7 +25,13 @@ $baseHref = ($baseHref === '') ? '/' : ($baseHref . '/');
     <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/style.css">
     <base href="<?= e($baseHref) ?>">
 </head>
+<?php
+$bodyClasses = [];
+if (($_COOKIE['opt_compact'] ?? '0') === '1') $bodyClasses[] = 'compact-mode';
+if (($_COOKIE['opt_hide_images'] ?? '0') === '1') $bodyClasses[] = 'hide-images';
+?>
 <body
+    class="<?= e(implode(' ', $bodyClasses)) ?>"
     data-base-url="<?= e(BASE_URL) ?>"
     data-current-user-id="<?= (int)($headerUser['id'] ?? 0) ?>"
     data-status-online="<?= e(t('user_status_online')) ?>"
@@ -42,7 +48,6 @@ $baseHref = ($baseHref === '') ? '/' : ($baseHref . '/');
             <img src="<?= e(BASE_URL) ?>assets/icons/brand-white.svg" alt="" class="logo-mark logo-mark--dark">
             <span class="logo-text">
                 <span>MonoTalk</span>
-                <span class="logo-beta">&beta;eta</span>
             </span>
         </a>
         <form class="nav-search" action="<?= e(BASE_URL) ?>search.php" method="get">
