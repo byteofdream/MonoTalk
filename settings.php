@@ -42,6 +42,18 @@ $pageTitle = $titles[$tab] ?? 'Settings';
                     <a href="<?= e(BASE_URL) ?>api/set_language.php?lang=en&redirect=<?= urlencode($_SERVER['REQUEST_URI'] ?? '/settings.php') ?>" class="lang-option <?= $lang === 'en' ? 'active' : '' ?>">English</a>
                 </div>
             </section>
+
+            <section class="settings-section">
+                <h2><?= $lang === 'en' ? 'Feed' : 'Лента' ?></h2>
+                <div class="theme-options">
+                    <a href="<?= e(BASE_URL) ?>api/set_option.php?key=compact&value=<?= ($_COOKIE['opt_compact'] ?? '0') === '1' ? '0' : '1' ?>&redirect=<?= urlencode($_SERVER['REQUEST_URI'] ?? '/settings.php?tab=general') ?>" class="theme-option <?= ($_COOKIE['opt_compact'] ?? '0') === '1' ? 'active' : '' ?>">
+                        <span><?= $lang === 'en' ? 'Compact mode' : 'Компактный режим' ?></span>
+                    </a>
+                    <a href="<?= e(BASE_URL) ?>api/set_option.php?key=hide_images&value=<?= ($_COOKIE['opt_hide_images'] ?? '0') === '1' ? '0' : '1' ?>&redirect=<?= urlencode($_SERVER['REQUEST_URI'] ?? '/settings.php?tab=general') ?>" class="theme-option <?= ($_COOKIE['opt_hide_images'] ?? '0') === '1' ? 'active' : '' ?>">
+                        <span><?= $lang === 'en' ? 'Hide post images' : 'Скрыть картинки постов' ?></span>
+                    </a>
+                </div>
+            </section>
         <?php endif; ?>
 
         <?php if ($tab === 'appearance'): ?>

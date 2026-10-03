@@ -13,6 +13,11 @@ if (isLoggedIn()) {
 
 $pageTitle = 'Вход';
 $redirect = $_GET['redirect'] ?? BASE_URL . 'index.php';
+
+// Капча
+$captchaA = rand(1, 9);
+$captchaB = rand(1, 9);
+$_SESSION['captcha_answer'] = $captchaA + $captchaB;
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
@@ -28,6 +33,10 @@ $redirect = $_GET['redirect'] ?? BASE_URL . 'index.php';
             <div class="form-group">
                 <label for="password">Пароль</label>
                 <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <div class="form-group">
+                <label for="captcha">Капча: сколько будет <?= $captchaA ?> + <?= $captchaB ?>?</label>
+                <input type="text" id="captcha" name="captcha" required autocomplete="off">
             </div>
             <button type="submit" class="btn-primary btn-block">Войти</button>
         </form>
