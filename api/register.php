@@ -22,6 +22,13 @@ $username = trim($input['username'] ?? '');
 $password = $input['password'] ?? '';
 $email = trim($input['email'] ?? '');
 
+$captcha = trim($input['captcha'] ?? '');
+if (!isset($_SESSION['captcha_answer']) || $captcha !== (string)$_SESSION['captcha_answer']) {
+    echo json_encode(['success' => false, 'error' => 'Неверная капча']);
+    exit;
+}
+unset($_SESSION['captcha_answer']);
+
 // Валидация
 if (strlen($username) < 3) {
     echo json_encode(['success' => false, 'error' => 'Username минимум 3 символа']);

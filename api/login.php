@@ -24,6 +24,13 @@ if ($username === '' || $password === '') {
     exit;
 }
 
+$captcha = trim($input['captcha'] ?? '');
+if (!isset($_SESSION['captcha_answer']) || $captcha !== (string)$_SESSION['captcha_answer']) {
+    echo json_encode(['success' => false, 'error' => 'Неверная капча']);
+    exit;
+}
+unset($_SESSION['captcha_answer']);
+
 $user = getUserByUsername($username);
 if (!$user || !password_verify($password, $user['password'])) {
     echo json_encode(['success' => false, 'error' => 'Invalid username or password']);
