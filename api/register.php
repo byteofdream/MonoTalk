@@ -29,6 +29,21 @@ if (!isset($_SESSION['captcha_answer']) || $captcha !== (string)$_SESSION['captc
 }
 unset($_SESSION['captcha_answer']);
 
+// Rate limiting
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$rate = readData('rate_limits.json');
+$now = time();
+$recent = array_filter($rate, function($r) use ($ip, $now) {
+    return ($r['ip'] ?? '') === $ip && ($r['action'] ?? '') === 'register' && $now - (int)($r['time'] ?? 0) < 900;
+});
+if (count($recent) >= 5) {
+    echo json_encode(['success' => false, 'error' => 'Слишком много попыток. Попробуйте через 15 минут.']);
+    exit;
+}
+$rate[] = ['ip' => $ip, 'action' => 'register', 'time' => $now];
+$rate = array_slice($rate, -500);
+writeData('rate_limits.json', array_values($rate));
+
 // Валидация
 if (strlen($username) < 3) {
     echo json_encode(['success' => false, 'error' => 'Username минимум 3 символа']);

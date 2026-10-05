@@ -19,6 +19,21 @@ $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $username = trim($input['username'] ?? '');
 $password = $input['password'] ?? '';
 
+// Rate limiting
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$rate = readData('rate_limits.json');
+$now = time();
+$recent = array_filter($rate, function($r) use ($ip, $now) {
+    return ($r['ip'] ?? '') === $ip && ($r['action'] ?? '') === 'login' && $now - (int)($r['time'] ?? 0) < 900;
+});
+if (count($recent) >= 10) {
+    echo json_encode(['success' => false, 'error' => 'Слишком много попыток. Попробуйте через 15 минут.']);
+    exit;
+}
+$rate[] = ['ip' => $ip, 'action' => 'login', 'time' => $now];
+$rate = array_slice($rate, -500);
+writeData('rate_limits.json', array_values($rate));
+
 if ($username === '' || $password === '') {
     echo json_encode(['success' => false, 'error' => 'Fill in all fields']);
     exit;
