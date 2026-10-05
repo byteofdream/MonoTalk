@@ -27,9 +27,9 @@ $pageTitle = $titles[$tab] ?? 'Settings';
     <h1><?= $lang === 'en' ? 'Settings' : 'Настройки' ?></h1>
 
     <div class="settings-tabs">
-        <a href="?tab=general" class="settings-tab <?= $tab === 'general' ? 'active' : '' ?>"><?= e($titles['general']) ?></a>
-        <a href="?tab=appearance" class="settings-tab <?= $tab === 'appearance' ? 'active' : '' ?>"><?= e($titles['appearance']) ?></a>
-        <a href="?tab=about" class="settings-tab <?= $tab === 'about' ? 'active' : '' ?>"><?= e($titles['about']) ?></a>
+        <a href="settings.php?tab=general" class="settings-tab <?= $tab === 'general' ? 'active' : '' ?>"><?= e($titles['general']) ?></a>
+        <a href="settings.php?tab=appearance" class="settings-tab <?= $tab === 'appearance' ? 'active' : '' ?>"><?= e($titles['appearance']) ?></a>
+        <a href="settings.php?tab=about" class="settings-tab <?= $tab === 'about' ? 'active' : '' ?>"><?= e($titles['about']) ?></a>
     </div>
 
     <div class="settings-content">

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * MonoTalk - Создание сабреддита
  */
@@ -31,14 +31,17 @@ $pageTitle = t('create_subreddit_title');
                     <?= $lang === 'en' ? '3-30 characters. A readable name works best.' : '3-30 символов. Лучше использовать понятное название.' ?>
                 </p>
             </div>
+
             <div class="form-group">
                 <label for="subreddit_desc"><?= e(t('create_subreddit_desc_label')) ?></label>
                 <textarea id="subreddit_desc" name="description" placeholder="<?= $lang === 'en' ? 'What is this subreddit about?' : 'О чем этот сабреддит?' ?>"></textarea>
             </div>
+
             <div class="form-group">
                 <label for="subreddit_emoji"><?= e(t('create_subreddit_emoji_label')) ?></label>
                 <input type="text" id="subreddit_emoji" name="emoji" maxlength="4" placeholder="<?= $lang === 'en' ? 'Optional, for example: 🧵' : 'Необязательно, например: 🧵' ?>">
             </div>
+
             <button type="submit" class="btn-primary"><?= e(t('create_subreddit_submit')) ?></button>
         </form>
     </div>

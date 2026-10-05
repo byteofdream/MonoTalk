@@ -193,6 +193,21 @@ $pageTitle = $user['username'];
     </section>
     <?php endif; ?>
 
+    <?php if ($isOwnProfile): $favPosts = getUserFavoritePosts((int)$user['id']); ?>
+    <section class="user-posts">
+        <h2><?= $lang === 'en' ? 'Saved posts' : 'Избранные посты' ?></h2>
+        <?php foreach ($favPosts as $post): ?>
+            <a href="<?= e(BASE_URL) ?>post.php?id=<?= (int)$post['id'] ?>" class="post-card-mini">
+                <h3><?= e($post['title']) ?></h3>
+                <span class="post-stats">♥ <?= (int)($post['likes'] ?? 0) ?> · 💬 <?= (int)($post['comments_count'] ?? 0) ?> · 👁 <?= (int)($post['views'] ?? 0) ?></span>
+            </a>
+        <?php endforeach; ?>
+        <?php if (empty($favPosts)): ?>
+            <p class="empty-state"><?= $lang === 'en' ? 'No saved posts yet.' : 'Пока нет сохранённых постов.' ?></p>
+        <?php endif; ?>
+    </section>
+    <?php endif; ?>
+
     <section class="user-posts">
         <h2><?= $isOwnProfile ? e(t('profile_my_posts')) : e(t('profile_user_posts')) ?></h2>
         <?php foreach ($userPosts as $post): ?>

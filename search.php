@@ -44,13 +44,13 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
         <?php if ($query !== ''): ?>
             <!-- Search result tabs -->
             <div class="search-tabs">
-                <a href="?q=<?= urlencode($query) ?>&type=posts" class="search-tab <?= $searchType === 'posts' ? 'active' : '' ?>">
+                <a href="search.php?q=<?= urlencode($query) ?>&type=posts" class="search-tab <?= $searchType === 'posts' ? 'active' : '' ?>">
                     💬 Посты (<?= count($posts) ?>)
                 </a>
-                <a href="?q=<?= urlencode($query) ?>&type=subreddits" class="search-tab <?= $searchType === 'subreddits' ? 'active' : '' ?>">
+                <a href="search.php?q=<?= urlencode($query) ?>&type=subreddits" class="search-tab <?= $searchType === 'subreddits' ? 'active' : '' ?>">
                     📝 Сабреддиты (<?= count($foundSubreddits) ?>)
                 </a>
-                <a href="?q=<?= urlencode($query) ?>&type=users" class="search-tab <?= $searchType === 'users' ? 'active' : '' ?>">
+                <a href="search.php?q=<?= urlencode($query) ?>&type=users" class="search-tab <?= $searchType === 'users' ? 'active' : '' ?>">
                     👤 Пользователи (<?= count($foundUsers) ?>)
                 </a>
             </div>
@@ -71,7 +71,7 @@ $pageTitle = $query ? t('search_title') . ': ' . $query : t('search_title');
                     <article class="post-card-reddit" data-id="<?= (int)$post['id'] ?>">
                         <div class="post-vote-side">
                             <button class="vote-btn like-btn <?= $postLiked ? 'liked' : '' ?>" data-type="post" data-id="<?= (int)$post['id'] ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>>
-                                <span class="vote-icon">▲</span>
+                                <span class="vote-icon">♥</span>
                             </button>
                             <span class="vote-count"><?= (int)($post['likes'] ?? 0) ?></span>
                         </div>

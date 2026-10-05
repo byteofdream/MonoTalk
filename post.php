@@ -18,6 +18,18 @@ if (!$post) {
     exit;
 }
 
+// Счётчик просмотров
+$postsData = readData('posts.json');
+foreach ($postsData as &$p) {
+    if ((int)($p['id'] ?? 0) === $postId) {
+        $p['views'] = (int)($p['views'] ?? 0) + 1;
+        $post['views'] = $p['views'];
+        break;
+    }
+}
+unset($p);
+writeData('posts.json', $postsData);
+
 $comments = getCommentsByPostId($postId);
 $category = getSubredditById($post['category'] ?? '');
 $currentUser = isLoggedIn() ? getCurrentUser() : null;
@@ -29,10 +41,14 @@ $pageTitle = e($post['title']);
 
 <main class="main-layout post-page-layout">
     <div class="content-area post-content-area">
+        <div id="postSkeleton">
+            <div class="skeleton-card"><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div><div class="skeleton-line w60"></div></div>
+        </div>
+        <div id="postContent">
         <article class="post-full-reddit">
             <div class="post-vote-side post-vote-vertical">
                 <button class="vote-btn like-btn <?= $postLiked ? 'liked' : '' ?>" data-type="post" data-id="<?= $postId ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>>
-                    <span class="vote-icon">▲</span>
+                    <span class="vote-icon">♥</span>
                 </button>
                 <span class="vote-count"><?= (int)($post['likes'] ?? 0) ?></span>
             </div>
@@ -50,14 +66,24 @@ $pageTitle = e($post['title']);
                 <?= renderPostContentBlocks((string)($post['content'] ?? ''), (string)($post['image'] ?? ''), BASE_URL) ?>
                 <div class="post-actions-bar">
                     <span class="action-link">💬 <?= count($comments) ?> <?= e(t('post_comments_count')) ?></span>
-                    <span class="action-link"><?= e(t('post_share')) ?></span>
-                    <span class="action-link"><?= e(t('post_save')) ?></span>
+                    <button class="action-link copy-link-btn" data-url="<?= e(BASE_URL) ?>post.php?id=<?= $postId ?>">📋 Скопировать ссылку</button>
+                    <span class="action-link share-post" data-url="<?= e(BASE_URL) ?>post.php?id=<?= $postId ?>"><?= e(t('post_share')) ?></span>
+                    <?php $favSaved = $currentUser && hasUserFavorited($currentUser['id'], $postId); ?>
+                    <button class="action-link fav-btn <?= $favSaved ? 'saved' : '' ?>" data-post-id="<?= $postId ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>><?= $favSaved ? '★' : '☆' ?> <?= $lang === 'en' ? 'Save' : 'Сохранить' ?></button>
+                    <span class="action-link">👁 <?= (int)($post['views'] ?? 0) ?></span>
                 </div>
             </div>
         </article>
 
         <section id="comments" class="comments-section-reddit">
-            <h2>Комментарии (<?= count($comments) ?>)</h2>
+            <div class="comments-head">
+                <h2>Комментарии (<?= count($comments) ?>)</h2>
+                <select id="commentSort" class="filter-select">
+                    <option value="new"><?= $lang === 'en' ? 'Newest' : 'Сначала новые' ?></option>
+                    <option value="old"><?= $lang === 'en' ? 'Oldest' : 'Сначала старые' ?></option>
+                    <option value="top"><?= $lang === 'en' ? 'Top' : 'По лайкам' ?></option>
+                </select>
+            </div>
 
             <?php if (isLoggedIn()): ?>
             <form id="commentForm" class="comment-form">
@@ -84,10 +110,10 @@ $pageTitle = e($post['title']);
                     $commentLiked = $currentUser && hasUserLiked($currentUser['id'], 'comment', (int)$comment['id']);
                     $isCommentAuthor = $currentUser && (int)($comment['author_id'] ?? 0) === (int)$currentUser['id'];
                     ?>
-                    <div class="comment-card-reddit" data-id="<?= (int)$comment['id'] ?>">
+                    <div class="comment-card-reddit" data-id="<?= (int)$comment['id'] ?>" data-likes="<?= (int)($comment['likes'] ?? 0) ?>" data-created="<?= e($comment['created_at'] ?? '') ?>">
                         <div class="comment-vote-side">
                             <button class="vote-btn like-btn like-btn-sm <?= $commentLiked ? 'liked' : '' ?>" data-type="comment" data-id="<?= (int)$comment['id'] ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>>
-                                <span class="vote-icon">▲</span>
+                                <span class="vote-icon">♥</span>
                             </button>
                             <span class="vote-count"><?= (int)($comment['likes'] ?? 0) ?></span>
                         </div>
@@ -112,6 +138,7 @@ $pageTitle = e($post['title']);
                 <?php endforeach; ?>
             </div>
         </section>
+        </div><!-- /postContent -->
     </div>
 
     <aside class="sidebar">
@@ -126,10 +153,11 @@ $pageTitle = e($post['title']);
                 <dd><?= e(formatDate($post['created_at'] ?? '')) ?></dd>
                 <dt><?= e(t('post_likes')) ?></dt>
                 <dd><?= (int)($post['likes'] ?? 0) ?></dd>
+                <dt><?= $lang === 'en' ? 'Views' : 'Просмотры' ?></dt>
+                <dd><?= (int)($post['views'] ?? 0) ?></dd>
             </dl>
         </div>
     </aside>
-</main>
 </main>
 
 <!-- Modal для редактирования поста -->
@@ -200,7 +228,38 @@ $pageTitle = e($post['title']);
 document.addEventListener('DOMContentLoaded', function() {
     const baseUrl = '<?= e(BASE_URL) ?>';
     
-    // Modal handling
+// Скопировать ссылку на пост
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.copy-link-btn');
+    if (!btn) return;
+    const url = new URL(btn.dataset.url, location.origin).href;
+    copyText(url);
+    function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(
+                () => toast('Ссылка скопирована', 'success'),
+                () => fallbackCopy(text)
+            );
+        } else {
+            fallbackCopy(text);
+        }
+    }
+    function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            toast('Ссылка скопирована', 'success');
+        } catch {
+            toast('Не удалось скопировать', 'error');
+        }
+        ta.remove();
+    }
+});
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
         btn.addEventListener('click', function() {
             const modalId = this.getAttribute('data-close-modal');
@@ -263,13 +322,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                alert('Пост успешно отредактирован!');
+                toast('Пост успешно отредактирован!', 'success');
                 location.reload();
             } else {
-                alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+                toast('Ошибка: ' + (data.error || 'Неизвестная ошибка'), 'error');
             }
         } catch (error) {
-            alert('Ошибка при отправке: ' + error.message);
+            toast('Ошибка при отправке: ' + error.message, 'error');
         }
     });
     
@@ -288,13 +347,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                alert('Комментарий успешно отредактирован!');
+                toast('Комментарий успешно отредактирован!', 'success');
                 location.reload();
             } else {
-                alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+                toast('Ошибка: ' + (data.error || 'Неизвестная ошибка'), 'error');
             }
         } catch (error) {
-            alert('Ошибка при отправке: ' + error.message);
+            toast('Ошибка при отправке: ' + error.message, 'error');
         }
     });
 });

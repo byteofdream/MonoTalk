@@ -31,10 +31,10 @@ $excerptLength = 500;
 
         <div class="feed-header">
             <div class="sort-tabs">
-                <a href="?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'hot']) ?>" class="sort-tab <?= $sort === 'hot' ? 'active' : '' ?>"><?= e(t('sort_hot')) ?></a>
-                <a href="?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'new']) ?>" class="sort-tab <?= $sort === 'new' ? 'active' : '' ?>"><?= e(t('sort_new')) ?></a>
-                <a href="?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'popular']) ?>" class="sort-tab <?= $sort === 'popular' ? 'active' : '' ?>"><?= e(t('sort_popular')) ?></a>
-                <a href="?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'discussed']) ?>" class="sort-tab <?= $sort === 'discussed' ? 'active' : '' ?>"><?= e(t('sort_discussed')) ?></a>
+                <a href="index.php?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'hot']) ?>" class="sort-tab <?= $sort === 'hot' ? 'active' : '' ?>"><?= e(t('sort_hot')) ?></a>
+                <a href="index.php?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'new']) ?>" class="sort-tab <?= $sort === 'new' ? 'active' : '' ?>"><?= e(t('sort_new')) ?></a>
+                <a href="index.php?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'popular']) ?>" class="sort-tab <?= $sort === 'popular' ? 'active' : '' ?>"><?= e(t('sort_popular')) ?></a>
+                <a href="index.php?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'discussed']) ?>" class="sort-tab <?= $sort === 'discussed' ? 'active' : '' ?>"><?= e(t('sort_discussed')) ?></a>
             </div>
         </div>
 
@@ -53,19 +53,22 @@ $excerptLength = 500;
                             <p class="banner-description"><?= e($subred['description']) ?></p>
                         <?php endif; ?>
                     </div>
-                    <?php if (isLoggedIn()): ?>
-                        <?php
-                        $user = getCurrentUser();
-                        $isSubscribed = in_array($subred['id'], $user['subscriptions'] ?? []);
-                        ?>
-                        <button class="btn-primary subscribe-btn"
-                                data-subreddit-id="<?= e($subred['id']) ?>"
-                                data-action="<?= $isSubscribed ? 'unsubscribe' : 'subscribe' ?>"
-                                data-subscribe-text="<?= e(t('subscribe')) ?>"
-                                data-unsubscribe-text="<?= e(t('unsubscribe')) ?>">
-                            <?= $isSubscribed ? t('unsubscribe') : t('subscribe') ?>
-                        </button>
-                    <?php endif; ?>
+                    <div class="banner-actions">
+                        <button class="btn-secondary share-sub-btn" data-sub="<?= e(catName($subred, $lang)) ?>">🔗 <?= $lang === 'en' ? 'Share' : 'Поделиться' ?></button>
+                        <?php if (isLoggedIn()): ?>
+                            <?php
+                            $user = getCurrentUser();
+                            $isSubscribed = in_array($subred['id'], $user['subscriptions'] ?? []);
+                            ?>
+                            <button class="btn-primary subscribe-btn"
+                                    data-subreddit-id="<?= e($subred['id']) ?>"
+                                    data-action="<?= $isSubscribed ? 'unsubscribe' : 'subscribe' ?>"
+                                    data-subscribe-text="<?= e(t('subscribe')) ?>"
+                                    data-unsubscribe-text="<?= e(t('unsubscribe')) ?>">
+                                <?= $isSubscribed ? t('unsubscribe') : t('subscribe') ?>
+                            </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         <?php endif; ?>
@@ -82,12 +85,12 @@ $excerptLength = 500;
                 <article class="post-card-reddit" data-id="<?= (int)$post['id'] ?>" style="animation-delay: <?= $i * 0.03 ?>s">
                     <div class="post-vote-side">
                         <button class="vote-btn like-btn <?= $postLiked ? 'liked' : '' ?>" data-type="post" data-id="<?= (int)$post['id'] ?>" title="<?= e(t('like_title')) ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>>
-                            <span class="vote-icon">▲</span>
+                            <span class="vote-icon">♥</span>
                         </button>
                         <span class="vote-count"><?= (int)($post['likes'] ?? 0) ?></span>
                     </div>
                     <div class="post-body">
-                        <a href="?category=<?= e($cat['id']) ?>" class="post-category-badge" onclick="event.stopPropagation();"><?= e($cat['emoji'] ?? '') ?> r/<?= e(catName($cat, $lang)) ?></a>
+                        <a href="index.php?category=<?= e($cat['id']) ?>" class="post-category-badge" onclick="event.stopPropagation();"><?= e($cat['emoji'] ?? '') ?> r/<?= e(catName($cat, $lang)) ?></a>
                         <a href="<?= e(BASE_URL) ?>post.php?id=<?= (int)$post['id'] ?>" class="post-link">
                             <h2 class="post-title"><?= e($post['title']) ?></h2>
                             <?php if (!empty($post['image'])): ?>
@@ -102,15 +105,17 @@ $excerptLength = 500;
                         </a>
                         <div class="post-meta-line">
                             <?= e(t('post_published')) ?> <?php if ((int)($post['author_id'] ?? 0) > 0): $authorId = (int)($post['author_id'] ?? 0); ?><a href="<?= e(BASE_URL) ?>profile.php?user=<?= e($post['author_name'] ?? '') ?>"><strong>u/<?= e($post['author_name'] ?? '') ?></strong><?= isUserVerifiedById($authorId) ? verifiedBadge() : '' ?></a><?php else: ?><strong>u/<?= e($post['author_name'] ?? 'Anonymous') ?></strong><?php endif; ?>
-                            <?= e(t('post_in')) ?> <a href="?category=<?= e($post['category'] ?? '') ?>">r/<?= e(catName($cat, $lang)) ?></a>
+                            <?= e(t('post_in')) ?> <a href="index.php?category=<?= e($post['category'] ?? '') ?>">r/<?= e(catName($cat, $lang)) ?></a>
                             · <?= e(formatDate($post['created_at'] ?? '')) ?>
                         </div>
                         <div class="post-actions-bar">
                             <a href="<?= e(BASE_URL) ?>post.php?id=<?= (int)$post['id'] ?>#comments" class="action-link">
                                 💬 <?= (int)($post['comments_count'] ?? 0) ?> <?= e(t('post_comments')) ?>
                             </a>
-                            <span class="action-link"><?= e(t('post_share')) ?></span>
-                            <span class="action-link"><?= e(t('post_save')) ?></span>
+                            <span class="action-link share-post" data-url="<?= e(BASE_URL) ?>post.php?id=<?= (int)$post['id'] ?>"><?= e(t('post_share')) ?></span>
+                            <span class="action-link">👁 <?= (int)($post['views'] ?? 0) ?></span>
+                            <?php $favSaved = isLoggedIn() && hasUserFavorited(getCurrentUser()['id'], (int)$post['id']); ?>
+                            <button class="action-link fav-btn <?= $favSaved ? 'saved' : '' ?>" data-post-id="<?= (int)$post['id'] ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>><?= $favSaved ? '★' : '☆' ?> <?= $lang === 'en' ? 'Save' : 'Сохранить' ?></button>
                         </div>
                     </div>
                 </article>
@@ -144,14 +149,14 @@ $excerptLength = 500;
             <input type="text" id="subredditSearch" class="sidebar-search-input" placeholder="<?= e(t('search'))?>">
             <div class="category-list" id="categoryList">
                 <?php foreach ($subreddits as $cat): ?>
-                    <a href="?category=<?= e($cat['id']) ?>" class="category-item <?= $category === $cat['id'] ? 'active' : '' ?>" data-name="<?= e(mb_strtolower(catName($cat, $lang))) ?>">
+                    <a href="index.php?category=<?= e($cat['id']) ?>" class="category-item <?= $category === $cat['id'] ? 'active' : '' ?>" data-name="<?= e(mb_strtolower(catName($cat, $lang))) ?>">
                         <span class="cat-emoji"><?= e($cat['emoji'] ?? '') ?></span>
                         <span class="cat-copy">
                             <span class="cat-name">r/<?= e(catName($cat, $lang)) ?></span>
                         </span>
                     </a>
                 <?php endforeach; ?>
-                <a href="?category=" class="category-item"><?= e(t('sidebar_reset')) ?></a>
+                <a href="index.php?category=" class="category-item"><?= e(t('sidebar_reset')) ?></a>
             </div>
         </div>
 
