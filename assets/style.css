@@ -5,16 +5,16 @@
 
 :root,
 [data-theme="light"] {
-    --bg: #ffffff;
+    --bg: #f8f9fa;
     --text: #1a1a1a;
     --text-muted: #666;
-    --border: #e0e0e0;
+    --border: #e6e8eb;
     --accent: #333;
     --accent-hover: #000;
-    --card-bg: #fafafa;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
-    --radius: 12px;
+    --card-bg: #ffffff;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.06);
+    --radius: 18px;
     --transition: 0.2s ease;
     --red: #e53935;
 }
@@ -64,7 +64,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background: var(--bg);
+    background: var(--card-bg);
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
@@ -123,11 +123,36 @@ body {
     flex: 1;
     max-width: 400px;
     margin: 0 1.5rem;
+    position: relative;
+    align-items: center;
+}
+
+.nav-search-inner {
+    position: absolute;
+    left: 0.75rem;
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.nav-search-input {
+    padding-left: 2.2rem !important;
+}
+
+.nav-search-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
 }
 
 .nav-search-input {
     flex: 1;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 2.9rem 0.5rem 1rem;
     border: 1px solid var(--border);
     border-radius: 8px 0 0 8px;
     font-family: inherit;
@@ -191,6 +216,75 @@ body {
 }
 
 /* Language switcher */
+/* Create button icon-only with hover flip + tip */
+.notif-badge {
+    display: inline-block;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--red);
+    color: #fff;
+    font-size: 0.65rem;
+    line-height: 16px;
+    text-align: center;
+    margin-left: 4px;
+}
+
+.notif-dropdown a.notif-unread {
+    font-weight: 600;
+    background: var(--card-bg);
+}
+
+.nav-links a {
+    transition: color var(--transition), transform var(--transition);
+}
+
+.nav-links a:hover {
+    transform: translateY(-1px);
+}
+
+.nav-create:hover {
+    transform: scale(1.08);
+}
+
+/* Create button icon-only with hover flip + tip */
+.nav-create {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-create-icon {
+    transition: transform 0.3s ease;
+}
+
+.nav-create:hover .nav-create-icon {
+    transform: rotateY(180deg);
+}
+
+.nav-create-tip {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.nav-create:hover .nav-create-tip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
 .lang-switcher {
     position: relative;
 }
@@ -436,9 +530,15 @@ body {
 }
 
 .sort-tab.active {
-    color: var(--bg);
-    background: var(--text);
-    border-color: var(--text);
+    color: var(--text);
+    background: #e8eaed;
+    border-color: transparent;
+}
+
+[data-theme="dark"] .sort-tab.active {
+    color: var(--text);
+    background: #2a2a2a;
+    border-color: #444;
 }
 
 /* Subreddit banner */
@@ -493,6 +593,31 @@ body {
     line-height: 1.6;
 }
 
+.banner-actions {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+
+.banner-actions .share-sub-btn {
+    margin-right: 0;
+}
+
+.banner-actions .subscribe-btn {
+    min-width: 140px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.banner-info {
+    min-width: 0;
+}
+
+.banner-title {
+    overflow-wrap: anywhere;
+}
+
 .subreddit-meta {
     margin: 0.35rem 0 0.9rem 3.35rem;
     color: var(--text-muted);
@@ -525,12 +650,16 @@ body {
 
 .post-vote-side {
     width: 52px;
-    padding: 0.75rem 0.5rem;
+    padding: 0.6rem 0.4rem;
+    margin: 0.9rem 0 0.9rem 0.9rem;
+    align-self: flex-start;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    background: transparent;
+    background: var(--bg);
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px var(--border);
 }
 
 .vote-btn {
@@ -601,10 +730,11 @@ body {
 }
 
 .post-card-reddit .post-title {
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.35rem;
+    font-weight: 700;
     margin-bottom: 0.5rem;
-    line-height: 1.4;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
     transition: color var(--transition);
 }
 
@@ -690,7 +820,8 @@ body {
 
 .post-actions-bar {
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 1.25rem;
     font-size: 0.85rem;
     color: var(--text-muted);
 }
@@ -1125,6 +1256,73 @@ main.container, .main-layout {
 .flash-error {
     background: #ffebee;
     color: #c62828;
+}
+
+/* Плашка о возможных проблемах с кешем */
+.cache-notice {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #f0c36d;
+    background: #fff8e1;
+    color: #7a5b00;
+    animation: fadeIn 0.3s ease;
+}
+
+.cache-notice[hidden] {
+    display: none;
+}
+
+.cache-notice-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.cache-notice-icon {
+    line-height: 1.4;
+}
+
+.cache-notice-body strong {
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.cache-notice-body p {
+    margin: 0;
+    line-height: 1.45;
+}
+
+.cache-notice-close {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.15rem 0.45rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.cache-notice-close:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .cache-notice {
+    border-color: #5c4a12;
+    background: #2b2208;
+    color: #e8c96a;
+}
+
+[data-theme="dark"] .cache-notice-close:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Auth страницы */
@@ -2600,6 +2798,137 @@ main.container, .main-layout {
     line-height: 1.6;
 }
 
+/* Toast */
+#toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 1000;
+}
+
+.toast {
+    background: var(--text);
+    color: var(--bg);
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-hover);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-error { background: var(--red); color: #fff; }
+.toast-success { background: #2e7d32; color: #fff; }
+
+/* Skeleton */
+.skeleton-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeleton-line {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--border) 25%, var(--card-bg) 50%, var(--border) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+}
+
+.skeleton-line.w40 { width: 40%; }
+.skeleton-line.w60 { width: 60%; }
+.skeleton-line.w80 { width: 80%; }
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+#postContent { opacity: 0; transition: opacity 0.3s ease; }
+body.loaded #postContent { opacity: 1; }
+
+.comments-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.comments-head h2 { margin-bottom: 0; }
+
+#scrollTopBtn {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-hover);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease;
+}
+
+#scrollTopBtn.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.vote-btn.pop .vote-icon,
+.like-btn.pop .like-icon {
+    animation: likePop 0.35s ease;
+}
+
+@keyframes likePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1.15); }
+}
+
+/* Favorite button */
+.fav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+}
+
+.fav-btn.saved { color: #f5a623; }
+
+.copy-link-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+    color: var(--text-muted);
+    transition: color var(--transition);
+}
+
+.copy-link-btn:hover { color: var(--text); }
+
+.share-sub-btn { margin-right: 0.5rem; }
+
 /* Settings options */
 body.compact-mode .post-card-reddit .post-excerpt { display: none; }
 body.compact-mode .post-card-reddit .post-image-preview-wrap { display: none; }
@@ -2792,6 +3121,8 @@ body.hide-images .post-full-image-wrap { display: none; }
     }
 
     .nav-search-btn {
+        position: static;
+        align-self: stretch;
         min-width: 50px;
         border: 0;
         border-left: 1px solid var(--border);
@@ -3569,6 +3900,211 @@ body.hide-images .post-full-image-wrap { display: none; }
     flex-shrink: 0;
 }
 
+/* Вложенные ответы на комментарии */
+.comment-children {
+    margin-top: 0.75rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.comment-children .comment-card-reddit {
+    margin-bottom: 0;
+}
+
+/* Ограничиваем отступ у глубоко вложенных ответов */
+.comment-children .comment-children .comment-children {
+    padding-left: 0.4rem;
+}
+
+/* Кнопки действий в шапке комментария */
+.comment-inline-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-shrink: 0;
+}
+
+.comment-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: all var(--transition);
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.comment-action-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text);
+}
+
+[data-theme="dark"] .comment-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.comment-header .comment-inline-actions {
+    margin-left: auto;
+}
+
+/* Кнопка редактирования теперь внутри .comment-inline-actions */
+.comment-header .comment-inline-actions .edit-comment-btn {
+    margin-left: 0;
+}
+
+/* Форма ответа на комментарий */
+.reply-form-inline {
+    margin-top: 0.6rem;
+    margin-bottom: 0;
+}
+
+.reply-form-inline textarea {
+    min-height: 70px;
+    margin-bottom: 0.5rem;
+}
+
+/* Упоминания @username */
+.mention-link {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent);
+}
+
+.mention-link:hover {
+    color: var(--accent-hover);
+    border-bottom-style: solid;
+}
+
+/* Переключатель режима обслуживания (админка) */
+.maintenance-toggle-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.maintenance-toggle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.maintenance-toggle-hint {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--border);
+    transition: var(--transition);
+    border-radius: 999px;
+}
+
+.switch .slider::before {
+    content: "";
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    transition: var(--transition);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.switch input:checked + .slider {
+    background: var(--red);
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(24px);
+}
+
+.switch input:focus-visible + .slider {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Страница техработ */
+.maintenance-card {
+    text-align: center;
+    max-width: 460px;
+    padding: 2.5rem 2rem;
+}
+
+.maintenance-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.maintenance-card h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0.75rem;
+}
+
+.maintenance-text {
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.maintenance-sub {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.maintenance-hint {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-top: 1.25rem;
+}
+
+.maintenance-spinner {
+    width: 38px;
+    height: 38px;
+    margin: 0 auto;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: maintenanceSpin 0.9s linear infinite;
+}
+
+@keyframes maintenanceSpin {
+    to { transform: rotate(360deg); }
+}
 .post-form {
     display: flex;
     flex-direction: column;

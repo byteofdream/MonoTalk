@@ -17,10 +17,15 @@ document.addEventListener('DOMContentLoaded', function() {
     initProfileForm();
     initSubredditSearch();
     initSubscriptionButtons();
+    initCommentSort();
+    initScrollTop();
+    initNotifications();
+    document.getElementById('postSkeleton')?.remove();
+    document.body.classList.add('loaded');
 });
 
 // Базовый URL из data-атрибута или текущий путь
-const baseUrl = document.body?.dataset?.baseUrl || document.querySelector('base')?.href?.replace(/\/$/, '') || '';
+const baseUrl = (document.body?.dataset?.baseUrl || '').replace(/\/+$/, '');
 const currentUserId = Number(document.body?.dataset?.currentUserId || 0);
 const statusI18n = {
     online: document.body?.dataset?.statusOnline || '🟢 Online',
@@ -37,6 +42,83 @@ function apiUrl(path) {
     const url = path.startsWith('/') ? path : baseUrl + '/' + path.replace(/^\//, '');
     return url.replace(/([^:])\/\//g, '$1/');
 }
+
+// Toast уведомления
+function toast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(() => el.classList.add('show'), 10);
+    setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => el.remove(), 300);
+    }, 3000);
+}
+
+// Skeleton-загрузка ленты при навигации
+function showFeedSkeleton() {
+    const feed = document.querySelector('.posts-feed');
+    if (!feed) return;
+    feed.innerHTML = Array.from({length: 3}).map(() =>
+        '<div class="skeleton-card"><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div><div class="skeleton-line w60"></div></div>'
+    ).join('');
+}
+
+document.addEventListener('click', function(e) {
+    const navLink = e.target.closest('.sort-tab, .category-item, .post-link');
+    if (navLink && !e.target.closest('button')) showFeedSkeleton();
+});
+
+// Избранное
+document.addEventListener('click', async function(e) {
+    const btn = e.target.closest('.fav-btn');
+    if (!btn || btn.disabled) return;
+    try {
+        const res = await fetch(apiUrl('api/toggle_favorite.php'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ post_id: Number(btn.dataset.postId) })
+        });
+        const json = await res.json();
+        if (json.success) {
+            btn.classList.toggle('saved', json.saved);
+            btn.innerHTML = (json.saved ? '★' : '☆') + ' ' + (document.documentElement.lang === 'en' ? 'Save' : 'Сохранить');
+            toast(json.saved ? 'Добавлено в избранное' : 'Удалено из избранного', 'success');
+        } else {
+            toast(json.error || 'Ошибка', 'error');
+        }
+    } catch {
+        toast('Ошибка сети', 'error');
+    }
+});
+
+// Поделиться постом
+document.addEventListener('click', function(e) {
+    const share = e.target.closest('.share-post');
+    if (!share) return;
+    const url = share.dataset.url ? new URL(share.dataset.url, location.origin).href : location.href;
+    navigator.clipboard?.writeText(url).then(
+        () => toast('Ссылка скопирована', 'success'),
+        () => toast('Не удалось скопировать', 'error')
+    );
+});
+
+// Поделиться сабреддитом
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.share-sub-btn');
+    if (!btn) return;
+    navigator.clipboard?.writeText(location.href).then(
+        () => toast('Ссылка на сабреддит скопирована', 'success'),
+        () => toast('Не удалось скопировать', 'error')
+    );
+});
 
 function resolveNavigationUrl(rawUrl, fallbackUrl) {
     const fallback = String(fallbackUrl || 'index.php').trim() || 'index.php';
@@ -297,12 +379,12 @@ function initLoginForm() {
             if (json.success) {
                 navigateTo(json.redirect, 'index.php');
             } else {
-                alert(json.error || 'Ошибка входа');
+                toast(json.error || 'Ошибка входа');
                 btn.disabled = false;
                 btn.textContent = 'Войти';
             }
         } catch (err) {
-            alert('Ошибка сети');
+            toast('Ошибка сети');
             btn.disabled = false;
             btn.textContent = 'Войти';
         }
@@ -334,12 +416,12 @@ function initRegisterForm() {
             if (json.success) {
                 navigateTo(json.redirect, 'welcome.php');
             } else {
-                alert(json.error || 'Ошибка регистрации');
+                toast(json.error || 'Ошибка регистрации');
                 btn.disabled = false;
                 btn.textContent = 'Зарегистрироваться';
             }
         } catch (err) {
-            alert('Ошибка сети');
+            toast('Ошибка сети');
             btn.disabled = false;
             btn.textContent = 'Зарегистрироваться';
         }
@@ -359,12 +441,12 @@ function initCreatePostForm() {
         const imageFile = form.querySelector('[name="image"]')?.files?.[0] || null;
         
         if (!title) {
-            alert('Заполните заголовок');
+            toast('Заполните заголовок');
             return;
         }
 
         if (!content && !imageFile) {
-            alert('Добавьте текст или изображение');
+            toast('Добавьте текст или изображение');
             return;
         }
         
@@ -393,12 +475,12 @@ function initCreatePostForm() {
                     : 'index.php';
                 navigateTo(json.redirect, fallbackPostUrl);
             } else {
-                alert(getModerationMessage(json, 'Ошибка создания поста'));
+                toast(getModerationMessage(json, 'Ошибка создания поста'));
                 btn.disabled = false;
                 btn.textContent = 'Опубликовать';
             }
         } catch (err) {
-            alert('Ошибка сети');
+            toast('Ошибка сети');
             btn.disabled = false;
             btn.textContent = 'Опубликовать';
         }
@@ -418,7 +500,7 @@ function initCreateSubredditForm() {
         const emoji = form.querySelector('#subreddit_emoji').value.trim();
 
         if (name.length < 3) {
-            alert('Название слишком короткое');
+            toast('Название слишком короткое');
             return;
         }
 
@@ -442,12 +524,12 @@ function initCreateSubredditForm() {
                 const fallbackCategoryUrl = fallbackCategoryId ? ('index.php?category=' + fallbackCategoryId) : 'index.php';
                 navigateTo(json.redirect, fallbackCategoryUrl);
             } else {
-                alert(json.error || 'Ошибка создания сабреддита');
+                toast(json.error || 'Ошибка создания сабреддита');
                 btn.disabled = false;
                 btn.textContent = 'Создать';
             }
         } catch (err) {
-            alert('Ошибка сети');
+            toast('Ошибка сети');
             btn.disabled = false;
             btn.textContent = 'Создать';
         }
@@ -490,7 +572,7 @@ function initCommentForm() {
         const imageFile = form.querySelector('[name="image"]')?.files?.[0] || null;
         
         if (!content && !imageFile) {
-            alert('Комментарий не может быть пустым');
+            toast('Комментарий не может быть пустым');
             return;
         }
         
@@ -516,8 +598,16 @@ function initCommentForm() {
                 const comment = document.createElement('div');
                 comment.className = 'comment-card-reddit';
                 comment.dataset.id = json.comment.id;
+                comment.dataset.likes = '0';
+                comment.dataset.created = json.comment.created_at || '';
                 const verifiedHtml = json.comment.verified ? '<span class="verified-badge" title="Verified" aria-label="Verified">✔</span>' : '';
                 const imageHtml = json.comment.image ? `<div class="comment-image-wrap"><img src="${escapeHtml(json.comment.image)}" class="comment-image" alt=""></div>` : '';
+                const actionsHtml = currentUserId
+                    ? `<div class="comment-inline-actions">
+                        <button class="comment-action-btn reply-btn" data-comment-id="${json.comment.id}" data-author="${escapeHtml(json.comment.author_name)}">💬 Ответить</button>
+                        ${Number(currentUserId) !== Number(json.comment.author_id) ? `<button class="comment-action-btn report-btn" data-target-type="comment" data-target-id="${json.comment.id}">🚩 Пожаловаться</button>` : ''}
+                       </div>`
+                    : '';
                 comment.innerHTML = `
                     <div class="comment-vote-side">
                         <button class="vote-btn like-btn like-btn-sm" data-type="comment" data-id="${json.comment.id}">
@@ -527,14 +617,18 @@ function initCommentForm() {
                     </div>
                     <div class="comment-body">
                         <div class="comment-header">
-                            <span class="comment-author">u/${escapeHtml(json.comment.author_name)}${verifiedHtml}</span>
-                            <span class="comment-date">только что</span>
+                            <div>
+                                <span class="comment-author">u/${escapeHtml(json.comment.author_name)}${verifiedHtml}</span>
+                                <span class="comment-date">только что</span>
+                            </div>
+                            ${actionsHtml}
                         </div>
-                        <p class="comment-content">${escapeHtml(json.comment.content)}</p>
+                        <p class="comment-content">${linkifyMentionsText(escapeHtml(json.comment.content))}</p>
                         ${imageHtml}
                     </div>
                 `;
                 commentsList.appendChild(comment);
+                window.bindCommentCardActions?.(comment);
                 initLikeButtons();
                 textarea.value = '';
                 form.querySelector('[name="anonymous"]').checked = false;
@@ -547,10 +641,10 @@ function initCommentForm() {
                     h2.textContent = 'Комментарии (' + count + ')';
                 }
             } else {
-                alert(getModerationMessage(json, 'Ошибка'));
+                toast(getModerationMessage(json, 'Ошибка'));
             }
         } catch (err) {
-            alert('Ошибка сети');
+            toast('Ошибка сети');
         }
         btn.disabled = false;
     });
@@ -560,6 +654,12 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Превращает @username в ссылку на профиль (текст уже экранирован)
+function linkifyMentionsText(safeHtml) {
+    return safeHtml.replace(/(^|[^a-zA-Z0-9_\/])@([a-zA-Z0-9_]{3,32})/g,
+        '$1<a href="profile.php?user=$2" class="mention-link">@$2</a>');
 }
 
 // Кнопки лайков
@@ -591,6 +691,9 @@ async function handleLike(e) {
         if (json.success) {
             if (countEl) countEl.textContent = json.count;
             btn.classList.toggle('liked', json.liked);
+            btn.classList.remove('pop');
+            void btn.offsetWidth;
+            btn.classList.add('pop');
         }
     } catch (err) {
         console.error(err);
@@ -688,11 +791,58 @@ function initProfileForm() {
             if (json.success) {
                 navigateTo(json.redirect, 'profile.php');
             } else {
-                alert(json.error || 'Ошибка сохранения');
+                toast(json.error || 'Ошибка сохранения');
             }
         } catch (err) {
-            alert('Ошибка сети');
+            toast('Ошибка сети');
         }
+    });
+}
+
+// Сортировка комментариев (только корневые; вложенные ответы не трогаем)
+function initCommentSort() {
+    const select = document.getElementById('commentSort');
+    const list = document.querySelector('.comments-list');
+    if (!select || !list) return;
+    select.addEventListener('change', function() {
+        const cards = Array.from(list.children).filter(c => c.classList.contains('comment-card-reddit'));
+        const mode = this.value;
+        cards.sort((a, b) => {
+            if (mode === 'top') return (Number(b.dataset.likes) || 0) - (Number(a.dataset.likes) || 0);
+            const ta = new Date(a.dataset.created || 0).getTime();
+            const tb = new Date(b.dataset.created || 0).getTime();
+            return mode === 'old' ? ta - tb : tb - ta;
+        });
+        cards.forEach(c => list.appendChild(c));
+    });
+}
+
+// Кнопка «наверх»
+function initScrollTop() {
+    let btn = document.getElementById('scrollTopBtn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'scrollTopBtn';
+        btn.title = 'Наверх';
+        btn.textContent = '↑';
+        document.body.appendChild(btn);
+        btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    }
+    window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+    });
+}
+
+// Уведомления: пометить прочитанными при открытии
+function initNotifications() {
+    const bell = document.querySelector('.lang-switcher .lang-btn');
+    document.querySelectorAll('.lang-switcher').forEach(sw => {
+        const btn = sw.querySelector('.lang-btn');
+        if (!btn || !btn.title || btn.title !== 'Уведомления') return;
+        btn.addEventListener('click', () => {
+            fetch(apiUrl('api/read_notifications.php'), { method: 'POST' }).catch(() => {});
+            sw.querySelector('.notif-badge')?.remove();
+        });
     });
 }
 
@@ -759,10 +909,10 @@ function initSubscriptionButtons() {
                         subscribersCount.textContent = data.subscribers_count;
                     }
                 } else {
-                    alert(data.error || 'Ошибка');
+                    toast(data.error || 'Ошибка');
                 }
             } catch (err) {
-                alert('Ошибка сети');
+                toast('Ошибка сети');
             }
         });
     });
