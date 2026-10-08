@@ -137,6 +137,16 @@ writeData('posts.json', $posts);
 
 $leveling = addXPToUser((int)$user['id'], XP_REWARD_POST);
 
+// Уведомления упомянутым @пользователям
+if (!$anonymous) {
+    notifyMentionedUsers(
+        $title . "\n" . $content,
+        $user,
+        'u/' . $user['username'] . ' упомянул вас в посте',
+        'post.php?id=' . $newPost['id']
+    );
+}
+
 echo json_encode([
     'success' => true,
     'redirect' => BASE_URL . 'post.php?id=' . $newPost['id'],

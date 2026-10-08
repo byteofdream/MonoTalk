@@ -40,6 +40,15 @@ if (!$result) {
     exit;
 }
 
+// Уведомление создателю сабреддита
+if ($action === 'subscribe') {
+    $sub = getSubredditById($subredditId);
+    $ownerId = (int)($sub['created_by'] ?? 0);
+    if ($ownerId > 0 && $ownerId !== (int)$user['id']) {
+        pushNotification($ownerId, 'subscribe', 'u/' . $user['username'] . ' подписался на r/' . ($sub['name'] ?? $subredditId), 'index.php?category=' . $subredditId);
+    }
+}
+
 $subreddit = getSubredditById($subredditId);
 echo json_encode([
     'success' => true,

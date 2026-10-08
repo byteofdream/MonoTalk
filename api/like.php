@@ -77,4 +77,20 @@ if ($type === 'post') {
     }
 }
 
+if ($isLike) {
+    $targetAuthor = 0;
+    if ($type === 'post') {
+        $tp = getPostById($targetId);
+        $targetAuthor = (int)($tp['author_id'] ?? 0);
+    } else {
+        $cmts = readData('comments.json');
+        foreach ($cmts as $c) {
+            if ((int)$c['id'] === $targetId) { $targetAuthor = (int)($c['author_id'] ?? 0); break; }
+        }
+    }
+    if ($targetAuthor > 0 && $targetAuthor !== $userId) {
+        pushNotification($targetAuthor, 'like', 'u/' . $user['username'] . ' оценил ваш ' . ($type === 'post' ? 'пост' : 'комментарий'), $type === 'post' ? 'post.php?id=' . $targetId : '');
+    }
+}
+
 echo json_encode(['success' => true, 'liked' => $isLike, 'count' => $count]);

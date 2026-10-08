@@ -32,6 +32,7 @@ $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $postId = (int)($input['post_id'] ?? 0);
 $content = trim($input['content'] ?? '');
 $anonymous = !empty($input['anonymous']);
+$parentId = (int)($input['parent_id'] ?? 0);
 $imagePath = '';
 
 $post = getPostById($postId);
@@ -96,9 +97,26 @@ if (!$moderation['allowed']) {
 }
 
 $comments = readData('comments.json');
+
+// Ответ на комментарий: проверяем родителя
+$parentComment = null;
+if ($parentId > 0) {
+    foreach ($comments as $c) {
+        if ((int)($c['id'] ?? 0) === $parentId && (int)($c['post_id'] ?? 0) === $postId) {
+            $parentComment = $c;
+            break;
+        }
+    }
+    if (!$parentComment) {
+        echo json_encode(['success' => false, 'error' => 'Parent comment not found']);
+        exit;
+    }
+}
+
 $newComment = [
     'id' => getNextId('comments.json'),
     'post_id' => $postId,
+    'parent_id' => $parentComment ? (int)$parentComment['id'] : null,
     'author_id' => $anonymous ? 0 : (int)$user['id'],
     'author_name' => $anonymous ? 'Anonymous' : $user['username'],
     'content' => $content,
@@ -125,10 +143,40 @@ writeData('posts.json', $posts);
 
 $leveling = addXPToUser((int)$user['id'], XP_REWARD_COMMENT);
 
+// Уведомление: автору родительского комментария (ответ) или автору поста
+$link = 'post.php?id=' . $postId;
+if ($parentComment) {
+    $parentAuthorId = (int)($parentComment['author_id'] ?? 0);
+    if ($parentAuthorId > 0 && $parentAuthorId !== (int)$user['id']) {
+        pushNotification($parentAuthorId, 'comment', 'u/' . $user['username'] . ' ответил на ваш комментарий', $link);
+    }
+} else {
+    foreach ($posts as $pp) {
+        if ((int)$pp['id'] === $postId) {
+            $authorId = (int)($pp['author_id'] ?? 0);
+            if ($authorId > 0 && $authorId !== (int)$user['id']) {
+                pushNotification($authorId, 'comment', 'u/' . $user['username'] . ' прокомментировал ваш пост', $link);
+            }
+            break;
+        }
+    }
+}
+
+// Уведомления упомянутым @пользователям
+if (!$anonymous) {
+    notifyMentionedUsers(
+        $content,
+        $user,
+        'u/' . $user['username'] . ' упомянул вас в комментарии',
+        $link
+    );
+}
+
 echo json_encode([
     'success' => true,
     'comment' => [
         'id' => $newComment['id'],
+        'parent_id' => $newComment['parent_id'],
         'author_id' => (int)$newComment['author_id'],
         'author_name' => $newComment['author_name'],
         'content' => $newComment['content'],
