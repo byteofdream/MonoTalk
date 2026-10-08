@@ -29,6 +29,34 @@ $excerptLength = 500;
             <div class="flash flash-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
         <?php endif; ?>
 
+        <div class="cache-notice" id="cacheNotice" hidden>
+            <div class="cache-notice-body">
+                <span class="cache-notice-icon">⚠️</span>
+                <div>
+                    <strong><?= e(t('cache_notice_title')) ?></strong>
+                    <p><?= e(t('cache_notice_text')) ?></p>
+                </div>
+            </div>
+            <button type="button" class="cache-notice-close" id="cacheNoticeClose" aria-label="<?= e(t('cache_notice_close')) ?>">✕</button>
+        </div>
+        <script>
+            (function () {
+                var notice = document.getElementById('cacheNotice');
+                var closeBtn = document.getElementById('cacheNoticeClose');
+                if (!notice) return;
+                var KEY = 'mt_cache_notice_v1';
+                try {
+                    if (!localStorage.getItem(KEY)) notice.hidden = false;
+                } catch (e) {
+                    notice.hidden = false;
+                }
+                closeBtn.addEventListener('click', function () {
+                    notice.hidden = true;
+                    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+                });
+            })();
+        </script>
+
         <div class="feed-header">
             <div class="sort-tabs">
                 <a href="index.php?<?= http_build_query(array_filter(['category' => $category ?: null]) + ['sort' => 'hot']) ?>" class="sort-tab <?= $sort === 'hot' ? 'active' : '' ?>"><?= e(t('sort_hot')) ?></a>
@@ -105,7 +133,6 @@ $excerptLength = 500;
                         </a>
                         <div class="post-meta-line">
                             <?= e(t('post_published')) ?> <?php if ((int)($post['author_id'] ?? 0) > 0): $authorId = (int)($post['author_id'] ?? 0); ?><a href="<?= e(BASE_URL) ?>profile.php?user=<?= e($post['author_name'] ?? '') ?>"><strong>u/<?= e($post['author_name'] ?? '') ?></strong><?= isUserVerifiedById($authorId) ? verifiedBadge() : '' ?></a><?php else: ?><strong>u/<?= e($post['author_name'] ?? 'Anonymous') ?></strong><?php endif; ?>
-                            <?= e(t('post_in')) ?> <a href="index.php?category=<?= e($post['category'] ?? '') ?>">r/<?= e(catName($cat, $lang)) ?></a>
                             · <?= e(formatDate($post['created_at'] ?? '')) ?>
                         </div>
                         <div class="post-actions-bar">

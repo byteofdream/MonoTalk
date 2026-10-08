@@ -36,6 +36,67 @@ $currentUser = isLoggedIn() ? getCurrentUser() : null;
 $postLiked = $currentUser && hasUserLiked($currentUser['id'], 'post', $postId);
 $isPostAuthor = $currentUser && (int)($post['author_id'] ?? 0) === (int)$currentUser['id'];
 $pageTitle = e($post['title']);
+
+// Дерево комментариев: корни + дети по parent_id
+$commentIds = array_flip(array_map(static fn(array $c): int => (int)($c['id'] ?? 0), $comments));
+$commentTree = [];
+$commentRoots = [];
+foreach ($comments as $c) {
+    $pid = (int)($c['parent_id'] ?? 0);
+    if ($pid > 0 && isset($commentIds[$pid])) {
+        $commentTree[$pid][] = $c;
+    } else {
+        $commentRoots[] = $c;
+    }
+}
+
+/**
+ * Рендер комментария с вложенными ответами
+ */
+function renderCommentCard(array $comment, ?array $currentUser, string $lang, int $depth = 0): string {
+    global $commentTree;
+    $id = (int)$comment['id'];
+    $commentLiked = $currentUser && hasUserLiked((int)$currentUser['id'], 'comment', $id);
+    $isCommentAuthor = $currentUser && (int)($comment['author_id'] ?? 0) === (int)$currentUser['id'];
+    $contentHtml = linkifyMentions(nl2br(e((string)($comment['content'] ?? ''))));
+    $verified = ((int)($comment['author_id'] ?? 0) > 0) ? isUserVerifiedById((int)$comment['author_id']) : false;
+
+    $html = '<div class="comment-card-reddit" data-id="' . $id . '" data-parent-id="' . (int)($comment['parent_id'] ?? 0) . '" data-likes="' . (int)($comment['likes'] ?? 0) . '" data-created="' . e($comment['created_at'] ?? '') . '">';
+    $html .= '<div class="comment-vote-side">';
+    $html .= '<button class="vote-btn like-btn like-btn-sm' . ($commentLiked ? ' liked' : '') . '" data-type="comment" data-id="' . $id . '"' . (!$currentUser ? ' disabled' : '') . '><span class="vote-icon">♥</span></button>';
+    $html .= '<span class="vote-count">' . (int)($comment['likes'] ?? 0) . '</span>';
+    $html .= '</div>';
+    $html .= '<div class="comment-body">';
+    $html .= '<div class="comment-header"><div>';
+    $html .= '<span class="comment-author">u/' . e($comment['author_name'] ?? 'Anonymous') . ($verified ? verifiedBadge() : '') . '</span>';
+    $html .= '<span class="comment-date"> · ' . e(formatDate($comment['created_at'] ?? '')) . '</span>';
+    $html .= '</div><div class="comment-inline-actions">';
+    if ($currentUser) {
+        $html .= '<button class="comment-action-btn reply-btn" data-comment-id="' . $id . '" data-author="' . e($comment['author_name'] ?? '') . '">💬 ' . e(t('comment_reply')) . '</button>';
+    }
+    if ($isCommentAuthor) {
+        $html .= '<button class="edit-comment-btn" data-comment-id="' . $id . '" title="' . ($lang === 'en' ? 'Edit comment' : 'Редактировать комментарий') . '">✏️</button>';
+    }
+    if ($currentUser && !$isCommentAuthor) {
+        $html .= '<button class="comment-action-btn report-btn" data-target-type="comment" data-target-id="' . $id . '">🚩 ' . e(t('report_open')) . '</button>';
+    }
+    $html .= '</div></div>';
+    $html .= '<p class="comment-content">' . $contentHtml . '</p>';
+    if (!empty($comment['image'])) {
+        $html .= '<div class="comment-image-wrap"><img src="' . e(BASE_URL . $comment['image']) . '" alt="" class="comment-image"></div>';
+    }
+    $children = $commentTree[$id] ?? [];
+    if (!empty($children)) {
+        $html .= '<div class="comment-children">';
+        foreach ($children as $child) {
+            $html .= renderCommentCard($child, $currentUser, $lang, $depth + 1);
+        }
+        $html .= '</div>';
+    }
+    $html .= '</div></div>';
+
+    return $html;
+}
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
@@ -71,6 +132,9 @@ $pageTitle = e($post['title']);
                     <?php $favSaved = $currentUser && hasUserFavorited($currentUser['id'], $postId); ?>
                     <button class="action-link fav-btn <?= $favSaved ? 'saved' : '' ?>" data-post-id="<?= $postId ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>><?= $favSaved ? '★' : '☆' ?> <?= $lang === 'en' ? 'Save' : 'Сохранить' ?></button>
                     <span class="action-link">👁 <?= (int)($post['views'] ?? 0) ?></span>
+                    <?php if ($currentUser && !$isPostAuthor): ?>
+                    <button class="action-link report-btn" data-target-type="post" data-target-id="<?= $postId ?>">🚩 <?= e(t('report_open')) ?></button>
+                    <?php endif; ?>
                 </div>
             </div>
         </article>
@@ -105,36 +169,8 @@ $pageTitle = e($post['title']);
             <?php endif; ?>
 
             <div class="comments-list">
-                <?php foreach ($comments as $comment): ?>
-                    <?php
-                    $commentLiked = $currentUser && hasUserLiked($currentUser['id'], 'comment', (int)$comment['id']);
-                    $isCommentAuthor = $currentUser && (int)($comment['author_id'] ?? 0) === (int)$currentUser['id'];
-                    ?>
-                    <div class="comment-card-reddit" data-id="<?= (int)$comment['id'] ?>" data-likes="<?= (int)($comment['likes'] ?? 0) ?>" data-created="<?= e($comment['created_at'] ?? '') ?>">
-                        <div class="comment-vote-side">
-                            <button class="vote-btn like-btn like-btn-sm <?= $commentLiked ? 'liked' : '' ?>" data-type="comment" data-id="<?= (int)$comment['id'] ?>" <?= !isLoggedIn() ? 'disabled' : '' ?>>
-                                <span class="vote-icon">♥</span>
-                            </button>
-                            <span class="vote-count"><?= (int)($comment['likes'] ?? 0) ?></span>
-                        </div>
-                        <div class="comment-body">
-                            <div class="comment-header">
-                                <div>
-                                    <span class="comment-author">u/<?= e($comment['author_name'] ?? 'Anonymous') ?><?php if ((int)($comment['author_id'] ?? 0) > 0): $cAuthorId = (int)($comment['author_id'] ?? 0); ?><?= isUserVerifiedById($cAuthorId) ? verifiedBadge() : '' ?><?php endif; ?></span>
-                                    <span class="comment-date"> · <?= e(formatDate($comment['created_at'] ?? '')) ?></span>
-                                </div>
-                                <?php if ($isCommentAuthor): ?>
-                                <button class="edit-comment-btn" data-comment-id="<?= (int)$comment['id'] ?>" title="Редактировать комментарий">✏️</button>
-                                <?php endif; ?>
-                            </div>
-                            <p class="comment-content"><?= nl2br(e($comment['content'])) ?></p>
-                            <?php if (!empty($comment['image'])): ?>
-                                <div class="comment-image-wrap">
-                                    <img src="<?= e(BASE_URL . $comment['image']) ?>" alt="" class="comment-image">
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                <?php foreach ($commentRoots as $comment): ?>
+                    <?= renderCommentCard($comment, $currentUser, $lang) ?>
                 <?php endforeach; ?>
             </div>
         </section>
@@ -219,6 +255,30 @@ $pageTitle = e($post['title']);
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" data-close-modal="editCommentModal">Отмена</button>
                 <button type="submit" class="btn-primary">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal для жалобы -->
+<div id="reportModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🚩 <?= e(t('report_title')) ?></h2>
+            <button class="modal-close" data-close-modal="reportModal">&times;</button>
+        </div>
+        <form id="reportForm" class="post-form">
+            <input type="hidden" name="target_type" id="reportTargetType">
+            <input type="hidden" name="target_id" id="reportTargetId">
+
+            <div class="form-group">
+                <label for="reportReason"><?= e(t('report_reason_label')) ?> *</label>
+                <textarea id="reportReason" name="reason" required maxlength="500" placeholder="<?= e(t('report_placeholder')) ?>"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" data-close-modal="reportModal"><?= $lang === 'en' ? 'Cancel' : 'Отмена' ?></button>
+                <button type="submit" class="btn-primary"><?= e(t('report_submit')) ?></button>
             </div>
         </form>
     </div>
@@ -356,6 +416,117 @@ document.addEventListener('click', function(e) {
             toast('Ошибка при отправке: ' + error.message, 'error');
         }
     });
+
+    // ---- Ответ на комментарий и жалобы (привязка для любых карточек) ----
+    window.bindCommentCardActions = function(root) {
+        root.querySelectorAll('.reply-btn').forEach(btn => {
+            if (btn.dataset.bound) return;
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', function() {
+                const card = this.closest('.comment-card-reddit');
+                const body = card.querySelector(':scope > .comment-body');
+                const existing = body.querySelector(':scope > .reply-form-inline');
+                if (existing) { existing.remove(); return; }
+                document.querySelectorAll('.reply-form-inline').forEach(f => f.remove());
+
+                const author = this.dataset.author || '';
+                const form = document.createElement('form');
+                form.className = 'comment-form reply-form-inline';
+                form.innerHTML =
+                    '<textarea name="content" class="post-textarea" required placeholder="' + escapeAttr('Ваш ответ' + (author ? ' u/' + author : '') + '...') + '"></textarea>' +
+                    '<div class="comment-form-actions">' +
+                    '<button type="button" class="btn-secondary reply-cancel">' + escapeHtml('<?= $lang === 'en' ? 'Cancel' : 'Отмена' ?>') + '</button>' +
+                    '<button type="submit" class="btn-primary">' + escapeHtml('<?= e(t('comment_reply')) ?>') + '</button>' +
+                    '</div>';
+                body.appendChild(form);
+                form.querySelector('textarea').focus();
+
+                form.querySelector('.reply-cancel').addEventListener('click', () => form.remove());
+
+                form.addEventListener('submit', async function(ev) {
+                    ev.preventDefault();
+                    const textarea = form.querySelector('textarea');
+                    const content = textarea.value.trim();
+                    if (!content) return;
+
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+
+                    const fd = new FormData();
+                    fd.append('post_id', '<?= $postId ?>');
+                    fd.append('content', content);
+                    fd.append('parent_id', card.dataset.id);
+
+                    try {
+                        const res = await fetch(baseUrl + 'api/add_comment.php', { method: 'POST', body: fd });
+                        const json = await res.json();
+                        if (json.success) {
+                            window.LevelSystem?.applyLevelingUpdate?.(json.leveling);
+                            location.reload();
+                        } else {
+                            toast(json.error || 'Ошибка', 'error');
+                            submitBtn.disabled = false;
+                        }
+                    } catch (err) {
+                        toast('Ошибка сети', 'error');
+                        submitBtn.disabled = false;
+                    }
+                });
+            });
+        });
+
+        root.querySelectorAll('.report-btn').forEach(btn => {
+            if (btn.dataset.bound) return;
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', function() {
+                document.getElementById('reportTargetType').value = this.dataset.targetType;
+                document.getElementById('reportTargetId').value = this.dataset.targetId;
+                document.getElementById('reportReason').value = '';
+                document.getElementById('reportModal').style.display = 'flex';
+            });
+        });
+    };
+    bindCommentCardActions(document);
+
+    // ---- Жалобы: отправка формы ----
+    const reportModal = document.getElementById('reportModal');
+    const reportForm = document.getElementById('reportForm');
+
+    if (reportForm) {
+        reportForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = {
+                target_type: document.getElementById('reportTargetType').value,
+                target_id: document.getElementById('reportTargetId').value,
+                reason: document.getElementById('reportReason').value.trim()
+            };
+            try {
+                const res = await fetch(baseUrl + 'api/report.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.success) {
+                    toast('<?= e(t('report_success')) ?>', 'success');
+                    reportModal.style.display = 'none';
+                } else {
+                    toast(json.error || '<?= e(t('report_error')) ?>', 'error');
+                }
+            } catch (err) {
+                toast('Ошибка сети', 'error');
+            }
+        });
+    }
+
+    function escapeAttr(text) {
+        return escapeHtml(text).replace(/"/g, '&quot;');
+    }
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 });
 </script>
 

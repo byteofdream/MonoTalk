@@ -20,13 +20,15 @@ if (empty($currentUser['verified'])) {
 }
 
 $tab = $_GET['tab'] ?? 'stats';
-$allowedTabs = ['stats', 'users', 'posts', 'comments', 'subreddits', 'logs'];
+$allowedTabs = ['stats', 'users', 'posts', 'comments', 'subreddits', 'reports', 'logs'];
 if (!in_array($tab, $allowedTabs, true)) $tab = 'stats';
 
 $users = readData('users.json');
 $posts = readData('posts.json');
 $comments = readData('comments.json');
 $subreddits = readData('subreddits.json');
+$reports = readData('reports.json');
+$openReports = array_filter($reports, fn($r) => ($r['status'] ?? 'open') === 'open');
 $logs = readData('moderation_logs.json');
 $pageTitle = $lang === 'en' ? 'Admin' : 'Админ';
 ?>
@@ -41,6 +43,7 @@ $pageTitle = $lang === 'en' ? 'Admin' : 'Админ';
         <a href="admin.php?tab=posts" class="settings-tab <?= $tab === 'posts' ? 'active' : '' ?>">📝 <?= $lang === 'en' ? 'Posts' : 'Посты' ?></a>
         <a href="admin.php?tab=comments" class="settings-tab <?= $tab === 'comments' ? 'active' : '' ?>">💬 <?= $lang === 'en' ? 'Comments' : 'Комменты' ?></a>
         <a href="admin.php?tab=subreddits" class="settings-tab <?= $tab === 'subreddits' ? 'active' : '' ?>">📂 <?= $lang === 'en' ? 'Subs' : 'Сабы' ?></a>
+        <a href="admin.php?tab=reports" class="settings-tab <?= $tab === 'reports' ? 'active' : '' ?>">🚩 <?= $lang === 'en' ? 'Reports' : 'Жалобы' ?><?= count($openReports) > 0 ? ' (' . count($openReports) . ')' : '' ?></a>
         <a href="admin.php?tab=logs" class="settings-tab <?= $tab === 'logs' ? 'active' : '' ?>">📋 <?= $lang === 'en' ? 'Logs' : 'Логи' ?></a>
     </div>
 
@@ -54,6 +57,30 @@ $pageTitle = $lang === 'en' ? 'Admin' : 'Админ';
                 <p>📂 Сабреддитов: <strong><?= count($subreddits) ?></strong></p>
                 <p>🚫 Забанено: <strong><?= count(array_filter($users, fn($u) => ($u['status'] ?? 'active') === 'banned')) ?></strong></p>
                 <p>✔ С галочкой: <strong><?= count(array_filter($users, fn($u) => !empty($u['verified']))) ?></strong></p>
+            </section>
+
+            <section class="settings-section">
+                <h2>🔧 <?= $lang === 'en' ? 'Maintenance mode' : 'Режим техработ' ?></h2>
+                <div class="maintenance-toggle-row">
+                    <label class="switch">
+                        <input type="checkbox" id="maintenanceToggle" <?= isMaintenanceEnabled() ? 'checked' : '' ?>>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="maintenance-toggle-info">
+                        <strong id="maintenanceStatusLabel"
+                                data-on-text="<?= e($lang === 'en' ? 'Enabled — visitors see the maintenance page' : 'Включён — посетители видят страницу техработ') ?>"
+                                data-off-text="<?= e($lang === 'en' ? 'Disabled — the site works as usual' : 'Выключен — сайт работает как обычно') ?>">
+                            <?= isMaintenanceEnabled()
+                                ? ($lang === 'en' ? 'Enabled — visitors see the maintenance page' : 'Включён — посетители видят страницу техработ')
+                                : ($lang === 'en' ? 'Disabled — the site works as usual' : 'Выключен — сайт работает как обычно') ?>
+                        </strong>
+                        <div class="maintenance-toggle-hint">
+                            <?= $lang === 'en'
+                                ? 'When enabled, all pages redirect to maintenance.php. Only verified users keep access. Login and registration stay open.'
+                                : 'При включении все страницы перенаправляются на maintenance.php. Доступ сохраняют только verified-пользователи. Логин и регистрация остаются открытыми.' ?>
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
     <?php endif; ?>
@@ -139,6 +166,56 @@ $pageTitle = $lang === 'en' ? 'Admin' : 'Админ';
         </section>
     <?php endif; ?>
 
+    <?php if ($tab === 'reports'): ?>
+        <section class="settings-section">
+            <h2>🚩 <?= $lang === 'en' ? 'Reports' : 'Жалобы' ?></h2>
+            <?php if (empty($reports)): ?>
+                <p class="empty-state"><?= $lang === 'en' ? 'No reports yet.' : 'Жалоб пока нет.' ?></p>
+            <?php else: ?>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <?php foreach (array_reverse($reports) as $r): ?>
+                        <?php $isOpen = ($r['status'] ?? 'open') === 'open'; ?>
+                        <div class="sidebar-card" style="margin-bottom: 0; opacity: <?= $isOpen ? '1' : '0.6' ?>;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+                                <div style="min-width: 0;">
+                                    <strong>
+                                        <?= ($r['target_type'] ?? '') === 'post' ? '📝 ' . ($lang === 'en' ? 'Post' : 'Пост') : '💬 ' . ($lang === 'en' ? 'Comment' : 'Комментарий') ?>
+                                        #<?= (int)($r['target_id'] ?? 0) ?>
+                                    </strong>
+                                    <?= $isOpen
+                                        ? ' <span style="color: var(--red); font-size: 0.8rem;">[' . ($lang === 'en' ? 'OPEN' : 'ОТКРЫТА') . ']</span>'
+                                        : ' <span style="color: var(--text-muted); font-size: 0.8rem;">[' . ($lang === 'en' ? 'RESOLVED' : 'ЗАКРЫТА') . ']</span>' ?>
+                                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+                                        <?= $lang === 'en' ? 'Reason' : 'Причина' ?>: <?= e($r['reason'] ?? '') ?>
+                                    </div>
+                                    <div style="color: var(--text-muted); font-size: 0.85rem;">
+                                        <?= $lang === 'en' ? 'Reporter' : 'Жалобщик' ?>: u/<?= e($r['reporter_name'] ?? '') ?> ·
+                                        <?= $lang === 'en' ? 'Author' : 'Автор' ?>: u/<?= e($r['author_name'] ?? '') ?> ·
+                                        <?= e($r['created_at'] ?? '') ?>
+                                        <?php if (!empty($r['post_id'])): ?>
+                                            · <a href="post.php?id=<?= (int)$r['post_id'] ?>" target="_blank"><?= $lang === 'en' ? 'Open' : 'Открыть' ?></a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <?php if ($isOpen): ?>
+                                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                    <?php if (($r['target_type'] ?? '') === 'post'): ?>
+                                        <a href="api/admin_toggle.php?id=<?= (int)($r['id'] ?? 0) ?>&action=report_delete_post&redirect=<?= urlencode('/admin.php?tab=reports') ?>" class="btn-secondary" style="padding: 0.3rem 0.6rem; color: var(--red);" onclick="return confirm('<?= $lang === 'en' ? 'Delete the post?' : 'Удалить пост?' ?>')"><?= $lang === 'en' ? 'Delete post' : 'Удалить пост' ?></a>
+                                    <?php else: ?>
+                                        <a href="api/admin_toggle.php?id=<?= (int)($r['id'] ?? 0) ?>&action=report_delete_comment&redirect=<?= urlencode('/admin.php?tab=reports') ?>" class="btn-secondary" style="padding: 0.3rem 0.6rem; color: var(--red);" onclick="return confirm('<?= $lang === 'en' ? 'Delete the comment?' : 'Удалить комментарий?' ?>')"><?= $lang === 'en' ? 'Delete comment' : 'Удалить коммент.' ?></a>
+                                    <?php endif; ?>
+                                    <a href="api/admin_toggle.php?id=<?= (int)($r['id'] ?? 0) ?>&action=report_strike&redirect=<?= urlencode('/admin.php?tab=reports') ?>" class="btn-secondary" style="padding: 0.3rem 0.6rem;" onclick="return confirm('<?= $lang === 'en' ? 'Give author a strike?' : 'Выдать автору страйк?' ?>')"><?= $lang === 'en' ? 'Strike' : 'Страйк' ?></a>
+                                    <a href="api/admin_toggle.php?id=<?= (int)($r['id'] ?? 0) ?>&action=report_resolve&redirect=<?= urlencode('/admin.php?tab=reports') ?>" class="btn-secondary" style="padding: 0.3rem 0.6rem;"><?= $lang === 'en' ? 'Dismiss' : 'Отклонить' ?></a>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
+    <?php endif; ?>
+
     <?php if ($tab === 'logs'): ?>
         <section class="settings-section">
             <h2>Логи модерации</h2>
@@ -174,6 +251,43 @@ $pageTitle = $lang === 'en' ? 'Admin' : 'Админ';
     bindSearch('adminUserSearch', '.admin-user-card', 'data-username');
     bindSearch('adminPostSearch', '.admin-post-card', 'data-search');
     bindSearch('adminCommentSearch', '.admin-comment-card', 'data-search');
+})();
+
+// Переключатель режима обслуживания
+(function() {
+    var toggle = document.getElementById('maintenanceToggle');
+    if (!toggle) return;
+    var label = document.getElementById('maintenanceStatusLabel');
+    var busy = false;
+
+    toggle.addEventListener('change', async function() {
+        if (busy) return;
+        busy = true;
+        var want = toggle.checked;
+        try {
+            var res = await fetch('api/set_maintenance.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled: want })
+            });
+            var json = await res.json();
+            if (json.success) {
+                toggle.checked = !!json.enabled;
+                if (label) {
+                    label.textContent = json.enabled
+                        ? (label.dataset.onText || '')
+                        : (label.dataset.offText || '');
+                }
+            } else {
+                toggle.checked = !want;
+                alert(json.error || 'Ошибка');
+            }
+        } catch (e) {
+            toggle.checked = !want;
+            alert('Ошибка сети');
+        }
+        busy = false;
+    });
 })();
 </script>
 
