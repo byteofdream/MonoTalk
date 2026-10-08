@@ -251,6 +251,76 @@ $translations = [
 $translations['ru']['create_image_flow_help'] = 'Если хотите получить схему "текст -> картинка -> текст", напишите первую часть текста, оставьте пустую строку, потом продолжите текст. Загруженная картинка встанет между этими блоками.';
 $translations['en']['create_image_flow_help'] = 'If you want a "text -> image -> text" layout, write the first part of the text, leave an empty line, then continue the text. The uploaded image will appear between those text blocks.';
 
+$translations['ru']['cache_notice_title'] = 'Возможны проблемы с кешем';
+$translations['en']['cache_notice_title'] = 'Possible cache issues';
+
+$translations['ru']['cache_notice_text'] = 'После обновления файлов на хостинге браузер может подгружать старые версии CSS/JS. Если что-то отображается некорректно — нажмите Ctrl+Shift+R (Cmd+Shift+R на Mac), чтобы очистить кеш.';
+$translations['en']['cache_notice_text'] = 'After the files are updated on the hosting, your browser may load outdated versions of CSS/JS. If something looks broken, press Ctrl+Shift+R (Cmd+Shift+R on Mac) to hard-refresh.';
+
+$translations['ru']['cache_notice_close'] = 'Понятно, скрыть';
+$translations['en']['cache_notice_close'] = 'Got it, hide';
+
+$translations['ru']['comment_reply'] = 'Ответить';
+$translations['en']['comment_reply'] = 'Reply';
+
+$translations['ru']['report_open'] = 'Пожаловаться';
+$translations['en']['report_open'] = 'Report';
+
+$translations['ru']['report_title'] = 'Жалоба на контент';
+$translations['en']['report_title'] = 'Report content';
+
+$translations['ru']['report_reason_label'] = 'Причина жалобы';
+$translations['en']['report_reason_label'] = 'Report reason';
+
+$translations['ru']['report_placeholder'] = 'Опишите, что не так: спам, оскорбления, оффтоп...';
+$translations['en']['report_placeholder'] = 'Describe the issue: spam, harassment, off-topic...';
+
+$translations['ru']['report_submit'] = 'Отправить жалобу';
+$translations['en']['report_submit'] = 'Submit report';
+
+$translations['ru']['report_success'] = 'Жалоба отправлена. Спасибо!';
+$translations['en']['report_success'] = 'Report submitted. Thanks!';
+
+$translations['ru']['report_error'] = 'Не удалось отправить жалобу';
+$translations['en']['report_error'] = 'Failed to submit the report';
+
+$translations['ru']['report_duplicate'] = 'Вы уже жаловались на этот контент';
+$translations['en']['report_duplicate'] = 'You have already reported this content';
+
+$translations['ru']['report_own_content'] = 'Нельзя жаловаться на собственный контент';
+$translations['en']['report_own_content'] = 'You cannot report your own content';
+
+// Техработы
+$translations['ru']['mt_badge'] = 'СЕРВИС ВРЕМЕННО НЕДОСТУПЕН';
+$translations['en']['mt_badge'] = 'SERVICE TEMPORARILY UNAVAILABLE';
+
+$translations['ru']['mt_code'] = 'Ошибка 503';
+$translations['en']['mt_code'] = 'Error 503';
+
+$translations['ru']['mt_title'] = 'MonoTalk на обслуживании';
+$translations['en']['mt_title'] = 'MonoTalk is under maintenance';
+
+$translations['ru']['mt_subtitle'] = 'Мы обновляем движок форума. Обычно это занимает несколько минут — уже возвращаемся.';
+$translations['en']['mt_subtitle'] = "We're upgrading the forum engine. It usually takes a few minutes — we'll be right back.";
+
+$translations['ru']['mt_console'] = 'Системный журнал';
+$translations['en']['mt_console'] = 'System log';
+
+$translations['ru']['mt_eta'] = 'Вернёмся примерно через';
+$translations['en']['mt_eta'] = 'Back in about';
+
+$translations['ru']['mt_reload'] = 'Обновить сейчас';
+$translations['en']['mt_reload'] = 'Reload now';
+
+$translations['ru']['mt_status_title'] = 'Статус систем';
+$translations['en']['mt_status_title'] = 'System status';
+
+$translations['ru']['mt_follow'] = 'Следите за обновлениями';
+$translations['en']['mt_follow'] = 'Follow updates';
+
+$translations['ru']['mt_staff'] = 'Вход для персонала';
+$translations['en']['mt_staff'] = 'Staff login';
+
 function getLang(): string {
     $allowed = ['ru', 'en'];
     if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed, true)) {

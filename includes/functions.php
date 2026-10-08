@@ -7,6 +7,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/leveling.php';
 require_once __DIR__ . '/trust.php';
 require_once __DIR__ . '/lang.php';
+require_once __DIR__ . '/maintenance.php';
 
 function getDefaultSubreddits(): array {
     $createdAt = date('Y-m-d H:i:s');
@@ -311,6 +312,57 @@ function hasUserLiked(int $userId, string $type, int $targetId): bool {
     return false;
 }
 
+function pushNotification(int $userId, string $type, string $text, string $link = ''): void {
+    if ($userId <= 0) return;
+    $list = readData('notifications.json');
+    $list[] = [
+        'id' => getNextId('notifications.json'),
+        'user_id' => $userId,
+        'type' => $type,
+        'text' => $text,
+        'link' => $link,
+        'read' => false,
+        'created_at' => date('Y-m-d H:i:s'),
+    ];
+    writeData('notifications.json', array_slice($list, -500));
+}
+
+function getUserNotifications(int $userId): array {
+    $list = readData('notifications.json');
+    return array_values(array_filter($list, fn($n) => (int)($n['user_id'] ?? 0) === $userId));
+}
+
+function getUnreadNotificationsCount(int $userId): int {
+    return count(array_filter(getUserNotifications($userId), fn($n) => empty($n['read'])));
+}
+
+function hasUserFavorited(int $userId, int $postId): bool {
+    $favorites = readData('favorites.json');
+    foreach ($favorites as $f) {
+        if ((int)($f['user_id'] ?? 0) === $userId && (int)($f['post_id'] ?? 0) === $postId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function getUserFavoritePosts(int $userId): array {
+    $favorites = readData('favorites.json');
+    $ids = [];
+    foreach ($favorites as $f) {
+        if ((int)($f['user_id'] ?? 0) === $userId) {
+            $ids[] = (int)$f['post_id'];
+        }
+    }
+    $posts = [];
+    foreach (readData('posts.json') as $p) {
+        if (in_array((int)($p['id'] ?? 0), $ids, true)) {
+            $posts[] = $p;
+        }
+    }
+    return $posts;
+}
+
 function getPublicUserInfo(?array $user): ?array {
     if (!$user) {
         return null;
@@ -603,8 +655,47 @@ function renderPostFormatting(string $text): string {
     // Bold first so paired double asterisks are not consumed by italic parsing.
     $safe = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $safe) ?? $safe;
     $safe = preg_replace('/(?<!\*)\*(.+?)\*(?!\*)/s', '<em>$1</em>', $safe) ?? $safe;
+    $safe = linkifyMentions($safe);
 
     return nl2br($safe);
+}
+
+/**
+ * Превращает @username в ссылку на профиль.
+ * На вход ожидается HTML, в котором текст уже экранирован.
+ */
+function linkifyMentions(string $safeHtml): string {
+    $pattern = '/(^|[^a-zA-Z0-9_\/])@([a-zA-Z0-9_]{3,32})/';
+    return preg_replace(
+        $pattern,
+        '$1<a href="' . e(BASE_URL) . 'profile.php?user=$2" class="mention-link">@$2</a>',
+        $safeHtml
+    ) ?? $safeHtml;
+}
+
+/**
+ * Извлекает уникальные @упоминания из сырого текста.
+ */
+function extractMentions(string $text): array {
+    if (!preg_match_all('/(^|[^a-zA-Z0-9_\/])@([a-zA-Z0-9_]{3,32})/', $text, $matches)) {
+        return [];
+    }
+    $names = array_map(static fn(string $name): string => strtolower($name), $matches[2]);
+    return array_values(array_unique($names));
+}
+
+/**
+ * Отправляет уведомления всем упомянутым @пользователям.
+ */
+function notifyMentionedUsers(string $text, array $actor, string $message, string $link): void {
+    $actorId = (int)($actor['id'] ?? 0);
+    foreach (extractMentions($text) as $username) {
+        $target = getUserByUsername($username);
+        if (!$target) continue;
+        $targetId = (int)($target['id'] ?? 0);
+        if ($targetId <= 0 || $targetId === $actorId) continue;
+        pushNotification($targetId, 'mention', $message, $link);
+    }
 }
 
 /**

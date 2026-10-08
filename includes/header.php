@@ -9,8 +9,9 @@ if (!isset($pageTitle)) $pageTitle = 'MonoTalk';
 $currentUrl = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/');
 $currentTheme = getTheme();
 $headerUser = isLoggedIn() ? getCurrentUser() : null;
-$baseHref = rtrim((string)BASE_URL, '/');
-$baseHref = ($baseHref === '') ? '/' : ($baseHref . '/');
+
+// Режим обслуживания: редирект для всех, кроме verified и exempt-страниц
+enforceMaintenance();
 ?>
 <!DOCTYPE html>
 <html lang="<?= $currentLang === 'en' ? 'en' : 'ru' ?>" data-theme="<?= e($currentTheme) ?>">
@@ -23,7 +24,6 @@ $baseHref = ($baseHref === '') ? '/' : ($baseHref . '/');
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/style.css">
-    <base href="<?= e($baseHref) ?>">
 </head>
 <?php
 $bodyClasses = [];
@@ -52,13 +52,12 @@ if (($_COOKIE['opt_hide_images'] ?? '0') === '1') $bodyClasses[] = 'hide-images'
         </a>
         <form class="nav-search" action="<?= e(BASE_URL) ?>search.php" method="get">
             <input type="search" name="q" placeholder="<?= e(t('nav_search_placeholder')) ?>" minlength="2" class="nav-search-input">
-            <button type="submit" class="nav-search-btn" title="<?= e(t('nav_search_placeholder')) ?>">
+            <button type="submit" class="nav-search-btn" title="<?= e(t('nav_search_placeholder')) ?>" aria-label="Search">
                 <img src="<?= e(BASE_URL) ?>assets/icons/search.svg" alt="" class="nav-search-icon nav-search-icon--light">
                 <img src="<?= e(BASE_URL) ?>assets/icons/search-white.svg" alt="" class="nav-search-icon nav-search-icon--dark">
             </button>
         </form>
         <div class="nav-links">
-            <a href="<?= e(BASE_URL) ?>index.php"><?= e(t('nav_home')) ?></a>
             <a href="<?= e(BASE_URL) ?>news.php">
                 <img src="<?= e(BASE_URL) ?>assets/icons/news.svg" alt="" class="nav-icon nav-icon--light">
                 <img src="<?= e(BASE_URL) ?>assets/icons/news-white.svg" alt="" class="nav-icon nav-icon--dark">
@@ -69,6 +68,25 @@ if (($_COOKIE['opt_hide_images'] ?? '0') === '1') $bodyClasses[] = 'hide-images'
                 <img src="<?= e(BASE_URL) ?>assets/icons/settings-white.svg" alt="" class="nav-icon nav-icon--dark">
                 <?= e(t('nav_settings')) ?>
             </a>
+            <?php if ($headerUser && !empty($headerUser['verified'])): ?>
+                <a href="<?= e(BASE_URL) ?>admin.php">Админ</a>
+            <?php endif; ?>
+            <?php if ($headerUser): ?>
+                <?php $unreadNotifs = getUnreadNotificationsCount((int)$headerUser['id']); ?>
+                <div class="lang-switcher">
+                    <button class="lang-btn" title="Уведомления">🔔<?php if ($unreadNotifs > 0): ?><span class="notif-badge"><?= $unreadNotifs ?></span><?php endif; ?></button>
+                    <div class="lang-dropdown notif-dropdown">
+                        <?php $notifs = array_slice(array_reverse(getUserNotifications((int)$headerUser['id'])), 0, 10); ?>
+                        <?php if (empty($notifs)): ?>
+                            <a>Нет уведомлений</a>
+                        <?php else: ?>
+                            <?php foreach ($notifs as $n): ?>
+                                <a href="<?= e(BASE_URL . ($n['link'] ?? '')) ?>" class="<?= empty($n['read']) ? 'notif-unread' : '' ?>"><?= e($n['text']) ?></a>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
             <div class="lang-switcher">
                 <button class="lang-btn" aria-haspopup="true" aria-expanded="false" title="Язык / Language">🌐 <?= $currentLang === 'en' ? 'EN' : 'RU' ?></button>
                 <div class="lang-dropdown">
@@ -77,10 +95,10 @@ if (($_COOKIE['opt_hide_images'] ?? '0') === '1') $bodyClasses[] = 'hide-images'
                 </div>
             </div>
             <?php if ($headerUser): ?>
-                <a href="<?= e(BASE_URL) ?>create.php">
-                    <img src="<?= e(BASE_URL) ?>assets/icons/plus-circle.svg" alt="" class="nav-icon nav-icon--light">
-                    <img src="<?= e(BASE_URL) ?>assets/icons/plus-circle-white.svg" alt="" class="nav-icon nav-icon--dark">
-                    <?= e(t('nav_create')) ?>
+                <a href="<?= e(BASE_URL) ?>create.php" class="nav-create" title="<?= e(t('nav_create')) ?>">
+                    <img src="<?= e(BASE_URL) ?>assets/icons/plus-circle.svg" alt="" class="nav-icon nav-icon--light nav-create-icon">
+                    <img src="<?= e(BASE_URL) ?>assets/icons/plus-circle-white.svg" alt="" class="nav-icon nav-icon--dark nav-create-icon">
+                    <span class="nav-create-tip"><?= e(t('nav_create')) ?></span>
                 </a>
                 <div class="dropdown">
                     <button class="dropdown-btn" aria-haspopup="true" aria-expanded="false">
