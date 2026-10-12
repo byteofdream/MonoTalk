@@ -19,6 +19,7 @@ Lightweight, easy to deploy, and ready for free hosting (e.g. InfinityFree).
 - [Admin Panel](#admin-panel)
 - [Moderation & Trust](#moderation--trust)
 - [Levels & XP](#levels--xp)
+- [Achievements](#achievements)
 - [Maintenance Mode](#maintenance-mode)
 - [API Endpoints](#api-endpoints)
 - [Adding News](#adding-news)
@@ -50,7 +51,8 @@ Lightweight, easy to deploy, and ready for free hosting (e.g. InfinityFree).
 - **Mentions** — type `@username` in posts/comments; the name becomes a clickable link and the user gets a notification
 - **Notifications** — bell in the navbar with an unread counter: likes, comments, replies, mentions, subscriptions, report outcomes
 - **User status** — online / recently seen presence badges
-- **Profiles** — avatar, about text, social links (Telegram, Discord, GitHub, etc.), level & trust badges, post list, subscriptions
+- **Profiles** — avatar, banner, accent colour, about text, social links (Telegram, Discord, GitHub, etc.), display name, pronouns, location, status line, level & trust badges, post list, subscriptions
+- **Profile privacy** — hide your XP, your achievements, or your social links from other visitors
 
 ### Discovery
 - **Search** — posts, users, and a combined "search everything" endpoint
@@ -59,6 +61,7 @@ Lightweight, easy to deploy, and ready for free hosting (e.g. InfinityFree).
 
 ### Gamification
 - **Levels & XP** — earn XP for activity, progress bar on your profile ([details](#levels--xp))
+- **Achievements** — 21 badges across 12 criteria (posts, comments, likes, views, night activity, communities, age…); progress bars for locked ones, and up to 4 unlocked badges can be pinned to your profile ([details](#achievements))
 - **Trust system** — Suspicious / Neutral / Trusted score that affects moderation ([details](#moderation--trust))
 - **Verified badge** — the "галочка", toggled per account from the admin panel; grants full access during maintenance
 
@@ -124,7 +127,7 @@ Open `http://localhost:8000` in your browser.
 
 1. Upload all files to your hosting `htdocs` or `public_html` folder.
 2. Set permissions `755` (or `775`) for `data/` and `uploads/`.
-3. Make sure `uploads/avatars`, `uploads/posts`, and `uploads/comments` exist (they are created automatically on first upload).
+3. Make sure `uploads/avatars`, `uploads/posts`, `uploads/comments`, and `uploads/banners` exist (they are created automatically on first upload).
 4. Open your site URL in a browser.
 
 > `data/.htaccess` and the root `.htaccess` are included — they block direct access to JSON files and register the custom error pages. Keep them if your host uses Apache.
@@ -171,7 +174,7 @@ MonoTalk/
 ├── post.php              # Single post + comment tree
 ├── create.php            # Create post (image upload)
 ├── create_subreddit.php  # Create a community
-├── edit_profile.php      # Edit profile / avatar
+├── edit_profile.php      # Edit profile: avatar, banner, links, accent, privacy
 ├── profile.php           # User profile (own or other)
 ├── search.php            # Search results
 ├── login.php
@@ -186,7 +189,7 @@ MonoTalk/
 ├── localhost.bat         # Local dev server launcher
 ├── favicon.svg
 │
-├── api/                  # JSON API handlers (32 endpoints)
+├── api/                  # JSON API handlers (33 endpoints)
 │   ├── login.php  register.php  logout.php  me.php
 │   ├── create_post.php  edit_post.php  like.php
 │   ├── toggle_favorite.php  get_posts.php  get_post_info.php
@@ -195,6 +198,7 @@ MonoTalk/
 │   ├── search_all.php  search_users.php
 │   ├── update_profile.php  get_user_info_from_id.php
 │   ├── get_user_posts.php  get_user_subscriptions.php
+│   ├── toggle_achievement.php
 │   ├── read_notifications.php  activity_ping.php  user_status.php
 │   ├── set_language.php  set_theme.php  set_option.php  set_maintenance.php
 │   ├── admin_toggle.php  report.php
@@ -209,6 +213,7 @@ MonoTalk/
 │   ├── moderation.php    # Bad words, strikes, logging, posting restrictions
 │   ├── trust.php         # Trust score + status badges
 │   ├── leveling.php      # XP, levels, progress
+│   ├── achievements.php  # Achievement catalog, unlock sync, pinning
 │   ├── maintenance.php   # Maintenance mode state + enforcement
 │   ├── header.php        # <head>, navbar, notifications bell
 │   └── footer.php
@@ -217,7 +222,7 @@ MonoTalk/
 │   ├── users.json  posts.json  comments.json  likes.json
 │   ├── subreddits.json  categories.json  favorites.json
 │   ├── notifications.json  reports.json  moderation_logs.json
-│   ├── levels.json  bad_words.json  news.json
+│   ├── levels.json  achievements.json  bad_words.json  news.json
 │   ├── rate_limits.json  maintenance.json
 │   └── .htaccess
 │
@@ -230,6 +235,7 @@ MonoTalk/
 │
 └── uploads/              # User uploads (must be writable)
     ├── avatars/
+    ├── banners/
     ├── posts/
     └── comments/
 ```
@@ -248,7 +254,7 @@ Everything lives in `data/*.json`. Helpers are in `includes/db.php`:
 
 | File | Holds |
 |------|-------|
-| `users.json` | Accounts: password hash, verified flag, role, XP, trust, strikes, status, subscriptions |
+| `users.json` | Accounts: password hash, verified flag, role, XP, trust, strikes, status, subscriptions, profile customization (display name, banner, accent, status line), privacy flags, unlocked/pinned achievements |
 | `posts.json` | Posts: author, `category` (subreddit id), title, content, image, counters, timestamps |
 | `comments.json` | Comments: `parent_id` (threading), content, image, likes, anonymous flag |
 | `likes.json` | Who liked what (`type` = post/comment) |
@@ -258,7 +264,8 @@ Everything lives in `data/*.json`. Helpers are in `includes/db.php`:
 | `reports.json` | Reports: target, reason, reporter, `status` (`open`/`resolved`) |
 | `moderation_logs.json` | Append-only log of moderation actions |
 | `bad_words.json` | Filter word groups + severities |
-| `levels.json` | Level thresholds and titles (editable) |
+| `levels.json` | Level thresholds and titles (editable, 50 levels) |
+| `achievements.json` | Achievement catalog: bilingual text, criteria, `max_equipped` |
 | `news.json` | Forum announcements (bilingual fields) |
 | `rate_limits.json` | Rate-limit counters |
 | `maintenance.json` | `{"enabled": true|false}` |
@@ -294,7 +301,8 @@ Everything lives in `data/*.json`. Helpers are in `includes/db.php`:
 
 - **★** on a post saves it to your favorites list.
 - Click any `u/username` to open a profile — avatar, about, social links, level, trust badge, posts, subscriptions.
-- Your own bio, avatar and social links are edited on `edit_profile.php`, opened via the edit button on your own profile page.
+- Your own profile is edited on `edit_profile.php`, opened via the edit button on your own profile page — avatar, banner, accent colour, display name, pronouns, location, status line, social links and privacy toggles, with a live preview.
+- On the profile page, expandable **Achievements** let you pin up to 4 unlocked badges; the rest of the grid collapses behind *Show all*.
 
 ### Search
 
@@ -391,9 +399,21 @@ The badge is rendered next to usernames through `assets/trust-system.js`.
 | Create a post | **+40** (`XP_REWARD_POST`) |
 | Add a comment | **+15** (`XP_REWARD_COMMENT`) |
 
-- Levels are defined in `data/levels.json` (thresholds + titles) — edit freely.
+- Levels are defined in `data/levels.json` (thresholds + titles) — edit freely. **50 levels**; 1–25 are the classic curve, 26–50 continue with a +190 XP step per level (Lv50 = 133 040 XP).
 - Progress to the next level is shown on profiles via `assets/level-system.js`.
 - Helpers: `addXPToUser()`, `calculateLevel()`, `getLevelProgressData()`.
+
+---
+
+## Achievements
+
+`includes/achievements.php` + `data/achievements.json` — a catalog of **21 badges** with RU/EN titles and descriptions.
+
+- **Criteria types** — `posts`, `comments`, `likes_received`, `post_likes_max`, `views_received`, `night_posts`, `distinct_subs_commented`, `subreddits_created`, `subscriptions`, `age_days`, `level`, `trust`, `verified`.
+- **Unlock sync** — `syncUserAchievements()` runs on post creation, comments, likes, and lazily when you open your own profile. New unlocks return an `achievements` array in the API response and raise a notification.
+- **Pinning** — up to `max_equipped` (4) unlocked badges can be pinned via `api/toggle_achievement.php`; pinned badges show as chips in the profile header, the rest of the grid stays collapsed until you expand it.
+- **Privacy** — the *hide achievements* toggle hides the whole section from other visitors.
+- Stats helpers: `getAchievementStats()`, `getUserAchievementStates()`, `evaluateAchievement()`, `toggleAchievementEquipped()`.
 
 ---
 
@@ -466,7 +486,8 @@ Every endpoint returns JSON, except the redirect-style preference helpers (`set_
 ### Profiles & search
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
-| `api/update_profile.php` | GET/POST | Read profile / update it (multipart for avatar) |
+| `api/update_profile.php` | GET/POST | Read profile / update it (multipart for avatar, banner) |
+| `api/toggle_achievement.php` | POST | Pin/unpin an unlocked achievement on your profile |
 | `api/get_user_info_from_id.php` | GET | Public user info |
 | `api/get_user_posts.php` | GET | Posts by user |
 | `api/get_user_subscriptions.php` | GET | Subscriptions by user |

@@ -10,6 +10,7 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/leveling.php';
 require_once __DIR__ . '/includes/trust.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/achievements.php';
 
 $lang = getLang();
 
@@ -37,6 +38,32 @@ if ($requestedUser !== '') {
 
 $userId = (int)$user['id'];
 
+// Достижения: на своём профиле догоняем разблокировки, пропущенные где-то ещё
+if ($isOwnProfile) {
+    syncUserAchievements($user);
+    foreach (readData('users.json') as $freshUser) {
+        if ((int)($freshUser['id'] ?? 0) === $userId) {
+            $user = $freshUser;
+            break;
+        }
+    }
+}
+
+// Приватность и кастомизация профиля
+$hideXp = !empty($user['hide_xp']);
+$hideAch = !empty($user['hide_ach']);
+$hideLinks = !empty($user['hide_links']);
+$profileAccent = trim((string)($user['accent'] ?? ''));
+$profileBanner = trim((string)($user['banner'] ?? ''));
+
+// Достижения для отображения
+$achievementStates = ($hideAch && !$isOwnProfile) ? [] : getUserAchievementStates($user);
+$equippedAchievements = array_values(array_filter($achievementStates, fn($s) => $s['equipped']));
+$unlockedCount = count(array_filter($achievementStates, fn($s) => $s['unlocked']));
+$achievementTotal = count($achievementStates);
+$achievementsHidden = $hideAch && !$isOwnProfile;
+$achMaxEquipped = getAchievementMaxEquipped();
+
 // Посты пользователя (не анонимные)
 $allPosts = readData('posts.json');
 $userPosts = array_filter($allPosts, fn($p) => (int)($p['author_id'] ?? 0) === $userId);
@@ -45,21 +72,24 @@ $user = ensureUserTrustData($user);
 $levelProgress = getLevelProgressData($user);
 $trustData = getTrustData($user);
 $levelsConfig = getLevelsConfig();
-$allLevels = $levelsConfig['levels'] ?? [];
-$totalLevels = count($allLevels);
-$nextLevelNumber = !empty($levelProgress['max_level']) ? (int)$levelProgress['level'] : (int)$levelProgress['level'] + 1;
-$nextLevelName = $levelProgress['max_level'] ? $levelProgress['level_name'] : ((getLevelConfigByNumber($nextLevelNumber, $levelsConfig)['name'] ?? ('Level ' . $nextLevelNumber)));
-$xpRemaining = !empty($levelProgress['max_level']) ? 0 : max(0, (int)$levelProgress['next_level_xp'] - (int)$levelProgress['xp']);
-$levelTrackPercent = $totalLevels > 1 ? (int)round((((int)$levelProgress['level'] - 1) / ($totalLevels - 1)) * 100) : 100;
-$progressLabelMax = $levelProgress['next_level_xp'] ?? $levelProgress['progress_max'];
 $userPosts = array_reverse(array_values($userPosts));
+
+// Компактный виджет уровня: подпись прогресса
+$xpRemaining = !empty($levelProgress['max_level'])
+    ? 0
+    : max(0, (int)$levelProgress['next_level_xp'] - (int)$levelProgress['xp']);
+$xpTarget = $levelProgress['next_level_xp'] ?? (int)$levelProgress['xp'];
+$xpLabel = number_format((int)$levelProgress['xp']) . ' / ' . number_format((int)$xpTarget);
 
 $pageTitle = $user['username'];
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
 <main class="container profile-page">
-    <div class="profile-card">
+    <div class="profile-card"<?= $profileAccent !== '' ? ' style="--profile-accent: ' . e($profileAccent) . '"' : '' ?>>
+        <?php if ($profileBanner !== '' || $profileAccent !== ''): ?>
+            <div class="profile-banner"<?php if ($profileBanner !== ''): ?> style="background-image: url('<?= e($profileBanner) ?>')"<?php endif; ?>></div>
+        <?php endif; ?>
         <div class="profile-header">
             <?php if (!empty($user['avatar'])): ?>
                 <img src="<?= e(strpos($user['avatar'], 'http') === 0 ? $user['avatar'] : BASE_URL . $user['avatar']) ?>" alt="" class="profile-avatar">
@@ -77,7 +107,48 @@ $pageTitle = $user['username'];
                     <?php endif; ?>
                 </div>
                 <p class="profile-date"><?= e(t('profile_since')) ?> <?= e(date('d.m.Y', strtotime($user['created_at'] ?? 'now'))) ?></p>
-                <p class="profile-status-line"><?= renderUserStatusBadgeById($userId, 'user-status-badge user-status-badge-lg') ?></p>
+
+                <?php
+                $displayName = trim((string)($user['display_name'] ?? ''));
+                $pronouns = trim((string)($user['pronouns'] ?? ''));
+                $location = trim((string)($user['location'] ?? ''));
+                $statusEmoji = trim((string)($user['status_emoji'] ?? ''));
+                $statusText = trim((string)($user['status_text'] ?? ''));
+
+                $metaParts = [];
+                if ($displayName !== '') {
+                    $metaParts[] = '<span class="profile-display-name">' . e($displayName) . '</span>';
+                }
+                if ($pronouns !== '') {
+                    $metaParts[] = '<span class="profile-meta-item">' . e($pronouns) . '</span>';
+                }
+                if ($location !== '') {
+                    $metaParts[] = '<span class="profile-meta-item">📍 ' . e($location) . '</span>';
+                }
+                ?>
+                <?php if (!empty($metaParts)): ?>
+                    <p class="profile-meta"><?= implode('<span class="profile-meta-sep">·</span>', $metaParts) ?></p>
+                <?php endif; ?>
+
+                <p class="profile-status-line">
+                    <?php if ($statusEmoji !== '' || $statusText !== ''): ?>
+                        <span class="profile-status-chip"><?= e(trim($statusEmoji . ' ' . $statusText)) ?></span>
+                    <?php endif; ?>
+                    <?= renderUserStatusBadgeById($userId, 'user-status-badge user-status-badge-lg') ?>
+                </p>
+
+                <p class="profile-trust-line">
+                    <span class="trust-badge <?= e($trustData['badge_class']) ?>">
+                        <span class="trust-badge-icon"><?= e($trustData['icon']) ?></span>
+                        <span><?= e($trustData['status']) ?> (<?= (int)$trustData['trust'] ?>%)</span>
+                    </span>
+                    <?php if (!empty($trustData['is_trusted'])): ?>
+                        <span class="trust-inline-note"><?= e(t('trust_note_trusted')) ?></span>
+                    <?php elseif (!empty($trustData['needs_moderation'])): ?>
+                        <span class="trust-inline-note"><?= e(t('trust_note_moderation')) ?></span>
+                    <?php endif; ?>
+                </p>
+
                 <?php $profileLinks = buildUserProfileLinks($user); ?>
                 <?php if ($isOwnProfile): ?>
                     <p class="profile-badge"><?= e(t('profile_badge')) ?></p>
@@ -85,91 +156,25 @@ $pageTitle = $user['username'];
             </div>
         </div>
 
-        <section class="level-card" id="profileLevelCard" data-leveling='<?= e(json_encode($levelProgress, JSON_UNESCAPED_UNICODE)) ?>'>
-            <div class="level-card-glow"></div>
-            <div class="level-card-header">
+        <?php if (!$hideXp): ?>
+        <section class="level-card" id="profileLevelCard" data-leveling='<?= e(json_encode($levelProgress, JSON_UNESCAPED_UNICODE)) ?>'
+                 data-note-max="<?= e(t('level_note_max')) ?>"
+                 data-note-next="<?= e(t('level_note_next')) ?>">
+            <div class="level-card-row">
+                <span class="level-pill" data-level-value><?= (int)$levelProgress['level'] ?></span>
                 <div class="level-card-copy">
-                    <p class="level-card-label">Progression</p>
-                    <h2>Level <span data-level-value><?= (int)$levelProgress['level'] ?></span></h2>
-                    <p class="level-rank-line">
-                        Current rank:
-                        <strong data-level-name><?= e($levelProgress['level_name']) ?></strong>
-                    </p>
-                    <p class="trust-inline-row">
-                        <span class="trust-badge <?= e($trustData['badge_class']) ?>">
-                            <span class="trust-badge-icon"><?= e($trustData['icon']) ?></span>
-                            <span><?= e($trustData['status']) ?> (<?= (int)$trustData['trust'] ?>%)</span>
-                        </span>
-                        <?php if (!empty($trustData['is_trusted'])): ?>
-                            <span class="trust-inline-note">trusted user</span>
-                        <?php elseif (!empty($trustData['needs_moderation'])): ?>
-                            <span class="trust-inline-note">posts need moderation</span>
-                        <?php endif; ?>
-                    </p>
-                </div>
-                <div class="level-badge-stack">
-                    <span class="level-chip">Rank #<?= (int)$levelProgress['level'] ?></span>
-                    <span class="level-chip level-chip-soft">of <?= (int)$totalLevels ?></span>
+                    <div class="level-card-top">
+                        <span class="level-card-name" data-level-name><?= e($levelProgress['level_name']) ?></span>
+                        <span class="level-card-xp" data-level-progress-text><?= e($xpLabel) ?></span>
+                    </div>
+                    <div class="level-bar">
+                        <span class="level-bar-fill" data-level-progress-bar style="width: <?= (int)$levelProgress['progress_percent'] ?>%"></span>
+                    </div>
                 </div>
             </div>
-            <div class="level-hero">
-                <div class="level-orb">
-                    <span class="level-orb-value"><?= (int)$levelProgress['level'] ?></span>
-                </div>
-                <div class="level-hero-copy">
-                    <p class="level-next-label">Next unlock</p>
-                    <h3>Level <?= (int)$nextLevelNumber ?> - <?= e($nextLevelName) ?></h3>
-                    <p class="level-next-text">
-                        <?php if (!empty($levelProgress['max_level'])): ?>
-                            You already reached the highest configured level.
-                        <?php else: ?>
-                            <?= (int)$xpRemaining ?> XP left to reach the next milestone.
-                        <?php endif; ?>
-                    </p>
-                </div>
-            </div>
-            <div class="level-stats-grid">
-                <div class="level-stat-box">
-                    <span class="level-stat-label">Total XP</span>
-                    <strong class="level-stat-value"><?= number_format((int)$levelProgress['xp']) ?></strong>
-                </div>
-                <div class="level-stat-box">
-                    <span class="level-stat-label">Target XP</span>
-                    <strong class="level-stat-value" data-level-progress-text><?= number_format((int)$levelProgress['xp']) ?> / <?= number_format((int)$progressLabelMax) ?></strong>
-                </div>
-                <div class="level-stat-box">
-                    <span class="level-stat-label">Progress</span>
-                    <strong class="level-stat-value"><?= (int)$levelProgress['progress_percent'] ?>%</strong>
-                </div>
-                <div class="level-stat-box">
-                    <span class="level-stat-label">Trust factor</span>
-                    <strong class="level-stat-value"><?= (int)$trustData['trust'] ?>%</strong>
-                </div>
-            </div>
-            <div class="xp-progress-wrap">
-                <div class="xp-progress-labels">
-                    <span>Current</span>
-                    <span>Next level</span>
-                </div>
-                <div class="xp-progress" aria-label="XP progress">
-                    <div class="xp-progress-bar" data-level-progress-bar style="width: <?= (int)$levelProgress['progress_percent'] ?>%"></div>
-                </div>
-            </div>
-            <div class="level-track">
-                <div class="level-track-line"></div>
-                <div class="level-track-fill" style="width: <?= (int)$levelTrackPercent ?>%"></div>
-                <span class="level-track-start">Lv 1</span>
-                <span class="level-track-current">Lv <?= (int)$levelProgress['level'] ?></span>
-                <span class="level-track-end">Lv <?= (int)$totalLevels ?></span>
-            </div>
-            <p class="level-progress-note" data-level-note>
-                <?php if (!empty($levelProgress['max_level'])): ?>
-                    Max level reached
-                <?php else: ?>
-                    <?= (int)$xpRemaining ?> XP until next level
-                <?php endif; ?>
-            </p>
+            <p class="level-progress-note" data-level-note><?= e($levelProgress['max_level'] ? t('level_note_max') : str_replace('%d', number_format($xpRemaining), t('level_note_next'))) ?></p>
         </section>
+        <?php endif; ?>
 
     </div>
 
@@ -180,7 +185,7 @@ $pageTitle = $user['username'];
     </section>
     <?php endif; ?>
 
-    <?php if (!empty($profileLinks)): ?>
+    <?php if (!empty($profileLinks) && !$hideLinks): ?>
     <section class="profile-links-panel sidebar-card">
         <h2><?= e(t('profile_links')) ?></h2>
         <div class="profile-links-list profile-links-list-panel">
@@ -189,6 +194,89 @@ $pageTitle = $user['username'];
                     <?= e($link['label']) ?>
                 </a>
             <?php endforeach; ?>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <?php if ($achievementsHidden): ?>
+    <section class="ach-section sidebar-card">
+        <h2><?= e(t('ach_title')) ?></h2>
+        <p class="empty-state"><?= e(t('ach_hidden')) ?></p>
+    </section>
+    <?php elseif (!$hideAch): ?>
+    <section class="ach-section sidebar-card" id="profileAchievements"
+             data-max-equipped="<?= (int)$achMaxEquipped ?>"
+             data-msg-pin="<?= e(t('ach_pinned_toast')) ?>"
+             data-msg-unpin="<?= e(t('ach_unpinned_toast')) ?>"
+             data-msg-limit="<?= e(str_replace('%d', (string)$achMaxEquipped, t('ach_error_limit'))) ?>"
+             data-title-pin="<?= e(t('ach_pin')) ?>"
+             data-title-unpin="<?= e(t('ach_unpin')) ?>"
+             data-empty-showcase="<?= e(t('ach_showcase_empty')) ?>">
+        <div class="ach-head">
+            <h2><?= e(t('ach_title')) ?></h2>
+            <div class="ach-head-actions">
+                <span class="ach-count"><?= e(str_replace(['%1', '%2'], [(string)$unlockedCount, (string)$achievementTotal], t('ach_count'))) ?></span>
+                <button type="button" class="ach-expand-btn" data-ach-expand aria-expanded="false"
+                        data-label-open="<?= e(t('ach_show_all')) ?>"
+                        data-label-close="<?= e(t('ach_hide_all')) ?>">
+                    <span class="ach-expand-icon" aria-hidden="true">▾</span>
+                    <span class="ach-expand-label" data-ach-expand-label><?= e(t('ach_show_all')) ?></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="ach-showcase">
+            <p class="ach-showcase-label"><?= e(t('ach_showcase')) ?></p>
+            <div class="ach-showcase-list" data-ach-showcase>
+                <?php if (empty($equippedAchievements)): ?>
+                    <p class="ach-showcase-empty" data-ach-showcase-empty><?= e($isOwnProfile ? t('ach_showcase_empty') : '—') ?></p>
+                <?php else: ?>
+                    <?php foreach ($equippedAchievements as $state): ?>
+                        <div class="ach-chip ach-chip--equipped" data-ach-chip="<?= e($state['id']) ?>">
+                            <span class="ach-chip-icon"><?= e($state['icon']) ?></span>
+                            <span class="ach-chip-title"><?= e($state['title']) ?></span>
+                            <?php if ($isOwnProfile): ?>
+                                <button type="button" class="ach-pin-btn is-active" data-ach-toggle="<?= e($state['id']) ?>" title="<?= e(t('ach_unpin')) ?>">📌</button>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <?php if ($isOwnProfile): ?>
+                <p class="ach-showcase-hint"><?= e(str_replace('%d', (string)$achMaxEquipped, t('ach_showcase_hint'))) ?></p>
+            <?php endif; ?>
+        </div>
+
+        <div class="ach-panel" data-ach-panel>
+            <div class="ach-grid">
+                <?php foreach ($achievementStates as $state): ?>
+                    <div class="ach-card<?= $state['unlocked'] ? '' : ' is-locked' ?><?= $state['equipped'] ? ' is-equipped' : '' ?>"
+                         data-ach-card="<?= e($state['id']) ?>">
+                        <span class="ach-icon"><?= e($state['icon']) ?></span>
+                        <div class="ach-body">
+                            <strong class="ach-title"><?= e($state['title']) ?></strong>
+                            <span class="ach-desc"><?= e($state['desc']) ?></span>
+                            <?php if ($state['show_progress']): ?>
+                                <span class="ach-progress">
+                                    <span class="ach-progress-bar" style="width: <?= (int)$state['percent'] ?>%"></span>
+                                </span>
+                                <span class="ach-progress-text"><?= e(str_replace(['%1', '%2'], [(string)$state['current'], (string)$state['target']], t('ach_progress'))) ?></span>
+                            <?php elseif (!$state['unlocked']): ?>
+                                <span class="ach-progress-text ach-locked-text"><?= e(t('ach_locked')) ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($isOwnProfile && $state['unlocked']): ?>
+                            <button type="button" class="ach-pin-btn<?= $state['equipped'] ? ' is-active' : '' ?>"
+                                    data-ach-toggle="<?= e($state['id']) ?>"
+                                    aria-pressed="<?= $state['equipped'] ? 'true' : 'false' ?>"
+                                    title="<?= e($state['equipped'] ? t('ach_unpin') : t('ach_pin')) ?>">📌</button>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <?php if (empty($achievementStates)): ?>
+                <p class="empty-state"><?= e(t('ach_empty')) ?></p>
+            <?php endif; ?>
         </div>
     </section>
     <?php endif; ?>
