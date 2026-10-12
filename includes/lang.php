@@ -321,6 +321,156 @@ $translations['en']['mt_follow'] = 'Follow updates';
 $translations['ru']['mt_staff'] = 'Вход для персонала';
 $translations['en']['mt_staff'] = 'Staff login';
 
+// Компактное табло уровня
+$translations['ru']['level_label'] = 'Уровень';
+$translations['en']['level_label'] = 'Level';
+
+$translations['ru']['level_note_max'] = 'Максимальный уровень достигнут';
+$translations['en']['level_note_max'] = 'Max level reached';
+
+$translations['ru']['level_note_next'] = '%d XP до следующего уровня';
+$translations['en']['level_note_next'] = '%d XP until next level';
+
+$translations['ru']['trust_note_trusted'] = 'Доверенный пользователь';
+$translations['en']['trust_note_trusted'] = 'Trusted user';
+
+$translations['ru']['trust_note_moderation'] = 'Посты требуют модерации';
+$translations['en']['trust_note_moderation'] = 'Posts need moderation';
+
+// Достижения
+$translations['ru']['ach_title'] = 'Достижения';
+$translations['en']['ach_title'] = 'Achievements';
+
+$translations['ru']['ach_showcase'] = 'Витрина профиля';
+$translations['en']['ach_showcase'] = 'Profile showcase';
+
+$translations['ru']['ach_showcase_hint'] = 'Закрепите до %d достижений — они будут видны в вашем профиле.';
+$translations['en']['ach_showcase_hint'] = 'Pin up to %d achievements — they will show up on your profile.';
+
+$translations['ru']['ach_unlocked_prefix'] = 'Получено достижение:';
+$translations['en']['ach_unlocked_prefix'] = 'Achievement unlocked:';
+
+$translations['ru']['ach_pin'] = 'Прикрепить к профилю';
+$translations['en']['ach_pin'] = 'Pin to profile';
+
+$translations['ru']['ach_unpin'] = 'Открепить от профиля';
+$translations['en']['ach_unpin'] = 'Unpin from profile';
+
+$translations['ru']['ach_locked'] = 'Ещё не получено';
+$translations['en']['ach_locked'] = 'Not unlocked yet';
+
+$translations['ru']['ach_progress'] = '%1 / %2';
+$translations['en']['ach_progress'] = '%1 / %2';
+
+$translations['ru']['ach_count'] = '%1 из %2';
+$translations['en']['ach_count'] = '%1 of %2';
+
+$translations['ru']['ach_empty'] = 'Достижений пока нет — начните с первого поста.';
+$translations['en']['ach_empty'] = 'No achievements yet — start with your first post.';
+
+$translations['ru']['ach_showcase_empty'] = 'Витрина пуста. Выберите достижение ниже и нажмите 📌.';
+$translations['en']['ach_showcase_empty'] = 'Showcase is empty. Pick an achievement below and hit 📌.';
+
+$translations['ru']['ach_pinned_toast'] = 'Достижение закреплено в профиле';
+$translations['en']['ach_pinned_toast'] = 'Achievement pinned to your profile';
+
+$translations['ru']['ach_unpinned_toast'] = 'Достижение откреплено от профиля';
+$translations['en']['ach_unpinned_toast'] = 'Achievement unpinned from your profile';
+
+$translations['ru']['ach_error_invalid'] = 'Такого достижения не существует';
+$translations['en']['ach_error_invalid'] = 'This achievement does not exist';
+
+$translations['ru']['ach_error_locked'] = 'Достижение ещё не получено';
+$translations['en']['ach_error_locked'] = 'Achievement not unlocked yet';
+
+$translations['ru']['ach_error_limit'] = 'Можно закрепить не больше %d достижений';
+$translations['en']['ach_error_limit'] = 'You can pin up to %d achievements';
+
+$translations['ru']['ach_error_user'] = 'Пользователь не найден';
+$translations['en']['ach_error_user'] = 'User not found';
+
+$translations['ru']['ach_show_all'] = 'Показать все';
+$translations['en']['ach_show_all'] = 'Show all';
+
+$translations['ru']['ach_hide_all'] = 'Свернуть';
+$translations['en']['ach_hide_all'] = 'Collapse';
+
+$translations['ru']['ach_unlocked_toast'] = 'Новое достижение: %s';
+$translations['en']['ach_unlocked_toast'] = 'New achievement: %s';
+
+$translations['ru']['ach_hidden'] = 'Пользователь скрыл достижения';
+$translations['en']['ach_hidden'] = 'This user hides their achievements';
+
+// Кастомизация профиля
+$translations['ru']['profile_customize'] = 'Кастомизация профиля';
+$translations['en']['profile_customize'] = 'Profile customization';
+
+$translations['ru']['profile_display_name'] = 'Отображаемое имя';
+$translations['en']['profile_display_name'] = 'Display name';
+
+$translations['ru']['profile_display_name_hint'] = 'Так вас увидят другие рядом с ником.';
+$translations['en']['profile_display_name_hint'] = 'Shown to others next to your username.';
+
+$translations['ru']['profile_pronouns'] = 'Местоимения';
+$translations['en']['profile_pronouns'] = 'Pronouns';
+
+$translations['ru']['profile_pronouns_placeholder'] = 'он/его, she/her...';
+$translations['en']['profile_pronouns_placeholder'] = 'he/him, она/её...';
+
+$translations['ru']['profile_location'] = 'Локация';
+$translations['en']['profile_location'] = 'Location';
+
+$translations['ru']['profile_location_placeholder'] = 'Город, страна...';
+$translations['en']['profile_location_placeholder'] = 'City, country...';
+
+$translations['ru']['profile_status'] = 'Свой статус';
+$translations['en']['profile_status'] = 'Custom status';
+
+$translations['ru']['profile_status_emoji'] = 'Эмодзи';
+$translations['en']['profile_status_emoji'] = 'Emoji';
+
+$translations['ru']['profile_status_text'] = 'Текст статуса';
+$translations['en']['profile_status_text'] = 'Status text';
+
+$translations['ru']['profile_status_placeholder'] = 'пью кофе';
+$translations['en']['profile_status_placeholder'] = 'grabbing coffee';
+
+$translations['ru']['profile_accent'] = 'Акцент профиля';
+$translations['en']['profile_accent'] = 'Profile accent';
+
+$translations['ru']['profile_accent_hint'] = 'Цвет баннера и подсветки в вашем профиле.';
+$translations['en']['profile_accent_hint'] = 'Color of your banner and profile highlights.';
+
+$translations['ru']['profile_accent_auto'] = 'Авто';
+$translations['en']['profile_accent_auto'] = 'Auto';
+
+$translations['ru']['profile_banner'] = 'Баннер профиля';
+$translations['en']['profile_banner'] = 'Profile banner';
+
+$translations['ru']['profile_banner_url'] = 'Баннер (URL)';
+$translations['en']['profile_banner_url'] = 'Banner (URL)';
+
+$translations['ru']['profile_banner_file'] = 'Баннер (изображение)';
+$translations['en']['profile_banner_file'] = 'Banner (image)';
+
+$translations['ru']['profile_privacy'] = 'Приватность';
+$translations['en']['profile_privacy'] = 'Privacy';
+
+$translations['ru']['profile_hide_xp'] = 'Скрывать уровень и XP';
+$translations['en']['profile_hide_xp'] = 'Hide level and XP';
+
+$translations['ru']['profile_hide_ach'] = 'Скрывать достижения';
+$translations['en']['profile_hide_ach'] = 'Hide achievements';
+
+$translations['ru']['profile_hide_links'] = 'Скрывать соцсети и ссылки';
+$translations['en']['profile_hide_links'] = 'Hide social links';
+
+$translations['ru']['profile_error_banner'] = 'Укажите корректную ссылку на баннер (http/https)';
+$translations['en']['profile_error_banner'] = 'Please provide a valid banner URL (http/https)';
+
+$translations['ru']['api_auth_required'] = 'Требуется авторизация';
+$translations['en']['api_auth_required'] = 'Authorization required';
+
 function getLang(): string {
     $allowed = ['ru', 'en'];
     if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed, true)) {

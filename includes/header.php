@@ -41,7 +41,8 @@ if (($_COOKIE['opt_hide_images'] ?? '0') === '1') $bodyClasses[] = 'hide-images'
     data-status-days-template="<?= e(t('user_status_days_ago')) ?>"
     data-status-weeks-template="<?= e(t('user_status_weeks_ago')) ?>"
     data-status-months-template="<?= e(t('user_status_months_ago')) ?>"
-    data-status-years-template="<?= e(t('user_status_years_ago')) ?>">
+    data-status-years-template="<?= e(t('user_status_years_ago')) ?>"
+    data-achievements-toast="<?= e(t('ach_unlocked_toast')) ?>">
     <nav class="navbar">
         <a href="<?= e(BASE_URL) ?>index.php" class="logo">
             <img src="<?= e(BASE_URL) ?>assets/icons/brand.svg" alt="" class="logo-mark logo-mark--light">
