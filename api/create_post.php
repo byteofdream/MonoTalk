@@ -10,6 +10,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/leveling.php';
 require_once __DIR__ . '/../includes/trust.php';
 require_once __DIR__ . '/../includes/moderation.php';
+require_once __DIR__ . '/../includes/achievements.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -137,6 +138,9 @@ writeData('posts.json', $posts);
 
 $leveling = addXPToUser((int)$user['id'], XP_REWARD_POST);
 
+// Проверяем достижения (пост уже сохранён - статистика актуальна)
+$newAchievements = syncUserAchievements($leveling['user'] ?? $user);
+
 // Уведомления упомянутым @пользователям
 if (!$anonymous) {
     notifyMentionedUsers(
@@ -153,5 +157,13 @@ echo json_encode([
     'post_id' => $newPost['id'],
     'leveling' => $leveling,
     'trust' => $trustData,
-    'moderation' => $moderation
+    'moderation' => $moderation,
+    'achievements' => array_map(
+        fn($achievement) => [
+            'id' => $achievement['id'],
+            'icon' => $achievement['icon'] ?? '🏅',
+            'title' => getAchievementTitle($achievement),
+        ],
+        $newAchievements
+    )
 ]);

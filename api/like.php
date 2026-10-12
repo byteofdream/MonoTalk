@@ -7,6 +7,8 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/lang.php';
+require_once __DIR__ . '/../includes/achievements.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -77,20 +79,48 @@ if ($type === 'post') {
     }
 }
 
-if ($isLike) {
-    $targetAuthor = 0;
-    if ($type === 'post') {
-        $tp = getPostById($targetId);
-        $targetAuthor = (int)($tp['author_id'] ?? 0);
-    } else {
-        $cmts = readData('comments.json');
-        foreach ($cmts as $c) {
-            if ((int)$c['id'] === $targetId) { $targetAuthor = (int)($c['author_id'] ?? 0); break; }
-        }
-    }
-    if ($targetAuthor > 0 && $targetAuthor !== $userId) {
-        pushNotification($targetAuthor, 'like', 'u/' . $user['username'] . ' оценил ваш ' . ($type === 'post' ? 'пост' : 'комментарий'), $type === 'post' ? 'post.php?id=' . $targetId : '');
+$targetAuthor = 0;
+if ($type === 'post') {
+    $tp = getPostById($targetId);
+    $targetAuthor = (int)($tp['author_id'] ?? 0);
+} else {
+    $cmts = readData('comments.json');
+    foreach ($cmts as $c) {
+        if ((int)$c['id'] === $targetId) { $targetAuthor = (int)($c['author_id'] ?? 0); break; }
     }
 }
 
-echo json_encode(['success' => true, 'liked' => $isLike, 'count' => $count]);
+$myNewAchievements = [];
+
+if ($isLike) {
+    if ($targetAuthor > 0) {
+        if ($targetAuthor !== $userId) {
+            pushNotification($targetAuthor, 'like', 'u/' . $user['username'] . ' оценил ваш ' . ($type === 'post' ? 'пост' : 'комментарий'), $type === 'post' ? 'post.php?id=' . $targetId : '');
+        }
+
+        // Лайк меняет статистику автора - проверяем его достижения
+        foreach (readData('users.json') as $candidate) {
+            if ((int)($candidate['id'] ?? 0) === $targetAuthor) {
+                $unlockedNow = syncUserAchievements($candidate);
+                if ((int)$candidate['id'] === (int)$userId) {
+                    $myNewAchievements = $unlockedNow;
+                }
+                break;
+            }
+        }
+    }
+}
+
+echo json_encode([
+    'success' => true,
+    'liked' => $isLike,
+    'count' => $count,
+    'achievements' => array_map(
+        fn($achievement) => [
+            'id' => $achievement['id'],
+            'icon' => $achievement['icon'] ?? '🏅',
+            'title' => getAchievementTitle($achievement),
+        ],
+        $myNewAchievements
+    )
+]);

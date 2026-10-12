@@ -9,6 +9,7 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/leveling.php';
 require_once __DIR__ . '/../includes/moderation.php';
+require_once __DIR__ . '/../includes/achievements.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -143,6 +144,9 @@ writeData('posts.json', $posts);
 
 $leveling = addXPToUser((int)$user['id'], XP_REWARD_COMMENT);
 
+// Проверяем достижения (комментарий уже сохранён - статистика актуальна)
+$newAchievements = syncUserAchievements($leveling['user'] ?? $user);
+
 // Уведомление: автору родительского комментария (ответ) или автору поста
 $link = 'post.php?id=' . $postId;
 if ($parentComment) {
@@ -188,5 +192,13 @@ echo json_encode([
         'presence' => !$anonymous ? getUserStatus((int)$user['id']) : null,
     ],
     'leveling' => $leveling,
-    'moderation' => $moderation
+    'moderation' => $moderation,
+    'achievements' => array_map(
+        fn($achievement) => [
+            'id' => $achievement['id'],
+            'icon' => $achievement['icon'] ?? '🏅',
+            'title' => getAchievementTitle($achievement),
+        ],
+        $newAchievements
+    )
 ]);
