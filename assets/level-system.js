@@ -34,7 +34,32 @@
                 { level: 22, xp_required: 13400, name: 'Immortal' },
                 { level: 23, xp_required: 15240, name: 'Eternal' },
                 { level: 24, xp_required: 17280, name: 'Cosmic' },
-                { level: 25, xp_required: 19540, name: 'Forum Titan' }
+                { level: 25, xp_required: 19540, name: 'Forum Titan' },
+                { level: 26, xp_required: 21800, name: 'Adept' },
+                { level: 27, xp_required: 24250, name: 'Virtuoso' },
+                { level: 28, xp_required: 26890, name: 'Pundit' },
+                { level: 29, xp_required: 29720, name: 'Authority' },
+                { level: 30, xp_required: 32740, name: 'Celebrity' },
+                { level: 31, xp_required: 35950, name: 'Icon' },
+                { level: 32, xp_required: 39350, name: 'Luminary' },
+                { level: 33, xp_required: 42940, name: 'Sovereign' },
+                { level: 34, xp_required: 46720, name: 'Overlord' },
+                { level: 35, xp_required: 50690, name: 'Paragon' },
+                { level: 36, xp_required: 54850, name: 'Archon' },
+                { level: 37, xp_required: 59200, name: 'Ascendant' },
+                { level: 38, xp_required: 63740, name: 'Transcendent' },
+                { level: 39, xp_required: 68470, name: 'Celestial' },
+                { level: 40, xp_required: 73390, name: 'Omega' },
+                { level: 41, xp_required: 78500, name: 'Apex' },
+                { level: 42, xp_required: 83800, name: 'Titan' },
+                { level: 43, xp_required: 89290, name: 'Galaxy' },
+                { level: 44, xp_required: 94970, name: 'Nebula' },
+                { level: 45, xp_required: 100840, name: 'Universe' },
+                { level: 46, xp_required: 106900, name: 'Infinite' },
+                { level: 47, xp_required: 113150, name: 'Undying' },
+                { level: 48, xp_required: 119590, name: 'Deathless' },
+                { level: 49, xp_required: 126220, name: 'Primordial' },
+                { level: 50, xp_required: 133040, name: 'Absolute' }
             ]
         };
 
@@ -110,13 +135,14 @@
         };
     }
 
-    function renderProgressNote(leveling) {
+    function renderProgressNote(leveling, container) {
         if (!leveling || leveling.max_level) {
-            return 'Max level reached';
+            return container?.dataset.noteMax || 'Max level reached';
         }
 
         const xpLeft = Math.max(0, Number(leveling.next_level_xp || 0) - Number(leveling.xp || 0));
-        return `${xpLeft} XP until next level`;
+        const template = container?.dataset.noteNext || '%d XP until next level';
+        return template.replace('%d', xpNumberFormatter.format(xpLeft));
     }
 
     function updateLevelUI(container, leveling) {
@@ -135,7 +161,7 @@
             progressText.textContent = `${xpNumberFormatter.format(Number(leveling.xp || 0))} / ${xpNumberFormatter.format(Number(progressMax || 0))}`;
         }
         if (progressBar) progressBar.style.width = `${Math.max(0, Math.min(100, Number(leveling.progress_percent || 0)))}%`;
-        if (progressNote) progressNote.textContent = renderProgressNote(leveling);
+        if (progressNote) progressNote.textContent = renderProgressNote(leveling, container);
 
         container.dataset.leveling = JSON.stringify(leveling);
     }

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initCommentForm();
     initLikeButtons();
     initProfileForm();
+    initAchievements();
     initSubredditSearch();
     initSubscriptionButtons();
     initCommentSort();
@@ -723,6 +724,34 @@ function initProfileForm() {
         return `<a href="${escapePreview(safeHref)}" target="_blank" rel="noopener noreferrer nofollow" class="profile-link-chip">${escapePreview(label)}</a>`;
     };
 
+    const accentPicker = document.getElementById('accentPicker');
+    const accentInput = document.getElementById('accentInput');
+
+    const applyAccentPreview = (value) => {
+        const target = document.querySelector('.profile-preview-card') || preview;
+        if (!target) return;
+        if (value) {
+            target.style.setProperty('--profile-accent', value);
+        } else {
+            target.style.removeProperty('--profile-accent');
+        }
+    };
+
+    if (accentPicker && accentInput) {
+        accentPicker.addEventListener('click', (event) => {
+            const swatch = event.target.closest('[data-accent]');
+            if (!swatch || !accentPicker.contains(swatch)) return;
+
+            accentInput.value = swatch.dataset.accent || '';
+            accentPicker.querySelectorAll('.accent-swatch').forEach((item) => {
+                item.classList.toggle('is-active', item === swatch);
+            });
+            applyAccentPreview(accentInput.value);
+        });
+
+        applyAccentPreview(accentInput.value);
+    }
+
     const buildTelegramHref = (rawValue) => {
         const trimmed = String(rawValue || '').trim();
         if (!trimmed) return '';
@@ -742,6 +771,11 @@ function initProfileForm() {
         if (!preview) return;
 
         const bioValue = String(form.querySelector('[name="bio"]')?.value || '').trim();
+        const displayNameValue = String(form.querySelector('[name="display_name"]')?.value || '').trim();
+        const statusValue = [
+            String(form.querySelector('[name="status_emoji"]')?.value || '').trim(),
+            String(form.querySelector('[name="status_text"]')?.value || '').trim()
+        ].filter(Boolean).join(' ');
         const otherLinks = String(form.querySelector('[name="other_links"]')?.value || '')
             .split(/\r?\n/)
             .map((item) => item.trim())
@@ -755,12 +789,20 @@ function initProfileForm() {
             ...otherLinks.map((href, index) => buildExternalLink(href, `${preview.dataset.otherLabel || 'Link'} ${index + 1}`))
         ].filter(Boolean);
 
-        if (!bioValue && linksHtml.length === 0) {
+        const headHtml = (displayNameValue || statusValue)
+            ? `<div class="profile-preview-head">
+                    ${displayNameValue ? `<strong class="profile-preview-name">${escapePreview(displayNameValue)}</strong>` : ''}
+                    ${statusValue ? `<span class="profile-status-chip">${escapePreview(statusValue)}</span>` : ''}
+                </div>`
+            : '';
+
+        if (!bioValue && linksHtml.length === 0 && !headHtml) {
             preview.innerHTML = `<p class="profile-preview-empty">${escapePreview(preview.dataset.emptyText || 'Nothing to preview yet.')}</p>`;
             return;
         }
 
         preview.innerHTML = `
+            ${headHtml}
             ${bioValue ? `<p class="profile-preview-bio">${escapePreview(bioValue).replace(/\n/g, '<br>')}</p>` : ''}
             ${linksHtml.length ? `<div class="profile-links-list">${linksHtml.join('')}</div>` : ''}
         `;
@@ -795,6 +837,115 @@ function initProfileForm() {
             }
         } catch (err) {
             toast('Ошибка сети');
+        }
+    });
+}
+
+// Достижения: сворачиваемая секция + прикрепление к профилю
+function initAchievements() {
+    const section = document.getElementById('profileAchievements');
+    if (!section) return;
+
+    const panel = section.querySelector('[data-ach-panel]');
+    const expandBtn = section.querySelector('[data-ach-expand]');
+    const expandLabel = section.querySelector('[data-ach-expand-label]');
+    const showcase = section.querySelector('[data-ach-showcase]');
+
+    const setOpen = (open) => {
+        if (!panel) return;
+        section.classList.toggle('is-open', open);
+        section.classList.toggle('is-collapsed', !open);
+        expandBtn?.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (expandLabel) {
+            expandLabel.textContent = open
+                ? (expandBtn?.dataset.labelClose || '')
+                : (expandBtn?.dataset.labelOpen || '');
+        }
+    };
+
+    // По умолчанию список скрыт - видна только витрина с закреплёнными
+    if (panel && !section.classList.contains('is-open')) {
+        setOpen(false);
+    }
+
+    expandBtn?.addEventListener('click', () => {
+        setOpen(section.classList.contains('is-collapsed'));
+    });
+
+    const renderShowcaseEmpty = () => {
+        if (!showcase || showcase.querySelector('[data-ach-chip]')) return;
+        const empty = document.createElement('p');
+        empty.className = 'ach-showcase-empty';
+        empty.setAttribute('data-ach-showcase-empty', '');
+        empty.textContent = section.dataset.emptyShowcase || '';
+        showcase.appendChild(empty);
+    };
+
+    const applyEquippedState = (id, nowEquipped) => {
+        const card = section.querySelector(`[data-ach-card="${id}"]`);
+        if (card) {
+            card.classList.toggle('is-equipped', nowEquipped);
+            const cardBtn = card.querySelector('[data-ach-toggle]');
+            if (cardBtn) {
+                cardBtn.classList.toggle('is-active', nowEquipped);
+                cardBtn.setAttribute('aria-pressed', nowEquipped ? 'true' : 'false');
+                cardBtn.title = nowEquipped
+                    ? (section.dataset.titleUnpin || '')
+                    : (section.dataset.titlePin || '');
+            }
+        }
+
+        if (!showcase) return;
+
+        const existing = showcase.querySelector(`[data-ach-chip="${id}"]`);
+        if (nowEquipped && !existing) {
+            showcase.querySelector('[data-ach-showcase-empty]')?.remove();
+
+            const icon = card?.querySelector('.ach-icon')?.textContent || '🏅';
+            const title = card?.querySelector('.ach-title')?.textContent || id;
+            const chip = document.createElement('div');
+            chip.className = 'ach-chip ach-chip--equipped';
+            chip.setAttribute('data-ach-chip', id);
+            chip.innerHTML = `
+                <span class="ach-chip-icon">${escapeHtml(icon)}</span>
+                <span class="ach-chip-title">${escapeHtml(title)}</span>
+                <button type="button" class="ach-pin-btn is-active" data-ach-toggle="${escapeHtml(id)}" title="${escapeHtml(section.dataset.titleUnpin || '')}">📌</button>`;
+            showcase.appendChild(chip);
+        } else if (!nowEquipped && existing) {
+            existing.remove();
+            renderShowcaseEmpty();
+        }
+    };
+
+    section.addEventListener('click', async (event) => {
+        const btn = event.target.closest('[data-ach-toggle]');
+        if (!btn || !section.contains(btn)) return;
+
+        const id = btn.getAttribute('data-ach-toggle');
+        if (!id) return;
+
+        event.preventDefault();
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(apiUrl('api/toggle_achievement.php'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                toast(data.error || 'Ошибка');
+                return;
+            }
+
+            applyEquippedState(id, Boolean(data.now_equipped));
+            toast(data.message || '');
+        } catch (err) {
+            toast('Ошибка сети');
+        } finally {
+            btn.disabled = false;
         }
     });
 }
